@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+{% set max_col_width = sm.get_column_width() %}
+{% for s in range(document.sentences|length) %}
+    {% set sentence = document.sentences[s] %}
+    {% if document.has_translation %}
+    <div class="df-translation">{{ document.translation[s] }}</div>
+    {% endif %}
+    <div class="df-sentence" id="df-sentence-{{ sentence.id }}">
+        <div class="df-sentence-id"><span class="df-sentence-badge badge" id="{{ sentence.id }}">{{ sentence.id }}</span></div>
+        <div class="df-section df-margin-div"></div>
+        <div class="df-section df-column-labels">
+        {% for column in sentence.columns %}
+            <div>{{ column.label }}</div>
+            {% if loop.index == 1 and document.has_char_entity %}
+            <div>{{ column.label }}</div>
+            {% endif %}
+        {% endfor %}
+        </div>
+        {% for c in range(sentence.length) %}
+            <div class="df-section df-row">
+            {% for column in sentence.columns %}
+            {% if loop.index == 1 %}
+                {% if document.has_annotations %}
+                <div class="df-token noselect" id="df-token-{{ sentence.id }}-{{ c }}"
+                     data-tag="{{ column.annotations[c] }}">{{ column.strings[c] }}</div>
+                {% else %}
+                <div class="df-token" id="df-token-{{ sentence.id }}-{{ c }}">{{ column.strings[c] }}</div>
+                {% endif %}
+                {% if document.has_char_entity %}
+                <div>
+                    {% for i in range(column.strings[c]|length) %}<span class="df-char-{{ sentence.char_entity[c][i] }}">{{ column.strings[c][i] }}</span>{% endfor %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div {% if column.strings[c]|length > max_col_width %} title="{{ column.strings[c] }}" {% endif %}>{{ column.strings[c][:max_col_width] }}</div>
+            {% endif %}
+            {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,6 @@
+.idea
+*.pyc
+*.log
+annotations
+node_modules
+*.json
