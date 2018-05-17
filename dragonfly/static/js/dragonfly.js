@@ -601,6 +601,10 @@ dragonFly.Highlighter = class Highlighter {
     setControlKeyDown() {
         // only change the state if in tag mode
         if (this.tagMode == dragonFly.Mode.TAG) {
+            if (this.controlKeyDown == true) {
+                // Windows continually fires the down event and we want to ignore those after first
+                return;
+            }
             this.controlKeyDown = true;
             this.multiTokenTag = new dragonFly.MultiTokenTag(this.tags, this.currentTag);
         }
@@ -983,10 +987,12 @@ dragonFly.AnnotationSaver = class AnnotationSaver {
 
 $(document).ready(function() {
     // According to http://unixpapa.com/js/key.html, shift = 16, control = 17, alt = 18, caps lock = 20
-    if (/Linux/.test(window.navigator.platform)) {
-        dragonFly.multiTagKey = "17";
-    } else {
+    if (/Mac/.test(window.navigator.platform)) {
+        // Option key on Macs
         dragonFly.multiTagKey = "18";
+    } else {
+        // Control key for Windows and Linux
+        dragonFly.multiTagKey = "17";
     }
 
     // set the margin to account for varying navbar sizes due to viewport
