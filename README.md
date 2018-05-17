@@ -25,23 +25,23 @@ Run
 
 To annotate a single tsv file:
 ```
-python3 run.py filename
+python3 run.py lang filename
 ```
 
 To annotate all the files in a directory:
 ```
-python3 run.py directory
+python3 run.py lang directory
 ```
 
 By default, annotations are saved in a directory called annotations where the input files are located.
 To change this:
 ```
-python3 run.py -o my_annotation_dir tsv_filename
+python3 run.py -o my_annotation_dir lang tsv_filename
 ```
 
 To load previous annotations from a file or directory:
 ```
-python3 run.py -a annotation_path tsv_filename
+python3 run.py -a annotation_path lang tsv_filename
 ```
 By default, it will load annotations that are available in the current output directory.
 
@@ -122,7 +122,7 @@ The regular expressions are processed from top to bottom and only the first matc
 The hints file is loaded on the command line with the --hints or -d option (d for dictionary):
 
 ```
-python3 run.py --hints il5_hints.tsv il5_to_be_annotated
+python3 run.py --hints il5_hints.tsv lang il5_to_be_annotated
 ```
 
 ### Translation
