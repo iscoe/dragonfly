@@ -50,7 +50,8 @@ def index(filename):
     if char_entity_data:
         document.attach_char_vis_data(char_entity_data)
 
-    title = filename.split('/')[-1]
+    # remove any path information
+    title = os.path.basename(filename)
 
     return flask.render_template('index.html', title=title, document=document, index=index, next_index=next_index, sm=settings_manager, lang=lang)
 
