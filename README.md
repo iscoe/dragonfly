@@ -22,11 +22,13 @@ pip3 install -r requirements.txt
 
 Run
 ---------------
-
 To annotate a single tsv file:
 ```
 python3 run.py lang filename
 ```
+
+`lang` is the ISO 639 language code (recommend 639-3).
+A complete list is available on the [SIL website](https://iso639-3.sil.org/code_tables/639/data).
 
 To annotate all the files in a directory:
 ```
@@ -52,6 +54,9 @@ The output is a two column tsv file of token and tag.
 Once the server is running, direct your browser to http://localhost:5000/
 (Additional instances can be run concurrently by selecting a different port with the -p option.)
 
+Dragonfly creates a `.dragonfly` directory in the user's home directory.
+It saves settings and translation dictionaries to this directory.
+
 Annotate
 -------------------
 ### Single token tagging
@@ -68,7 +73,7 @@ The cascade will highlight all matching tokens in the document unless that token
 
 ### Multi-token tagging
 1. Select tag mode as with single token tagging.
-2. Hold down the control key on Linux or option key on MacOSX and click on each token from left to right.
+2. Hold down the control key on Linux and Windows or option key on MacOSX and click on each token from left to right.
 3. If cascade is on, it will not cascade to tags that have already been tagged.
 
 ### Selecting tokens
