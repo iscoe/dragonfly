@@ -38,13 +38,13 @@ class TranslationDictManager(object):
         trans_dict = {}
         filename = self.get_filename(lang)
         if os.path.exists(filename):
-            with open(filename, 'r') as fp:
+            with open(filename, 'r', encoding='utf8') as fp:
                 trans_dict = json.load(fp)
         return trans_dict
 
     def save(self, lang, td):
         filename = self.get_filename(lang)
-        with open(filename, 'w') as fp:
+        with open(filename, 'w', encoding='utf8') as fp:
             json.dump(td, fp)
 
     def get_filename(self, lang):
@@ -54,7 +54,7 @@ class TranslationDictManager(object):
     def export(self, lang, filename):
         trans_dict = self.get(lang)
         count = 0
-        with open(filename, 'w') as fp:
+        with open(filename, 'w', encoding='utf8') as fp:
             for source in trans_dict.keys():
                 count += 1
                 fp.write("{}\t{}\t{}\n".format(source, *trans_dict[source]))
@@ -63,7 +63,7 @@ class TranslationDictManager(object):
     def import_(self, lang, filename):
         trans_dict = self.get(lang)
         count = 0
-        with open(filename, 'r') as fp:
+        with open(filename, 'r', encoding='utf8') as fp:
             reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
             for row in reader:
                 if len(row) != 3:

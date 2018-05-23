@@ -56,7 +56,7 @@ class AnnotationLoader(object):
 class HintLoader(object):
     def __init__(self, path):
         self.hints = []
-        with open(path, 'r') as fp:
+        with open(path, 'r', encoding='utf8') as fp:
             reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
             for row in reader:
                 self.hints.append({'regex': row[0], 'comment': row[1]})
@@ -71,7 +71,7 @@ class TranslationLoader(object):
         translation_filename = filename + '.eng'
         path = os.path.join(self.base, translation_filename)
         if os.path.isfile(path):
-            with open(path, 'r') as ifp:
+            with open(path, 'r', encoding='utf8') as ifp:
                 return [x for x in ifp]
 
 
@@ -85,7 +85,7 @@ class CompressionModelLoader(object):
         translation_filename = filename + '.cm'
         path = os.path.join(self.base, translation_filename)
         if os.path.isfile(path):
-            with open(path, 'r') as ifp:
+            with open(path, 'r', encoding='utf8') as ifp:
                 return [x for x in ifp]
 
 
@@ -212,7 +212,7 @@ class InputReader(object):
         self._load()
 
     def _load(self):
-        with open(self.filename, 'r') as fp:
+        with open(self.filename, 'r', encoding='utf8') as fp:
             reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
             first_row = next(reader)
             if not first_row:
@@ -274,7 +274,7 @@ class OutputWriter(object):
 
     def write(self, data):
         filename = os.path.join(self.directory, data['filename'] + '.anno')
-        with open(filename, 'w') as fp:
+        with open(filename, 'w', encoding='utf8') as fp:
             for token in data['tokens']:
                 if token:
                     fp.write('{}\t{}\n'.format(token['token'], token['tag']))
