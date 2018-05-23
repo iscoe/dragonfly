@@ -135,6 +135,13 @@ When annotating the file `x.txt`, if there is a file in the same directory with 
 it is loaded and displayed above the token row. The file should be a sentence segmented file with one
 sentence per line that matches the divisions in the conll formatted input file.
 
+Settings
+------------
+Settings are persisted between annotation sessions.
+Most take effect immediately upon a change.
+The exception is column width.
+This is server-side and requires a page reload.
+
 Test
 ------------
 To run the unit tests:
