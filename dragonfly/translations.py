@@ -86,6 +86,8 @@ class TranslationDictManager(object):
             return 'LOC'
         elif type == 'N':
             return 'NONE'
+        elif type == '':
+            return 'NONE'
 
         distances = list(map(lambda x: self._get_hamming_distance(x, type), self.ENTITY_TYPES))
         return self.ENTITY_TYPES[distances.index(min(distances))]
