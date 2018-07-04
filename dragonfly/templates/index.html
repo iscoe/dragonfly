@@ -12,9 +12,6 @@
         <div class="df-section df-column-labels">
         {% for column in sentence.columns %}
             <div>{{ column.label }}</div>
-            {% if loop.index == 1 and document.has_char_entity %}
-            <div>{{ column.label }}</div>
-            {% endif %}
         {% endfor %}
         </div>
         {% for c in range(sentence.length) %}
@@ -26,11 +23,6 @@
                      data-tag="{{ column.annotations[c] }}">{{ column.strings[c] }}</div>
                 {% else %}
                 <div class="df-token" id="df-token-{{ sentence.id }}-{{ c }}">{{ column.strings[c] }}</div>
-                {% endif %}
-                {% if document.has_char_entity %}
-                <div>
-                    {% for i in range(column.strings[c]|length) %}<span class="df-char-{{ sentence.char_entity[c][i] }}">{{ column.strings[c][i] }}</span>{% endfor %}
-                </div>
                 {% endif %}
             {% else %}
                 {% if column.strings[c]|length > max_col_width %}

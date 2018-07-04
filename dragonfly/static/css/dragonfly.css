@@ -52,36 +52,6 @@
 .df-sel {
     background-color: rgba(156, 140, 114, 1.0);
 }
-.df-char-0 {
-    color: rgba(0, 0, 255, 0.2);
-}
-.df-char-1 {
-    color: rgba(0, 0, 255, 0.3);
-}
-.df-char-2 {
-    color: rgba(0, 0, 255, 0.4);
-}
-.df-char-3 {
-    color: rgba(0, 0, 255, 0.5);
-}
-.df-char-4 {
-    color: rgba(0, 0, 255, 0.6);
-}
-.df-char-5 {
-    color: rgba(0, 0, 255, 0.6);
-}
-.df-char-6 {
-    color: rgba(0, 0, 255, 0.73);
-}
-.df-char-7 {
-    color: rgba(0, 0, 255, 0.88);
-}
-.df-char-8 {
-    color: rgba(0, 0, 255, 0.97);
-}
-.df-char-9 {
-    color: rgba(0, 0, 255, 1.0);
-}
 .navbar-bottom {
     margin-top: 20px;
     margin-bottom: 0px;

@@ -6,7 +6,7 @@ from dragonfly import app
 import flask
 import json
 import os
-from .data import InputReader, Document, OutputWriter, AnnotationLoader, HintLoader, TranslationLoader, CompressionModelLoader
+from .data import InputReader, Document, OutputWriter, AnnotationLoader, HintLoader, TranslationLoader
 from .settings import SettingsManager
 from .translations import TranslationDictManager
 
@@ -39,16 +39,11 @@ def index(filename):
 
     if lister.is_dir:
         trans_loader = TranslationLoader(lister.path)
-        cm_loader = CompressionModelLoader(lister.path)
     else:
         trans_loader = TranslationLoader(os.path.dirname(lister.path))
-        cm_loader = CompressionModelLoader(os.path.dirname(lister.path))
     translation = trans_loader.get(filename)
     if translation:
         document.attach_translation(translation)
-    char_entity_data = cm_loader.get(filename)
-    if char_entity_data:
-        document.attach_char_vis_data(char_entity_data)
 
     # remove any path information
     title = os.path.basename(filename)

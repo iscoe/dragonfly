@@ -75,20 +75,6 @@ class TranslationLoader(object):
                 return [x for x in ifp]
 
 
-class CompressionModelLoader(object):
-    def __init__(self, path):
-        self.base = path
-
-    def get(self, filename):
-        filename = os.path.basename(filename)
-        filename = filename.replace('.conll.txt', '')
-        translation_filename = filename + '.cm'
-        path = os.path.join(self.base, translation_filename)
-        if os.path.isfile(path):
-            with open(path, 'r', encoding='utf8') as ifp:
-                return [x for x in ifp]
-
-
 class Document(object):
     """
     Contains a list of sentences and optional annotations
@@ -100,7 +86,6 @@ class Document(object):
         self.num_tokens = self._count_tokens(sentences)
         self.has_annotations = False
         self.has_translation = False
-        self.has_char_vis = False
         self.translation = None
 
     def attach(self, annotations):
@@ -114,10 +99,6 @@ class Document(object):
         self.has_translation = True
         self.translation = translation
 
-    def attach_char_vis_data(self, data):
-        self.has_char_vis = True
-        self._set_char_vis_data(data)
-
     def _validate_annotations(self, annotations):
         if len(annotations) != self.num_sentences:
             return False
@@ -130,23 +111,6 @@ class Document(object):
         for index, sentence in enumerate(self.sentences):
             # tag annotations stored in the second column
             sentence.attach(annotations[index].columns[1])
-
-    def _set_char_vis_data(self, data):
-        for index in range(len(self.sentences)):
-            offset = 0
-            char_weights = []
-            tokens = self.sentences[index].columns[0].strings
-            if index == 0:
-                for token in tokens:
-                    char_weights.append(['0' for x in range(len(token))])
-                self.sentences[index].char_entity = char_weights
-                continue
-
-            weights = data[index - 1]
-            for token in tokens:
-                char_weights.append(list(weights[offset:offset+len(token)]))
-                offset += len(token) + 1
-            self.sentences[index].char_entity = char_weights
 
     @staticmethod
     def _count_tokens(sentences):
@@ -164,7 +128,6 @@ class Sentence(object):
     def __init__(self, id):
         self.id = id
         self.columns = []
-        self.char_entity = []
 
     @property
     def length(self):
