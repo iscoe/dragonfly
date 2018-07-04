@@ -33,7 +33,12 @@
                 </div>
                 {% endif %}
             {% else %}
-                <div {% if column.strings[c]|length > max_col_width %} title="{{ column.strings[c] }}" {% endif %}>{{ column.strings[c][:max_col_width] }}</div>
+                {% if column.strings[c]|length > max_col_width %}
+                {% set column_text = column.strings[c][:max_col_width] + "…" %}
+                {% else %}
+                {% set column_text = column.strings[c] %}
+                {% endif %}
+                <div {% if column.strings[c]|length > max_col_width %} title="{{ column.strings[c] }}" {% endif %}>{{ column_text }}</div>
             {% endif %}
             {% endfor %}
             </div>
