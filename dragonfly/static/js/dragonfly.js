@@ -431,12 +431,34 @@ dragonFly.Translations = class Translations {
     constructor(lang) {
         this.lang = lang;
         this.translations = [];
+        this.stopWords = []
     }
 
     /**
-     * Load the translations from the server and apply them to the page.
+     * Load the translations and stop words from the server and apply them to the page.
      */
     load() {
+        // daisy chain load stop words, load translations, and process
+        this.loadStopWords();
+    }
+
+    loadStopWords() {
+        var self = this;
+        $.ajax({
+            url: '/stop_words',
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                self.stopWords = data;
+                self.loadTranslations();
+            },
+            error: function(xhr) {
+                dragonFly.showStatus('danger', 'Error contacting the server');
+            }
+        });
+    }
+
+    loadTranslations() {
         var self = this;
         $.ajax({
             url: '/translations/' + this.lang,
@@ -450,7 +472,6 @@ dragonFly.Translations = class Translations {
                 dragonFly.showStatus('danger', 'Error contacting the server');
             }
         });
-
     }
 
     /**
@@ -462,16 +483,18 @@ dragonFly.Translations = class Translations {
         var tokenMap = new Map();
         for (var source in this.translations) {
             var sourceTokens = source.toLowerCase().split(' ');
-            tokens = tokens.concat(sourceTokens);
             for (var i = 0; i < sourceTokens.length; i++) {
-                tokenMap.set(sourceTokens[i], this.translations[source][0]);
+                // only add tokens that are not stop words for translation lookup
+                if (!this.stopWords.includes(sourceTokens[i])) {
+                    tokens.push(sourceTokens[i]);
+                    tokenMap.set(sourceTokens[i], this.translations[source][0]);
+                }
             }
         }
 
         $(".df-token").each(function() {
             var token = $(this).html().toLowerCase();
-            // the token length check is a quick hack to not highlight periods and commas
-            if (tokens.includes(token) && token.length > 1) {
+            if (tokens.includes(token)) {
                 $(this).addClass('df-in-dict');
                 $(this).data('translation', tokenMap.get(token));
                 $(this).attr('title', tokenMap.get(token));
