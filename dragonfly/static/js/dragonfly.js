@@ -476,7 +476,7 @@ dragonFly.Translations = class Translations {
                 $(this).data('translation', tokenMap.get(token));
                 $(this).attr('title', tokenMap.get(token));
                 $(this).attr('data-toggle', 'tooltip');
-                $(this).tooltip();
+                $(this).tooltip({delay: 200});
             }
         });
     }
@@ -1013,7 +1013,7 @@ $(document).ready(function() {
     dragonFly.settings.load();
     dragonFly.contextMenu = new dragonFly.ContextMenu(dragonFly.highlighter);
 
-    $('[data-toggle=tooltip]').tooltip();
+    $('[data-toggle=tooltip]').tooltip({delay: 200});
 
     $("input[id = 'cascade']").on("click", function() {
         dragonFly.highlighter.toggleCascade();
