@@ -475,6 +475,8 @@ dragonFly.Translations = class Translations {
                 $(this).addClass('df-in-dict');
                 $(this).data('translation', tokenMap.get(token));
                 $(this).attr('title', tokenMap.get(token));
+                $(this).attr('data-toggle', 'tooltip');
+                $(this).tooltip();
             }
         });
     }
