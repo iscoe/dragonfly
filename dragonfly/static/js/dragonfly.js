@@ -488,12 +488,21 @@ dragonFly.Translations = class Translations {
      */
     createMap() {
         for (var source in this.translations) {
-            var sourceTokens = source.toLowerCase().split(' ');
-            for (var i = 0; i < sourceTokens.length; i++) {
-                // only add tokens that are not stop words for translation lookup
-                if (!this.stopWords.includes(sourceTokens[i])) {
-                    this.transMap.set(sourceTokens[i], this.translations[source][0]);
-                }
+            this.add(source, this.translations[source][0])
+        }
+    }
+
+    /**
+     * Add a source -> gloss pair to the translation map
+     * @param {string} source - Source string.
+     * @param {string} gloss - A translation for the source string.
+     */
+    add(source, gloss) {
+        var sourceTokens = source.toLowerCase().split(' ');
+        for (var i = 0; i < sourceTokens.length; i++) {
+            // only add tokens that are not stop words for translation lookup
+            if (!this.stopWords.includes(sourceTokens[i])) {
+                this.transMap.set(sourceTokens[i], gloss);
             }
         }
     }
