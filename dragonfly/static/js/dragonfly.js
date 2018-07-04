@@ -172,8 +172,9 @@ dragonFly.Settings = class Settings {
 
 dragonFly.ContextMenu = class ContextMenu {
     // TODO probably replace with a custom event
-    constructor(highlighter) {
+    constructor(highlighter, translationManager) {
         this.highlighter = highlighter;
+        this.translationManager = translationManager;
     }
 
     /**
@@ -431,7 +432,8 @@ dragonFly.Translations = class Translations {
     constructor(lang) {
         this.lang = lang;
         this.translations = [];
-        this.stopWords = []
+        this.stopWords = [];
+        this.transMap = new Map();
     }
 
     /**
@@ -442,6 +444,9 @@ dragonFly.Translations = class Translations {
         this.loadStopWords();
     }
 
+    /**
+     * Load the stop words and kick off translations loading.
+     */
     loadStopWords() {
         var self = this;
         $.ajax({
@@ -458,6 +463,9 @@ dragonFly.Translations = class Translations {
         });
     }
 
+    /**
+     * Load the translations and kick off web page update
+     */
     loadTranslations() {
         var self = this;
         $.ajax({
@@ -466,7 +474,8 @@ dragonFly.Translations = class Translations {
             dataType: 'json',
             success: function(data) {
                 self.translations = data;
-                self.process();
+                self.createMap();
+                self.apply();
             },
             error: function(xhr) {
                 dragonFly.showStatus('danger', 'Error contacting the server');
@@ -475,29 +484,31 @@ dragonFly.Translations = class Translations {
     }
 
     /**
-     * Apply the translations to the web page.
+     * Create a source token -> gloss map
      */
-    process() {
-        var self = this;
-        var tokens = []
-        var tokenMap = new Map();
+    createMap() {
         for (var source in this.translations) {
             var sourceTokens = source.toLowerCase().split(' ');
             for (var i = 0; i < sourceTokens.length; i++) {
                 // only add tokens that are not stop words for translation lookup
                 if (!this.stopWords.includes(sourceTokens[i])) {
-                    tokens.push(sourceTokens[i]);
-                    tokenMap.set(sourceTokens[i], this.translations[source][0]);
+                    this.transMap.set(sourceTokens[i], this.translations[source][0]);
                 }
             }
         }
+    }
 
+    /**
+     * Apply the translations to the web page.
+     */
+    apply() {
+        var self = this;
         $(".df-token").each(function() {
             var token = $(this).html().toLowerCase();
-            if (tokens.includes(token)) {
+            if (self.transMap.has(token)) {
                 $(this).addClass('df-in-dict');
-                $(this).data('translation', tokenMap.get(token));
-                $(this).attr('title', tokenMap.get(token));
+                $(this).data('translation', self.transMap.get(token));
+                $(this).attr('title', self.transMap.get(token));
                 $(this).attr('data-toggle', 'tooltip');
                 $(this).tooltip({delay: 200});
             }
@@ -1034,7 +1045,7 @@ $(document).ready(function() {
     dragonFly.translations.load();
     dragonFly.settings = new dragonFly.Settings(dragonFly.annotationSaver);
     dragonFly.settings.load();
-    dragonFly.contextMenu = new dragonFly.ContextMenu(dragonFly.highlighter);
+    dragonFly.contextMenu = new dragonFly.ContextMenu(dragonFly.highlighter, dragonFly.translations);
 
     $('[data-toggle=tooltip]').tooltip({delay: 200});
 
