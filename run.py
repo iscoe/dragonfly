@@ -42,10 +42,16 @@ if __name__ == '__main__':
     if not args.ext:
         args.ext = '.txt'
 
+    if os.path.isdir(args.path):
+        index_dir = os.path.join(args.path, '.index')
+    else:
+        index_dir = None
+
     app.config['dragonfly.lang'] = args.lang.lower()
     app.config['dragonfly.output'] = output_dir
     app.config['dragonfly.input'] = FileLister(args.path, args.ext)
     app.config['dragonfly.annotations'] = args.annotations
     app.config['dragonfly.hints'] = args.hints
+    app.config['dragonfly.index_dir'] = index_dir
     app.logger.info('Loading from {} and saving to {}'.format(args.path, output_dir))
     app.run(debug=True, host='0.0.0.0', port=int(args.port))

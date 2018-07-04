@@ -7,6 +7,7 @@ import flask
 import json
 import os
 from .data import InputReader, Document, OutputWriter, AnnotationLoader, HintLoader, TranslationLoader
+from .indexer import Indexer
 from .settings import SettingsManager
 from .translations import TranslationDictManager
 
@@ -121,3 +122,14 @@ def translations(lang):
     manager = TranslationDictManager(home_dir)
     trans = manager.get(lang)
     return flask.jsonify(trans)
+
+
+@app.route('/stop_words')
+def stop_words():
+    index_dir = app.config.get('dragonfly.index_dir')
+    if index_dir:
+        indexer = Indexer(index_dir)
+        words = indexer.load_stop_words()
+    else:
+        words = []
+    return flask.jsonify(words)
