@@ -276,6 +276,7 @@ dragonFly.ContextMenu = class ContextMenu {
                 if (response.success) {
                     dragonFly.showStatus('success', response.message);
                     self.hide();
+                    self.translationManager.update(data.source, data.translation);
                 } else {
                     dragonFly.showStatus('danger', response.message);
                 }
@@ -522,6 +523,16 @@ dragonFly.Translations = class Translations {
                 $(this).tooltip({delay: 200});
             }
         });
+    }
+
+    /**
+     * Update the translation web display with a new translation pair
+     * @param {string} source - Source string.
+     * @param {string} gloss - A translation for the source string.
+     */
+    update(source, gloss) {
+        this.add(source, gloss);
+        this.apply();
     }
 };
 
