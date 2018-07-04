@@ -38,7 +38,7 @@
                 {% else %}
                 {% set column_text = column.strings[c] %}
                 {% endif %}
-                <div {% if column.strings[c]|length > max_col_width %} title="{{ column.strings[c] }}" {% endif %}>{{ column_text }}</div>
+                <div {% if column.strings[c]|length > max_col_width %} data-toggle="tooltip" title="{{ column.strings[c] }}" {% endif %}>{{ column_text }}</div>
             {% endif %}
             {% endfor %}
             </div>

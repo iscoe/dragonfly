@@ -1011,6 +1011,8 @@ $(document).ready(function() {
     dragonFly.settings.load();
     dragonFly.contextMenu = new dragonFly.ContextMenu(dragonFly.highlighter);
 
+    $('[data-toggle=tooltip]').tooltip();
+
     $("input[id = 'cascade']").on("click", function() {
         dragonFly.highlighter.toggleCascade();
     });
