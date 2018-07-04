@@ -30,27 +30,27 @@
         <div class="navbar-header navbar-buttons navbar-right">
           <div class="btn-group">
             {% if index > 0 %}
-            <button type="button" class="btn btn-default" title="Previous" aria-label="Previous">
-              <a class="glyphicon glyphicon-triangle-left" href="\?index={{ index - 1 }}" aria-hidden="true"></a>
-            </button>
+            <a class="btn btn-default df-navbar-button" title="Previous" aria-label="Previous" href="\?index={{ index - 1 }}">
+              <span class="glyphicon glyphicon-triangle-left"></span>
+            </a>
             {% else %}
-            <button type="button" class="btn btn-default disabled" title="Previous" aria-label="Previous">
-              <span class="glyphicon glyphicon-triangle-left disabled" aria-hidden="true"></span>
-            </button>
+            <span class="btn btn-default df-navbar-button disabled" title="Previous" aria-label="Previous">
+              <span class="glyphicon glyphicon-triangle-left disabled"></span>
+            </span>
             {% endif %}
             {% if next_index %}
-            <button type="button" class="btn btn-default" title="Next" aria-label="Next">
-              <a class="glyphicon glyphicon-triangle-right" href="\?index={{ next_index }}" aria-hidden="true"></a>
-            </button>
+            <a class="btn btn-default df-navbar-button" title="Next" aria-label="Next" href="\?index={{ next_index }}">
+              <span class="glyphicon glyphicon-triangle-right"></span>
+            </a>
             {% else %}
-            <button type="button" class="btn btn-default disabled" title="Next" aria-label="Next">
-              <span class="glyphicon glyphicon-triangle-right disabled" aria-hidden="true"></span>
-            </button>
+            <span class="btn btn-default df-navbar-button disabled" title="Next" aria-label="Next">
+              <span class="glyphicon glyphicon-triangle-right"></span>
+            </span>
             {% endif %}
-            <button type="button" id="df-save" class="btn btn-default" title="Save" aria-label="Save">
+            <button type="button" id="df-save" class="btn btn-default df-navbar-button" title="Save" aria-label="Save">
               <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
             </button>
-            <button type="button" id="df-settings-button" class="btn btn-default" title="Settings" aria-label="Settings" data-toggle="modal" data-target="#df-settings-modal">
+            <button type="button" id="df-settings-button" class="btn btn-default df-navbar-button" title="Settings" aria-label="Settings" data-toggle="modal" data-target="#df-settings-modal">
               <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
             </button>
           </div>
