@@ -8,7 +8,7 @@ import argparse
 import collections
 import csv
 import glob
-import json
+import pickle
 import os
 import sys
 
@@ -45,6 +45,6 @@ for filename in filenames:
             tokens.update({token: 1})
 
 stop_words = [word_count_pair[0] for word_count_pair in tokens.most_common(args.stop_words)]
-stop_words_filename = os.path.join(index_dir, 'stop_words')
-with open(stop_words_filename, 'w') as ofp:
-    json.dump(stop_words, ofp)
+stop_words_filename = os.path.join(index_dir, 'stop_words.pkl')
+with open(stop_words_filename, 'wb') as ofp:
+    pickle.dump(stop_words, ofp)
