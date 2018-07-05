@@ -148,4 +148,5 @@ for filename in filenames:
                         if terminal:
                             phrase_last_index = 0
 
-print(stats)
+for doc in sorted(stats.keys()):
+    print("{}\t\t{}".format(doc, ', '.join([' '.join(x) for x in stats[doc]])))
