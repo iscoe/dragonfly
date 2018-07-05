@@ -4,3 +4,4 @@
 annotations
 node_modules
 *.json
+data/
