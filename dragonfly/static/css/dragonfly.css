@@ -58,6 +58,21 @@
     border-radius: 0;
     min-height: 50px;
 }
+.df-concordance {
+  background-color: white;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  z-index: 100;
+}
+.df-resize-bar {
+  background-color: #e7e7e7;
+  height: 4px;
+}
+.df-resize-bar:hover {
+  background-color: #bbbbbb;
+  cursor:row-resize;
+}
 .alerts {
     position: fixed;
     top: 70px;

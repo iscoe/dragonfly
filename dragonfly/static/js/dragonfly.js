@@ -1145,4 +1145,10 @@ $(document).ready(function() {
             });
         }
     });
+
+    $('.df-concordance').resizable({
+        handleSelector: '.df-resize-bar',
+        resizeWidth: false,
+        resizeHeightFrom: 'top',
+    });
 });
