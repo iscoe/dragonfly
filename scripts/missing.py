@@ -20,9 +20,9 @@ TOKEN = 0
 TAG = 1
 
 parser = argparse.ArgumentParser()
+parser.add_argument("lang", help="language code")
 parser.add_argument("input", help="filename or directory with annotations")
 parser.add_argument("-d", "--dict", help="optional dict to use (default is tool's translation dictionary)")
-parser.add_argument("-l", "--lang", help="optional lang (default is detected from first file in the directory)")
 args = parser.parse_args()
 
 for filename in [args.input]:
@@ -34,13 +34,7 @@ if os.path.isdir(args.input):
 else:
     filenames = [args.input]
 
-if args.lang:
-    args.lang = args.lang.lower()
-else:
-    if 'IL5' in filenames[0]:
-        args.lang = 'tir'
-    else:
-        args.lang = 'orm'
+args.lang = args.lang.lower()
 
 
 class DictTree(object):
@@ -110,7 +104,7 @@ for key in trans_dict:
 stats = collections.defaultdict(list)
 phrases = PhraseHistogram()
 for filename in filenames:
-    with open(filename, 'r') as ifp:
+    with open(filename, 'r', encoding='utf8') as ifp:
         reader = csv.reader(ifp, delimiter='\t', quoting=csv.QUOTE_NONE)
         in_phrase = False
         phrase_rows = []
