@@ -59,19 +59,26 @@
     min-height: 50px;
 }
 .df-concordance {
-  background-color: white;
-  width: 100%;
-  position: fixed;
-  bottom: 0;
-  z-index: 100;
+    background-color: white;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    height: 6px;
+    z-index: 100;
 }
 .df-resize-bar {
-  background-color: #e7e7e7;
-  height: 4px;
+    background-color: #e7e7e7;
+    height: 4px;
 }
 .df-resize-bar:hover {
-  background-color: #bbbbbb;
-  cursor:row-resize;
+    background-color: #bbbbbb;
+    cursor:row-resize;
+}
+.df-concordance > .navbar, .df-concordance > table {
+    margin-bottom: 0;
+}
+.df-double-striped > tbody > tr:nth-of-type(4n), .df-double-striped > tbody > tr:nth-child(4n-1) {
+    background-color: #f9f9f9;
 }
 .alerts {
     position: fixed;
