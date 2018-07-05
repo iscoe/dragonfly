@@ -61,6 +61,7 @@ class TranslationDictManager(object):
         return count
 
     def import_(self, lang, filename):
+        PHRASE, TRANS, TYPE = [0, 1, 2]
         trans_dict = self.get(lang)
         count = 0
         with open(filename, 'r', encoding='utf8') as fp:
@@ -69,9 +70,9 @@ class TranslationDictManager(object):
                 if len(row) != 3:
                     print("Warning: row without 3 columns")
                     continue
-                if row[0] not in trans_dict:
+                if row[PHRASE] not in trans_dict:
                     count += 1
-                    trans_dict[row[0]] = [row[1], row[2]]
+                    trans_dict[row[PHRASE]] = [row[TRANS], row[TYPE]]
         self.save(lang, trans_dict)
         return count
 

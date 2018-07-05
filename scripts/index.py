@@ -32,7 +32,7 @@ TOKEN = 0
 tokens = collections.Counter()
 filenames = sorted([x for x in glob.glob(os.path.join(args.input, "*")) if os.path.isfile(x)])
 for filename in filenames:
-    with open(filename, 'r') as ifp:
+    with open(filename, 'r', encoding='utf8') as ifp:
         reader = csv.reader(ifp, delimiter='\t', quoting=csv.QUOTE_NONE)
         for row in reader:
             # skip header and sentence breaks

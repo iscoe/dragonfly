@@ -10,6 +10,9 @@
 # usage: import.py lang filename
 # example: ./import.py tir tir.tsv
 #
+# TSV file is 3 columns separated by tabs: phrase, translation, entity type
+# "None" can be used as an entity type.
+#
 
 import argparse
 import os

@@ -9,8 +9,8 @@
 #
 # usage: export.py lang
 #
-# It writes the file lang.tsv to the current directory.
-# The file has 3 columns: source, translation, entity type
+# It writes the file [lang].tsv to the current directory.
+# The file has 3 columns: source phrase, translation, entity type
 #
 
 import argparse
