@@ -541,7 +541,7 @@ dragonFly.Translations = class Translations {
  * @readonly
  * @enum {number}
  */
-dragonFly.Mode = {DEL: 0, TAG: 1, SELECT: 2};
+dragonFly.Mode = {DEL: 0, TAG: 1, SELECT: 2, CONCORDANCE: 3};
 
 /** Class representing a tag type. */
 dragonFly.Tag = class Tag {
@@ -699,8 +699,10 @@ dragonFly.Highlighter = class Highlighter {
             $(".df-type" + className).addClass('df-type-active');
         } else if (this.tagMode == dragonFly.Mode.DEL) {
             $(".df-del").addClass('df-type-active');
-        } else {
+        } else if (this.tagMode == dragonFly.Mode.SELECT) {
             $(".df-sel").addClass('df-type-active');
+        } else {
+            $(".df-find").addClass('df-type-active');
         }
     }
 
@@ -750,6 +752,11 @@ dragonFly.Highlighter = class Highlighter {
                 // enter into select mode
                 this.prevTagMode = this.tagMode;
                 this.tagMode = dragonFly.Mode.SELECT;
+                this.highlightTypeAndMode();
+                break;
+            case 'f':
+                // concordance mode
+                this.tagMode = dragonFly.Mode.CONCORDANCE;
                 this.highlightTypeAndMode();
                 break;
             case 'u':

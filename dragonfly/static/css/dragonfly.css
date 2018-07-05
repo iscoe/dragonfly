@@ -3,12 +3,12 @@
     margin-right: 5px;
 }
 .navbar-header.navbar-labels {
-    margin-left: 25px;
+    margin-left: 15px;
 }
 .navbar-header > .label {
     color: white;
     font-size: 120%;
-    padding: .3em .5em .2em;
+    padding: .2em .5em .2em;
     margin-top: 10px;
     margin-bottom: 5px;
 }
@@ -17,7 +17,7 @@
     margin-bottom: 5px;
 }
 .navbar-header.navbar-buttons {
-    margin-left: 15px;
+    margin-left: 10px;
 }
 .df-navbar-button {
     margin-top: 10px;
@@ -28,8 +28,8 @@
 }
 .df-type {
     border: 3px solid #f8f8f8;
-    margin-right: 5px;
-    margin-left: 5px;
+    margin-right: 3px;
+    margin-left: 3px;
 }
 .df-type-active {
     border: 3px solid #666;
@@ -46,11 +46,8 @@
 .df-loc {
     background-color: rgba(196, 212, 175, 1.0);
 }
-.df-del {
+.df-del, .df-sel, .df-find {
     background-color: rgba(33, 33, 33, 0.5);
-}
-.df-sel {
-    background-color: rgba(156, 140, 114, 1.0);
 }
 .navbar-bottom {
     margin-top: 20px;
