@@ -48,6 +48,8 @@ class Stats(object):
     TYPES = ['GPE', 'LOC', 'ORG', 'PER']
 
     def __init__(self):
+        self.num_tokens = 0
+        self.num_tagged_tokens = 0
         self.entities = {
             'GPE': TypeStats('GPE'),
             'LOC': TypeStats('LOC'),
@@ -56,9 +58,13 @@ class Stats(object):
         }
 
     def add(self, rows):
+        self.num_tagged_tokens += len(rows)
         entity_type = Stats.get_type(rows)
         if entity_type in self.TYPES:
             self.entities[entity_type].add(Stats.get_name(rows))
+
+    def increment_tokens(self):
+        self.num_tokens += 1
 
     @property
     def num_entities(self):
@@ -95,6 +101,8 @@ for filename in filenames:
             if len(row) < 2 or not row[TOKEN]:
                 continue
 
+            stats.increment_tokens()
+
             # write out O rows and store tag rows
             if row[TAG][0] == 'B':
                 in_tag = True
@@ -107,6 +115,8 @@ for filename in filenames:
             stats.add(tag_rows)
 
 print("{} Documents".format(len(filenames)))
+print("{} Tokens".format(stats.num_tokens))
+print("{} Tagged Tokens".format(stats.num_tagged_tokens))
 print("{} Entity Tags".format(stats.num_entities))
 print("{} Unique Entity Tags".format(stats.num_unique_entities))
 for s in stats.entities.values():
