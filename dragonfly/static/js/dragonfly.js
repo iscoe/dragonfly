@@ -520,9 +520,9 @@ dragonFly.Translations = class Translations {
                 $(this).data('translation', self.transMap.get(token));
                 $(this).attr('title', self.transMap.get(token));
                 $(this).attr('data-toggle', 'tooltip');
-                $(this).tooltip({delay: 200});
             }
         });
+        $('[data-toggle=tooltip]').tooltip({delay: 200, placement: 'auto left'});
     }
 
     /**
@@ -1066,8 +1066,6 @@ $(document).ready(function() {
     dragonFly.settings = new dragonFly.Settings(dragonFly.annotationSaver);
     dragonFly.settings.load();
     dragonFly.contextMenu = new dragonFly.ContextMenu(dragonFly.highlighter, dragonFly.translations);
-
-    $('[data-toggle=tooltip]').tooltip({delay: 200});
 
     $("input[id = 'cascade']").on("click", function() {
         dragonFly.highlighter.toggleCascade();
