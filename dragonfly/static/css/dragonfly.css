@@ -71,11 +71,18 @@
     background-color: #bbbbbb;
     cursor:row-resize;
 }
-.df-concordance > .navbar, .df-concordance > table {
+.df-concordance > .navbar {
     margin-bottom: 0;
 }
-.df-double-striped > tbody > tr:nth-of-type(4n), .df-double-striped > tbody > tr:nth-child(4n-1) {
-    background-color: #f9f9f9;
+.df-results {
+    padding: 5px;
+}
+.df-result {
+    margin-top: 5px;
+}
+.df-result-highlight {
+    text: red;
+    background-color: green;
 }
 .alerts {
     position: fixed;

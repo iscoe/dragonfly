@@ -624,8 +624,53 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
 };
 
 dragonFly.Concordance = class Concordance {
+    /**
+     * Search the concordance
+     */
     search(word) {
         $('.df-search').val(word);
+        this.postSearch(word);
+    }
+
+    /**
+     * Submit a concordance search to the server
+     */
+    postSearch(word) {
+        var self = this;
+        $.ajax({
+            url: '/search',
+            type: 'POST',
+            dataType: 'json',
+            success: function(data) {
+                self.displayResults(word, data);
+            },
+            error: function(xhr) {
+                dragonFly.showStatus('danger', 'Error contacting the server');
+            }
+        });
+    }
+
+    /**
+     * Update the results display box
+     *
+     */
+    displayResults(word, results) {
+        var html = ''
+        for (var i=0; i<results.length; i++) {
+            html += '<div class="df-result">';
+            for (var j=0; j<results[i].source.length; j++){
+                html += '<div class="df-section df-row">';
+                if (word == results[i].source[j]) {
+                    html += '<div class="df-result-highlight">' + results[i].source[j] + '</div>';
+                } else {
+                    html += '<div>' + results[i].source[j] + '</div>';
+                }
+                html += '<div>' + results[i].trans[j] + '</div>';
+                html += "</div>";
+            }
+            html += "</div>";
+        }
+        $('.df-results').html(html);
     }
 };
 
