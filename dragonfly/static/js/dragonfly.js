@@ -276,7 +276,7 @@ dragonFly.ContextMenu = class ContextMenu {
                 if (response.success) {
                     dragonFly.showStatus('success', response.message);
                     self.hide();
-                    self.translationManager.update(data.source, data.translation);
+                    self.translationManager.update(data.source, {trans: data.translation, type: data.type});
                 } else {
                     dragonFly.showStatus('danger', response.message);
                 }
@@ -489,21 +489,21 @@ dragonFly.Translations = class Translations {
      */
     createMap() {
         for (var source in this.translations) {
-            this.add(source, this.translations[source][0])
+            this.add(source, {'trans': this.translations[source][0], 'type': this.translations[source][1]})
         }
     }
 
     /**
      * Add a source -> gloss pair to the translation map
      * @param {string} source - Source string.
-     * @param {string} gloss - A translation for the source string.
+     * @param {string} info - Object with keys trans and type.
      */
-    add(source, gloss) {
+    add(source, info) {
         var sourceTokens = source.toLowerCase().split(' ');
         for (var i = 0; i < sourceTokens.length; i++) {
             // only add tokens that are not stop words for translation lookup
             if (!this.stopWords.includes(sourceTokens[i])) {
-                this.transMap.set(sourceTokens[i], gloss);
+                this.transMap.set(sourceTokens[i], info);
             }
         }
     }
@@ -516,9 +516,9 @@ dragonFly.Translations = class Translations {
         $(".df-token").each(function() {
             var token = $(this).html().toLowerCase();
             if (self.transMap.has(token)) {
+                var title = self.transMap.get(token).type + ' : ' + self.transMap.get(token).trans
                 $(this).addClass('df-in-dict');
-                $(this).data('translation', self.transMap.get(token));
-                $(this).attr('title', self.transMap.get(token));
+                $(this).attr('title', title);
                 $(this).attr('data-toggle', 'tooltip');
             }
         });
