@@ -623,13 +623,20 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
     }
 };
 
+dragonFly.Concordance = class Concordance {
+    search(word) {
+        $('.df-search').val(word);
+    }
+};
+
 dragonFly.Highlighter = class Highlighter {
     /**
      * Create the highlighter manager.
      * @param {Tags} tags - A representation of the tag types.
      */
-    constructor(tags) {
+    constructor(tags, concordance) {
         this.tags = tags;
+        this.concordance = concordance;
         this.isCascade = true;
         this.tagMode = dragonFly.Mode.TAG;
         this.prevTagMode = dragonFly.Mode.TAG;
@@ -824,6 +831,8 @@ dragonFly.Highlighter = class Highlighter {
             this.deleteTag(element);
         } else if (this.tagMode == dragonFly.Mode.SELECT) {
             this.select(element);
+        } else if (this.tagMode == dragonFly.Mode.CONCORDANCE) {
+            this.concordance.search(element.html());
         } else {
             // set this so we know whether to prevent user navigating away
             this.anyTaggingPerformed = true;
@@ -1063,7 +1072,8 @@ $(document).ready(function() {
 
     dragonFly.lang = $("meta[name=lang]").attr("content");
     dragonFly.tags = new dragonFly.Tags();
-    dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tags);
+    dragonFly.concordance = new dragonFly.Concordance();
+    dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tags, dragonFly.concordance);
     dragonFly.highlighter.initializeHighlight();
     dragonFly.annotationSaver = new dragonFly.AnnotationSaver($("#df-filename").html());
     dragonFly.hints = new dragonFly.Hints(1);
