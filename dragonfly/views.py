@@ -7,7 +7,6 @@ import flask
 import json
 import os
 from .data import InputReader, Document, OutputWriter, AnnotationLoader, HintLoader, TranslationLoader
-from .indexer import Indexer
 from .settings import SettingsManager
 from .translations import TranslationDictManager
 
@@ -126,20 +125,11 @@ def translations(lang):
 
 @app.route('/stop_words')
 def stop_words():
-    index_dir = app.config.get('dragonfly.index_dir')
-    words = []
-    if index_dir:
-        indexer = Indexer(index_dir)
-        words = indexer.load_stop_words()
-    return flask.jsonify(words)
+    return flask.jsonify(app.dragonfly_index.stop_words)
 
 
 @app.route('/search', methods=['POST'])
 def search():
     term = flask.request.form['term']
-    index_dir = app.config.get('dragonfly.index_dir')
-    results = {'count': 0, 'refs': []}
-    if index_dir:
-        indexer = Indexer(index_dir)
-        results = indexer.lookup(term)
+    results = app.dragonfly_index.lookup(term)
     return flask.jsonify(results)

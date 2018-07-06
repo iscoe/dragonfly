@@ -7,22 +7,24 @@ import pickle
 
 
 class InvertedIndex(object):
-    MAX_ENTRIES = 50
+    MAX_ENTRIES = 25
 
     def __init__(self):
         self.index = {}
 
-    def add(self, term, doc, sent, trans):
-        if term not in self.index:
-            self.index[term] = {'count': 0, 'refs': []}
-        self.index[term].count += 1
-        if self.index[term].count > self.MAX_ENTRIES:
-            self.index[term].refs.append({'doc': doc, 'text': sent, 'trans': trans})
+    def add(self, doc, sent, trans):
+        for word in sent:
+            if word not in self.index:
+                self.index[word] = {'count': 0, 'refs': []}
+            self.index[word]['count'] += 1
+            if self.index[word]['count'] < self.MAX_ENTRIES:
+                self.index[word]['refs'].append({'doc': doc, 'text': sent, 'trans': trans})
 
     def retrieve(self, term):
+        term = term.lower()
         if term in self.index:
             return self.index[term]
-        return None
+        return {'count': 0, 'refs': []}
 
     def save(self, filename):
         with open(filename, 'wb') as fp:
@@ -39,22 +41,19 @@ class Indexer(object):
 
     def __init__(self, index_dir):
         self.index_dir = index_dir
+        self.stop_words = []
         self.inverted_index = InvertedIndex()
         try:
             self.inverted_index.load(self._get_path(self.INVERTED_INDEX))
         except:
             pass
+        stop_words_path = self._get_path(self.STOP_WORDS)
+        if os.path.exists(stop_words_path):
+            with open(stop_words_path, 'rb') as fp:
+                self.stop_words = pickle.load(fp)
 
     def _get_path(self, filename):
         return os.path.join(self.index_dir, filename)
-
-    def load_stop_words(self):
-        words = []
-        path = self._get_path(self.STOP_WORDS)
-        if os.path.exists(path):
-            with open(path, 'rb') as fp:
-                words = pickle.load(fp)
-        return words
 
     def lookup(self, term):
         return self.inverted_index.retrieve(term)

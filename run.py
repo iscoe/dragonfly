@@ -6,6 +6,7 @@ import argparse
 import os
 from dragonfly import app
 from dragonfly.data import FileLister
+from dragonfly.indexer import Indexer
 
 
 if __name__ == '__main__':
@@ -52,6 +53,9 @@ if __name__ == '__main__':
     app.config['dragonfly.input'] = FileLister(args.path, args.ext)
     app.config['dragonfly.annotations'] = args.annotations
     app.config['dragonfly.hints'] = args.hints
-    app.config['dragonfly.index_dir'] = index_dir
+
+    # load index - this may take a few seconds with a large index
+    app.dragonfly_index = Indexer(index_dir)
+
     app.logger.info('Loading from {} and saving to {}'.format(args.path, output_dir))
     app.run(debug=True, host='0.0.0.0', port=int(args.port))
