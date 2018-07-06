@@ -108,6 +108,10 @@
 .df-result > .df-section:first-of-type {
     border-left: 1px solid #e7e7e7;
 }
+.df-result-doc {
+    margin: 3px;
+    margin-bottom: 8px;
+}
 .df-result-highlight {
     color: red;
 }

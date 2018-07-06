@@ -13,6 +13,7 @@ class InvertedIndex(object):
         self.index = {}
 
     def add(self, doc, sent, trans):
+        doc = os.path.basename(doc)
         for word in sent:
             if word not in self.index:
                 self.index[word] = {'count': 0, 'refs': []}

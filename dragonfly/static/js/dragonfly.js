@@ -676,6 +676,9 @@ dragonFly.Concordance = class Concordance {
                 html += "</div>";
             }
             html += "</div>";
+            html += '<div class="df-result-doc">';
+            html += refs[i].doc;
+            html += '</div>';
         }
         $('.df-results').html(html);
     }
