@@ -74,8 +74,14 @@
 .df-concordance > .navbar {
     margin-bottom: 0;
 }
+.df-results-wrapper {
+    position: relative;
+    width: 100%;
+}
 .df-results {
     padding: 5px;
+    overflow-y: scroll;
+    overflow-x: scroll;
 }
 .df-concordance .form-control {
     padding: 3px 6px;
@@ -92,6 +98,8 @@
 }
 .df-result {
     margin-top: 5px;
+    position: relative;
+    white-space: nowrap;
 }
 .df-result > .df-section:first-of-type {
     border-left: 1px solid #e7e7e7;

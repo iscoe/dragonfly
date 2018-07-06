@@ -634,6 +634,7 @@ dragonFly.Concordance = class Concordance {
 
     /**
      * Submit a concordance search to the server
+     * @param {string} word - Search term.
      */
     postSearch(word) {
         var self = this;
@@ -652,7 +653,8 @@ dragonFly.Concordance = class Concordance {
 
     /**
      * Update the results display box
-     *
+     * @param {string} word - The search term.
+     * @param {array} results - Array of results objects.
      */
     displayResults(word, results) {
         var html = ''
@@ -672,12 +674,32 @@ dragonFly.Concordance = class Concordance {
         }
         $('.df-results').html(html);
     }
+
+    /**
+     * Show the concordance window if not viewable
+     */
+    show() {
+        var cw = $('.df-concordance');
+        if (cw.height() < 100) {
+            cw.height(150);
+        }
+        this.handleResize(cw);
+    }
+
+    /**
+     * Update size of results div as the concordance is resized
+     * @param {jQuery} element - Concordance window div.
+     */
+    handleResize(element) {
+        $('.df-results').height(element.height() - 45);
+    }
 };
 
 dragonFly.Highlighter = class Highlighter {
     /**
      * Create the highlighter manager.
      * @param {Tags} tags - A representation of the tag types.
+     * @param {Concordance} concordance - Object that manages the concordance search.
      */
     constructor(tags, concordance) {
         this.tags = tags;
@@ -810,6 +832,7 @@ dragonFly.Highlighter = class Highlighter {
                 // concordance mode
                 this.tagMode = dragonFly.Mode.CONCORDANCE;
                 this.highlightTypeAndMode();
+                this.concordance.show();
                 break;
             case 'u':
                 // undo the previous action
@@ -1208,9 +1231,13 @@ $(document).ready(function() {
         }
     });
 
+    // support resizing the concordance window with the mouse
     $('.df-concordance').resizable({
         handleSelector: '.df-resize-bar',
         resizeWidth: false,
         resizeHeightFrom: 'top',
+        onDrag: function (event, element, newWidth, newHeight, opt) {
+            dragonFly.concordance.handleResize(element);
+        }
     });
 });
