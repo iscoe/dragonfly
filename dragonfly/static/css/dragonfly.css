@@ -77,12 +77,27 @@
 .df-results {
     padding: 5px;
 }
+.df-concordance .form-control {
+    padding: 3px 6px;
+    height: 20px;
+}
+.df-concordance .btn {
+    padding: 1px 4px;
+}
+.df-concordance .navbar {
+    min-height: 0;
+}
+.df-concordance .navbar-form {
+    margin: 2px 0;
+}
 .df-result {
     margin-top: 5px;
 }
+.df-result > .df-section:first-of-type {
+    border-left: 1px solid #e7e7e7;
+}
 .df-result-highlight {
-    text: red;
-    background-color: green;
+    color: red;
 }
 .alerts {
     position: fixed;
