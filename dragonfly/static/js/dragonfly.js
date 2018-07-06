@@ -641,6 +641,7 @@ dragonFly.Concordance = class Concordance {
         $.ajax({
             url: '/search',
             type: 'POST',
+            data: {'term': word},
             dataType: 'json',
             success: function(data) {
                 self.displayResults(word, data);
@@ -662,14 +663,16 @@ dragonFly.Concordance = class Concordance {
         var refs = data.refs;
         for (var i=0; i<refs.length; i++) {
             html += '<div class="df-result">';
-            for (var j=0; j<refs[i].source.length; j++){
+            for (var j=0; j<refs[i].text.length; j++){
                 html += '<div class="df-section df-row">';
-                if (word == refs[i].source[j]) {
-                    html += '<div class="df-result-highlight">' + refs[i].source[j] + '</div>';
+                if (word == refs[i].text[j]) {
+                    html += '<div class="df-result-highlight">' + refs[i].text[j] + '</div>';
                 } else {
-                    html += '<div>' + refs[i].source[j] + '</div>';
+                    html += '<div>' + refs[i].text[j] + '</div>';
                 }
-                html += '<div>' + refs[i].trans[j] + '</div>';
+                if (refs[i].trans != null) {
+                    html += '<div>' + refs[i].trans[j] + '</div>';
+                }
                 html += "</div>";
             }
             html += "</div>";
