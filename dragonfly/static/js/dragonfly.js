@@ -654,20 +654,22 @@ dragonFly.Concordance = class Concordance {
     /**
      * Update the results display box
      * @param {string} word - The search term.
-     * @param {array} results - Array of results objects.
+     * @param {array} data - Data object from concordance search server.
      */
-    displayResults(word, results) {
+    displayResults(word, data) {
         var html = ''
-        for (var i=0; i<results.length; i++) {
+        $('.df-term-count').html("Count: " + data.count);
+        var refs = data.refs;
+        for (var i=0; i<refs.length; i++) {
             html += '<div class="df-result">';
-            for (var j=0; j<results[i].source.length; j++){
+            for (var j=0; j<refs[i].source.length; j++){
                 html += '<div class="df-section df-row">';
-                if (word == results[i].source[j]) {
-                    html += '<div class="df-result-highlight">' + results[i].source[j] + '</div>';
+                if (word == refs[i].source[j]) {
+                    html += '<div class="df-result-highlight">' + refs[i].source[j] + '</div>';
                 } else {
-                    html += '<div>' + results[i].source[j] + '</div>';
+                    html += '<div>' + refs[i].source[j] + '</div>';
                 }
-                html += '<div>' + results[i].trans[j] + '</div>';
+                html += '<div>' + refs[i].trans[j] + '</div>';
                 html += "</div>";
             }
             html += "</div>";

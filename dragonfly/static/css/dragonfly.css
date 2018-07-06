@@ -96,6 +96,10 @@
 .df-concordance .navbar-form {
     margin: 2px 0;
 }
+.df-concordance .navbar-text {
+    margin: 0;
+    margin-top: 2px;
+}
 .df-result {
     margin-top: 5px;
     position: relative;
