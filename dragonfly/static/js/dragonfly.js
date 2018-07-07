@@ -663,6 +663,7 @@ dragonFly.Concordance = class Concordance {
         var refs = data.refs;
         for (var i=0; i<refs.length; i++) {
             html += '<div class="df-result">';
+            html += this.getCopyButton(refs[i].doc);
             for (var j=0; j<refs[i].text.length; j++){
                 html += '<div class="df-section df-row">';
                 if (word == refs[i].text[j]) {
@@ -677,10 +678,26 @@ dragonFly.Concordance = class Concordance {
             }
             html += "</div>";
             html += '<div class="df-result-doc">';
-            html += refs[i].doc;
             html += '</div>';
         }
         $('.df-results').html(html);
+        $('.df-copy > button').on('click', function() {
+            copyToClipboard($(this).data('doc-name'));
+            return false;
+        });
+    }
+
+    /**
+     * Create a copy button
+     * @param {string} doc - Document name.
+     * @return html string
+     */
+    getCopyButton(doc) {
+        var html = '<div class="df-copy">';
+        html += '<button type="button" class="btn btn-default" title="Copy doc name" data-doc-name="'+ doc + '">';
+        html += '<span class="glyphicon glyphicon-copy" aria-hidden="true" />';
+        html += '</button></div>';
+        return html;
     }
 
     /**
@@ -689,7 +706,7 @@ dragonFly.Concordance = class Concordance {
     show() {
         var cw = $('.df-concordance');
         if (cw.height() < 100) {
-            cw.height(150);
+            cw.height(200);
         }
         this.handleResize(cw);
     }
