@@ -92,11 +92,8 @@ df-nav-slim .navbar-form {
     margin: 0;
     margin-top: 8px;
 }
-.df-results-wrapper {
-    position: relative;
-    width: 100%;
-}
 .df-results {
+    position: relative;
     padding: 5px;
     overflow-y: scroll;
     overflow-x: scroll;
