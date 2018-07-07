@@ -3,12 +3,12 @@
     margin-right: 5px;
 }
 .navbar-header.navbar-labels {
-    margin-left: 25px;
+    margin-left: 15px;
 }
 .navbar-header > .label {
     color: white;
     font-size: 120%;
-    padding: .3em .5em .2em;
+    padding: .2em .5em .2em;
     margin-top: 10px;
     margin-bottom: 5px;
 }
@@ -17,7 +17,7 @@
     margin-bottom: 5px;
 }
 .navbar-header.navbar-buttons {
-    margin-left: 15px;
+    margin-left: 10px;
 }
 .df-navbar-button {
     margin-top: 10px;
@@ -28,8 +28,8 @@
 }
 .df-type {
     border: 3px solid #f8f8f8;
-    margin-right: 5px;
-    margin-left: 5px;
+    margin-right: 3px;
+    margin-left: 3px;
 }
 .df-type-active {
     border: 3px solid #666;
@@ -46,17 +46,81 @@
 .df-loc {
     background-color: rgba(196, 212, 175, 1.0);
 }
-.df-del {
+.df-del, .df-sel, .df-find {
     background-color: rgba(33, 33, 33, 0.5);
-}
-.df-sel {
-    background-color: rgba(156, 140, 114, 1.0);
 }
 .navbar-bottom {
     margin-top: 20px;
     margin-bottom: 0px;
     border-radius: 0;
     min-height: 50px;
+}
+.df-concordance {
+    background-color: white;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    height: 6px;
+    z-index: 100;
+}
+.df-resize-bar {
+    border-top: 1px solid #cccccc;
+    background-color: #e7e7e7;
+    height: 4px;
+}
+.df-resize-bar:hover {
+    background-color: #bbbbbb;
+    cursor: row-resize;
+}
+.df-nav-slim {
+    margin-bottom: 0;
+}
+.df-nav-slim .form-control {
+    padding: 3px 6px;
+    height: 20px;
+}
+.df-nav-slim .btn {
+    padding: 1px 4px;
+}
+.df-nav-slim {
+    min-height: 0;
+}
+df-nav-slim .navbar-form {
+    margin: 2px 0;
+}
+.df-nav-slim .navbar-text {
+    margin: 0;
+    margin-top: 8px;
+}
+.df-results {
+    position: relative;
+    padding: 5px;
+    overflow-y: scroll;
+    overflow-x: scroll;
+}
+.df-result {
+    margin-top: 5px;
+    position: relative;
+    white-space: nowrap;
+}
+.df-copy {
+    display: inline-block;
+    vertical-align: top;
+}
+.df-copy > .btn {
+    padding: 8px 10px;
+}
+.df-result > .df-section:nth-of-type(2) {
+    border-left: 1px solid #e7e7e7;
+    padding-left: 15px;
+    margin-left: 5px;
+}
+.df-result-doc {
+    margin: 3px;
+    margin-bottom: 8px;
+}
+.df-result-highlight {
+    color: red;
 }
 .alerts {
     position: fixed;

@@ -541,7 +541,7 @@ dragonFly.Translations = class Translations {
  * @readonly
  * @enum {number}
  */
-dragonFly.Mode = {DEL: 0, TAG: 1, SELECT: 2};
+dragonFly.Mode = {DEL: 0, TAG: 1, SELECT: 2, CONCORDANCE: 3};
 
 /** Class representing a tag type. */
 dragonFly.Tag = class Tag {
@@ -623,13 +623,112 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
     }
 };
 
+dragonFly.Concordance = class Concordance {
+    /**
+     * Search the concordance
+     */
+    search(word) {
+        $('.df-search').val(word);
+        this.postSearch(word);
+    }
+
+    /**
+     * Submit a concordance search to the server
+     * @param {string} word - Search term.
+     */
+    postSearch(word) {
+        var self = this;
+        $.ajax({
+            url: '/search',
+            type: 'POST',
+            data: {'term': word},
+            dataType: 'json',
+            success: function(data) {
+                self.displayResults(word, data);
+            },
+            error: function(xhr) {
+                dragonFly.showStatus('danger', 'Error contacting the server');
+            }
+        });
+    }
+
+    /**
+     * Update the results display box
+     * @param {string} word - The search term.
+     * @param {array} data - Data object from concordance search server.
+     */
+    displayResults(word, data) {
+        var html = ''
+        $('.df-term-count').html("Count: " + data.count);
+        var refs = data.refs;
+        for (var i=0; i<refs.length; i++) {
+            html += '<div class="df-result">';
+            html += this.getCopyButton(refs[i].doc);
+            for (var j=0; j<refs[i].text.length; j++){
+                html += '<div class="df-section df-row">';
+                if (word == refs[i].text[j]) {
+                    html += '<div class="df-result-highlight">' + refs[i].text[j] + '</div>';
+                } else {
+                    html += '<div>' + refs[i].text[j] + '</div>';
+                }
+                if (refs[i].trans != null) {
+                    html += '<div>' + refs[i].trans[j] + '</div>';
+                }
+                html += "</div>";
+            }
+            html += "</div>";
+            html += '<div class="df-result-doc">';
+            html += '</div>';
+        }
+        $('.df-results').html(html);
+        $('.df-copy > button').on('click', function() {
+            copyToClipboard($(this).data('doc-name'));
+            return false;
+        });
+    }
+
+    /**
+     * Create a copy button
+     * @param {string} doc - Document name.
+     * @return html string
+     */
+    getCopyButton(doc) {
+        var html = '<div class="df-copy">';
+        html += '<button type="button" class="btn btn-default" title="Copy doc name" data-doc-name="'+ doc + '">';
+        html += '<span class="glyphicon glyphicon-copy" aria-hidden="true" />';
+        html += '</button></div>';
+        return html;
+    }
+
+    /**
+     * Show the concordance window if not viewable
+     */
+    show() {
+        var cw = $('.df-concordance');
+        if (cw.height() < 100) {
+            cw.height(200);
+        }
+        this.handleResize(cw);
+    }
+
+    /**
+     * Update size of results div as the concordance is resized
+     * @param {jQuery} element - Concordance window div.
+     */
+    handleResize(element) {
+        $('.df-results').height(element.height() - 45);
+    }
+};
+
 dragonFly.Highlighter = class Highlighter {
     /**
      * Create the highlighter manager.
      * @param {Tags} tags - A representation of the tag types.
+     * @param {Concordance} concordance - Object that manages the concordance search.
      */
-    constructor(tags) {
+    constructor(tags, concordance) {
         this.tags = tags;
+        this.concordance = concordance;
         this.isCascade = true;
         this.tagMode = dragonFly.Mode.TAG;
         this.prevTagMode = dragonFly.Mode.TAG;
@@ -699,8 +798,10 @@ dragonFly.Highlighter = class Highlighter {
             $(".df-type" + className).addClass('df-type-active');
         } else if (this.tagMode == dragonFly.Mode.DEL) {
             $(".df-del").addClass('df-type-active');
-        } else {
+        } else if (this.tagMode == dragonFly.Mode.SELECT) {
             $(".df-sel").addClass('df-type-active');
+        } else {
+            $(".df-find").addClass('df-type-active');
         }
     }
 
@@ -751,6 +852,12 @@ dragonFly.Highlighter = class Highlighter {
                 this.prevTagMode = this.tagMode;
                 this.tagMode = dragonFly.Mode.SELECT;
                 this.highlightTypeAndMode();
+                break;
+            case 'f':
+                // concordance mode
+                this.tagMode = dragonFly.Mode.CONCORDANCE;
+                this.highlightTypeAndMode();
+                this.concordance.show();
                 break;
             case 'u':
                 // undo the previous action
@@ -817,6 +924,8 @@ dragonFly.Highlighter = class Highlighter {
             this.deleteTag(element);
         } else if (this.tagMode == dragonFly.Mode.SELECT) {
             this.select(element);
+        } else if (this.tagMode == dragonFly.Mode.CONCORDANCE) {
+            this.concordance.search(element.html());
         } else {
             // set this so we know whether to prevent user navigating away
             this.anyTaggingPerformed = true;
@@ -1056,7 +1165,8 @@ $(document).ready(function() {
 
     dragonFly.lang = $("meta[name=lang]").attr("content");
     dragonFly.tags = new dragonFly.Tags();
-    dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tags);
+    dragonFly.concordance = new dragonFly.Concordance();
+    dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tags, dragonFly.concordance);
     dragonFly.highlighter.initializeHighlight();
     dragonFly.annotationSaver = new dragonFly.AnnotationSaver($("#df-filename").html());
     dragonFly.hints = new dragonFly.Hints(1);
@@ -1141,6 +1251,16 @@ $(document).ready(function() {
                 'left': $(this).scrollLeft(),
                 'height': ($(".df-sentence").height() - 5) + 'px'
             });
+        }
+    });
+
+    // support resizing the concordance window with the mouse
+    $('.df-concordance').resizable({
+        handleSelector: '.df-resize-bar',
+        resizeWidth: false,
+        resizeHeightFrom: 'top',
+        onDrag: function (event, element, newWidth, newHeight, opt) {
+            dragonFly.concordance.handleResize(element);
         }
     });
 });
