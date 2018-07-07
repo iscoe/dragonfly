@@ -26,11 +26,16 @@
                 {% endif %}
             {% else %}
                 {% if column.strings[c]|length > max_col_width %}
-                {% set column_text = column.strings[c][:max_col_width] + "…" %}
+                  {% set column_text = column.strings[c][:max_col_width] + "…" %}
+                  {% if column.strings[c]|length > 400 %}
+                    {% set tooltip_text = column.strings[c][:400] %}
+                  {% else %}
+                    {% set tooltip_text = column.strings[c] %}
+                  {% endif %}
                 {% else %}
-                {% set column_text = column.strings[c] %}
+                  {% set column_text = column.strings[c] %}
                 {% endif %}
-                <div {% if column.strings[c]|length > max_col_width %} data-toggle="tooltip" title="{{ column.strings[c] }}" {% endif %}>{{ column_text }}</div>
+                <div {% if column.strings[c]|length > max_col_width %} data-toggle="tooltip" title="{{ tooltip_text }}" {% endif %}>{{ column_text }}</div>
             {% endif %}
             {% endfor %}
             </div>
