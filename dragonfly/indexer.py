@@ -57,4 +57,4 @@ class Indexer(object):
         return os.path.join(self.index_dir, filename)
 
     def lookup(self, term):
-        return self.inverted_index.retrieve(term)
+        return self.inverted_index.retrieve(term.lower())

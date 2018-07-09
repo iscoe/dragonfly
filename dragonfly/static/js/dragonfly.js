@@ -658,7 +658,8 @@ dragonFly.Concordance = class Concordance {
      * @param {array} data - Data object from concordance search server.
      */
     displayResults(word, data) {
-        var html = ''
+        word = word.toLowerCase();
+        var html = '';
         $('.df-term-count').html("Count: " + data.count);
         var refs = data.refs;
         for (var i=0; i<refs.length; i++) {
