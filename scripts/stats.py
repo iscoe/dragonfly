@@ -4,6 +4,12 @@
 # All rights reserved.
 # Distributed under the terms of the Apache 2.0 License.
 
+#
+# Usage: python3 scripts/stats.py [annotations directory]
+#
+# Use -v to get a count over mentions
+#
+
 import argparse
 import collections
 import csv
@@ -19,7 +25,7 @@ TOKEN = 0
 TAG = 1
 
 parser = argparse.ArgumentParser()
-parser.add_argument("input", help="filename or directory with annotations")
+parser.add_argument("input", help="directory with .anno files")
 parser.add_argument("-v", "--verbose", help="verbose output", action='store_true', default=False)
 args = parser.parse_args()
 
@@ -125,6 +131,8 @@ for s in stats.entities.values():
 if args.verbose:
     print("---------------------------------")
     for s in stats.entities.values():
-        print(s.type + "\n")
+        print()
+        print(s.type)
+        print("-------------------")
         for name, count in s.entities.most_common(len(s.entities)):
             print("{}\t{}".format(name, count))
