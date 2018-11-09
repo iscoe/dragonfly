@@ -808,12 +808,13 @@ dragonFly.Highlighter = class Highlighter {
     setControlKeyUp() {
         // only change the state if in tag mode
         if (this.tagMode == dragonFly.Mode.TAG) {
-            //this.multiTokenTagClickCount = 0; // reset click count to 0
 
             this.controlKeyDown = false;
             // done tagging so apply cascade if on
             if (this.multiTokenTag.size() > 0 && this.isCascade) {
                 this.cascadeMultiTokenTag(this.multiTokenTag);
+            } else {
+                this.deleteTag(this.multiTokenFirstElement)
             }
             this.multiTokenTag = new dragonFly.MultiTokenTag(this.tags, this.currentTag);
         }
