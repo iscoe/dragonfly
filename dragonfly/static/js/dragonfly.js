@@ -621,7 +621,41 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
     size() {
         return this.elements.length;
     }
+
+    createMultiTokenTag(startTag, firstElement, lastElement) {
+        var firstElementID = $(firstElement).attr('id');
+        var lastElementID = $(lastElement).attr('id');
+        var firstElementRowColumn = [
+            $(firstElement).attr('id').split("-")[2],
+            $(firstElement).attr('id').split("-")[3]
+        ]
+        var lastElementRowColumn = [
+            $(lastElement).attr('id').split("-")[2],
+            $(lastElement).attr('id').split("-")[3]
+        ]
+        this.tags = []
+        if (firstElementRowColumn[0] == lastElementRowColumn[0]) {
+            if (firstElementRowColumn[1] < lastElementRowColumn[1]) {
+                for (var i = firstElementRowColumn[1]; i <=lastElementRowColumn[1]; i++) {
+                    var elementId = '#df-token-' + firstElementRowColumn[0] + '-' + i
+                    this.elements.push($(elementId))
+                    this.tags.push(startTag)
+                }
+            }
+        } else {
+
+            dragonFly.showStatus('danger', "Error: Can't annotate tokens accross lines.");
+            firstElement.removeData("tag");
+            firstElement.removeAttr("data-tag");
+            firstElement.removeData("inferred");
+            firstElement.attr('class', 'df-token');
+        }
+
+        this.tag = startTag;
+    }
 };
+
+
 
 dragonFly.Concordance = class Concordance {
     /**
@@ -757,6 +791,8 @@ dragonFly.Highlighter = class Highlighter {
     setControlKeyDown() {
         // only change the state if in tag mode
         if (this.tagMode == dragonFly.Mode.TAG) {
+            this.multiTokenTagClickCount = 0; // initialize click count to 0
+
             if (this.controlKeyDown == true) {
                 // Windows continually fires the down event and we want to ignore those after first
                 return;
@@ -772,6 +808,8 @@ dragonFly.Highlighter = class Highlighter {
     setControlKeyUp() {
         // only change the state if in tag mode
         if (this.tagMode == dragonFly.Mode.TAG) {
+            //this.multiTokenTagClickCount = 0; // reset click count to 0
+
             this.controlKeyDown = false;
             // done tagging so apply cascade if on
             if (this.multiTokenTag.size() > 0 && this.isCascade) {
@@ -932,11 +970,29 @@ dragonFly.Highlighter = class Highlighter {
             this.anyTaggingPerformed = true;
             var tag = this.currentTag;
             if (this.controlKeyDown) {
+                this.multiTokenTagClickCount = this.multiTokenTagClickCount + 1;
+
                 if (this.multiTokenTag.size() == 0) {
                     this.undo.start();
                 }
-                this.multiTokenTag.update(element);
-                this.highlightMultiTokenTag(this.multiTokenTag);
+                if (this.multiTokenTagClickCount == 1) {
+                    this.multiTokenFirstTag = this.currentTag;
+                    this.multiTokenFirstElement = element;
+
+                    this.highlightToken(element, tag, tag.start, false);
+
+                } else if (this.multiTokenTagClickCount == 2) {
+                    this.multiTokenSecondElement = element;
+
+                    this.multiTokenTag.createMultiTokenTag(
+                        this.multiTokenFirstTag,
+                        this.multiTokenFirstElement,
+                        this.multiTokenSecondElement
+                        );
+
+                    this.highlightMultiTokenTag(this.multiTokenTag);
+                }
+
             } else {
                 this.undo.start();
                 this.highlightToken(element, tag, tag.start, this.isCascade);
