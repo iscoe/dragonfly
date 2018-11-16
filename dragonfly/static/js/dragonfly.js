@@ -644,7 +644,7 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
             }
         } else {
 
-            dragonFly.showStatus('danger', "Error: Can't annotate tokens accross lines.");
+            dragonFly.showStatus('danger', "Error: Can't annotate tokens across lines.");
             firstElement.removeData("tag");
             firstElement.removeAttr("data-tag");
             firstElement.removeData("inferred");
