@@ -623,8 +623,6 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
     }
 
     createMultiTokenTag(startTag, firstElement, lastElement) {
-        var firstElementID = $(firstElement).attr('id');
-        var lastElementID = $(lastElement).attr('id');
         var firstElementRowColumn = [
             $(firstElement).attr('id').split("-")[2],
             $(firstElement).attr('id').split("-")[3]
