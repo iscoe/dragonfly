@@ -983,12 +983,12 @@ dragonFly.Highlighter = class Highlighter {
                     this.highlightToken(element, tag, tag.start, false);
 
                 } else if (this.multiTokenTagClickCount == 2) {
-                    this.multiTokenSecondElement = element;
+                    this.multiTokenLastElement = element;
 
                     this.multiTokenTag.createMultiTokenTag(
                         this.multiTokenFirstTag,
                         this.multiTokenFirstElement,
-                        this.multiTokenSecondElement
+                        this.multiTokenLastElement
                         );
 
                     this.highlightMultiTokenTag(this.multiTokenTag);
