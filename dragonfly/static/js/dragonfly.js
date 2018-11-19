@@ -623,6 +623,7 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
     }
 
     createMultiTokenTag(startTag, firstElement, lastElement) {
+
         var firstElementRowColumn = [
             $(firstElement).attr('id').split("-")[2],
             $(firstElement).attr('id').split("-")[3]
@@ -648,6 +649,9 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
             firstElement.removeData("inferred");
             firstElement.attr('class', 'df-token');
         }
+
+        firstElement.removeClass('df-bold-text')
+        lastElement.removeClass('df-bold-text')
 
         this.tag = startTag;
     }
@@ -977,12 +981,10 @@ dragonFly.Highlighter = class Highlighter {
                 if (this.multiTokenTagClickCount == 1) {
                     this.multiTokenFirstTag = this.currentTag;
                     this.multiTokenFirstElement = element;
-
-                    this.highlightToken(element, tag, tag.start, false);
-
+                    this.multiTokenFirstElement.addClass('df-bold-text');
                 } else if (this.multiTokenTagClickCount == 2) {
                     this.multiTokenLastElement = element;
-
+                    this.multiTokenLastElement.addClass('df-bold-text');
                     this.multiTokenTag.createMultiTokenTag(
                         this.multiTokenFirstTag,
                         this.multiTokenFirstElement,
