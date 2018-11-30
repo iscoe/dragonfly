@@ -815,8 +815,6 @@ dragonFly.Highlighter = class Highlighter {
             // done tagging so apply cascade if on
             if (this.multiTokenTag.size() > 0 && this.isCascade) {
                 this.cascadeMultiTokenTag(this.multiTokenTag);
-            } else {
-                this.deleteTag(this.multiTokenFirstElement)
             }
             this.multiTokenTag = new dragonFly.MultiTokenTag(this.tags, this.currentTag);
         }
