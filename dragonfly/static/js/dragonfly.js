@@ -817,6 +817,11 @@ dragonFly.Highlighter = class Highlighter {
                 this.cascadeMultiTokenTag(this.multiTokenTag);
             }
             this.multiTokenTag = new dragonFly.MultiTokenTag(this.tags, this.currentTag);
+
+            if (this.multiTokenTagClickCount == 1) {
+                this.multiTokenFirstElement.removeClass('df-bold-text')
+
+            }
         }
     }
 
