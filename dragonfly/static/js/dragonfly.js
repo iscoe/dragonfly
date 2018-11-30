@@ -810,6 +810,7 @@ dragonFly.Highlighter = class Highlighter {
     setControlKeyUp() {
         // only change the state if in tag mode
         if (this.tagMode == dragonFly.Mode.TAG) {
+            this.multiTokenTagClickCount = 0; // reinitialize click count to 0
 
             this.controlKeyDown = false;
             // done tagging so apply cascade if on
@@ -820,7 +821,6 @@ dragonFly.Highlighter = class Highlighter {
 
             if (this.multiTokenTagClickCount == 1) {
                 this.multiTokenFirstElement.removeClass('df-bold-text')
-
             }
         }
     }
@@ -962,7 +962,14 @@ dragonFly.Highlighter = class Highlighter {
      * The result depends on what mode we are in (tagging, delete, select).
      * @param {jQuery} element - Token element clicked.
      */
-    clickToken(element) {
+    clickToken(element, event) {
+        if (event[dragonFly.multiTagEventKey]){
+            if ((this.multiTokenTagClickCount == 0) || (this.multiTokenTagClickCount == undefined)) {
+                this.controlKeyDown = true;
+                this.setControlKeyDown();
+            }
+        }
+
         if (this.tagMode == dragonFly.Mode.DEL) {
             this.undo.start();
             this.undo.add(element);
@@ -993,10 +1000,8 @@ dragonFly.Highlighter = class Highlighter {
                         this.multiTokenFirstElement,
                         this.multiTokenLastElement
                         );
-
                     this.highlightMultiTokenTag(this.multiTokenTag);
                 }
-
             } else {
                 this.undo.start();
                 this.highlightToken(element, tag, tag.start, this.isCascade);
@@ -1215,10 +1220,12 @@ $(document).ready(function() {
     // According to http://unixpapa.com/js/key.html, shift = 16, control = 17, alt = 18, caps lock = 20
     if (/Mac/.test(window.navigator.platform)) {
         // Option key on Macs
-        dragonFly.multiTagKey = "18";
+        dragonFly.multiTagKey = '18';
+        dragonFly.multiTagEventKey = 'altKey';
     } else {
         // Control key for Windows and Linux
-        dragonFly.multiTagKey = "17";
+        dragonFly.multiTagKey = '17';
+        dragonFly.multiTagEventKey = 'ctrlKey';
     }
 
     // set the margin to account for varying navbar sizes due to viewport
@@ -1243,7 +1250,7 @@ $(document).ready(function() {
     });
 
     $(".df-token").on("click", function(event) {
-        dragonFly.highlighter.clickToken($(this));
+        dragonFly.highlighter.clickToken($(this), event);
     });
 
     $(document).on("keypress", function(event) {
