@@ -964,7 +964,7 @@ dragonFly.Highlighter = class Highlighter {
      */
     clickToken(element, event) {
         if (event[dragonFly.multiTagEventKey]){
-            if ((this.multiTokenTagClickCount == 0) || (this.multiTokenTagClickCount == undefined)) {
+            if (this.multiTokenTagClickCount == 0) {
                 this.controlKeyDown = true;
                 this.setControlKeyDown();
             }
@@ -1227,6 +1227,8 @@ $(document).ready(function() {
         dragonFly.multiTagKey = '17';
         dragonFly.multiTagEventKey = 'ctrlKey';
     }
+
+    this.multiTokenTagClickCount = 0; // initialize click count to 0
 
     // set the margin to account for varying navbar sizes due to viewport
     $('body').css('margin-top', $('#df-nav').height() + 10);
