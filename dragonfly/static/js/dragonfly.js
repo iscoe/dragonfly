@@ -23,6 +23,10 @@ dragonFly.showStatus = function(type, text) {
 };
 
 dragonFly.Settings = class Settings {
+    /**
+     * Create a Settings object
+     * @param {AnnotationSaver} annotationSaver - object for background saving of user annotations
+     */
     constructor(annotationSaver) {
         this.settings = {};
         this.timerId = null;
@@ -170,6 +174,8 @@ dragonFly.Settings = class Settings {
     }
 };
 
+
+/** context menu used for adding user provided translations */
 dragonFly.ContextMenu = class ContextMenu {
     // TODO probably replace with a custom event
     constructor(highlighter, translationManager) {
@@ -545,7 +551,7 @@ dragonFly.Translations = class Translations {
  * @readonly
  * @enum {number}
  */
-dragonFly.Mode = {DEL: 0, TAG: 1, SELECT: 2, CONCORDANCE: 3};
+dragonFly.ClickMode = {DEL: 0, TAG: 1, SELECT: 2, CONCORDANCE: 3};
 
 /** Class representing a tag type. */
 dragonFly.TagType = class TagType {
@@ -777,8 +783,8 @@ dragonFly.Highlighter = class Highlighter {
         this.tags = tags;
         this.concordance = concordance;
         this.isCascade = true;
-        this.tagMode = dragonFly.Mode.TAG;
-        this.prevTagMode = dragonFly.Mode.TAG;
+        this.clickMode = dragonFly.ClickMode.TAG;
+        this.prevClickMode = dragonFly.ClickMode.TAG;
         this.currentTag = tags.per;
         this.controlKeyDown = false;
         this.multiTokenTag = new dragonFly.MultiTokenTag(this.tags);
@@ -802,7 +808,7 @@ dragonFly.Highlighter = class Highlighter {
      */
     setControlKeyDown() {
         // only change the state if in tag mode
-        if (this.tagMode == dragonFly.Mode.TAG) {
+        if (this.clickMode == dragonFly.ClickMode.TAG) {
             this.multiTokenTagClickCount = 0; // initialize click count to 0
 
             if (this.controlKeyDown == true) {
@@ -819,7 +825,7 @@ dragonFly.Highlighter = class Highlighter {
      */
     setControlKeyUp() {
         // only change the state if in tag mode
-        if (this.tagMode == dragonFly.Mode.TAG) {
+        if (this.clickMode == dragonFly.ClickMode.TAG) {
             this.multiTokenTagClickCount = 0; // reinitialize click count to 0
 
             this.controlKeyDown = false;
@@ -844,16 +850,16 @@ dragonFly.Highlighter = class Highlighter {
     }
 
     /**
-     * Update the navbar indicator of mode and tag type.
+     * Update the navbar indicator of click mode and tag type.
      */
-    highlightTypeAndMode() {
+    highlightTypeAndClickMode() {
         $(".df-type").removeClass('df-type-active');
-        if (this.tagMode == dragonFly.Mode.TAG) {
+        if (this.clickMode == dragonFly.ClickMode.TAG) {
             var className = ".df-" + this.currentTag.name.toLowerCase();
             $(".df-type" + className).addClass('df-type-active');
-        } else if (this.tagMode == dragonFly.Mode.DEL) {
+        } else if (this.clickMode == dragonFly.ClickMode.DEL) {
             $(".df-del").addClass('df-type-active');
-        } else if (this.tagMode == dragonFly.Mode.SELECT) {
+        } else if (this.clickMode == dragonFly.ClickMode.SELECT) {
             $(".df-sel").addClass('df-type-active');
         } else {
             $(".df-find").addClass('df-type-active');
@@ -895,8 +901,8 @@ dragonFly.Highlighter = class Highlighter {
             case '0':
             case 'd':
                 // enter into delete mode
-                this.tagMode = dragonFly.Mode.DEL;
-                this.highlightTypeAndMode();
+                this.clickMode = dragonFly.ClickMode.DEL;
+                this.highlightTypeAndClickMode();
                 break;
             case 'r':
                 // reset the state of the ui
@@ -904,14 +910,14 @@ dragonFly.Highlighter = class Highlighter {
                 break;
             case 's':
                 // enter into select mode
-                this.prevTagMode = this.tagMode;
-                this.tagMode = dragonFly.Mode.SELECT;
-                this.highlightTypeAndMode();
+                this.prevClickMode = this.clickMode;
+                this.clickMode = dragonFly.ClickMode.SELECT;
+                this.highlightTypeAndClickMode();
                 break;
             case 'f':
                 // concordance mode
-                this.tagMode = dragonFly.Mode.CONCORDANCE;
-                this.highlightTypeAndMode();
+                this.tagClickMode = dragonFly.ClickMode.CONCORDANCE;
+                this.highlightTypeAndClickMode();
                 this.concordance.show();
                 break;
             case 'u':
@@ -961,15 +967,15 @@ dragonFly.Highlighter = class Highlighter {
         }
 
         if (tag) {
-            this.tagMode = dragonFly.Mode.TAG;
+            this.clickMode = dragonFly.ClickMode.TAG;
             this.currentTag = tag;
-            this.highlightTypeAndMode();
+            this.highlightTypeAndClickMode();
         }
     }
 
     /**
      * Process a token click.
-     * The result depends on what mode we are in (tagging, delete, select).
+     * The result depends on what click mode we are in (tagging, delete, select).
      * @param {jQuery} element - Token element clicked.
      */
     clickToken(element, event) {
@@ -980,13 +986,13 @@ dragonFly.Highlighter = class Highlighter {
             }
         }
 
-        if (this.tagMode == dragonFly.Mode.DEL) {
+        if (this.clickMode == dragonFly.ClickMode.DEL) {
             this.undo.start();
             this.undo.add(element);
             this.deleteTag(element);
-        } else if (this.tagMode == dragonFly.Mode.SELECT) {
+        } else if (this.clickMode == dragonFly.ClickMode.SELECT) {
             this.select(element);
-        } else if (this.tagMode == dragonFly.Mode.CONCORDANCE) {
+        } else if (this.clickMode == dragonFly.ClickMode.CONCORDANCE) {
             this.concordance.search(element.html());
         } else {
             // set this so we know whether to prevent user navigating away
@@ -1156,8 +1162,8 @@ dragonFly.Highlighter = class Highlighter {
             }
             copyToClipboard(text);
             this.selectStart = null;
-            this.tagMode = this.prevTagMode;
-            this.highlightTypeAndMode();
+            this.clickMode = this.prevClickMode;
+            this.highlightTypeAndClickMode();
             dragonFly.showStatus('success', 'Copied');
         }
     }
@@ -1281,7 +1287,7 @@ $(document).ready(function() {
         }
     });
 
-    // change the mode or tag type by clicking on navbar
+    // change the click mode or tag type by clicking on navbar
     $(".df-type").on("click", function(event) {
         var letter = $(this).attr("title");
         dragonFly.highlighter.pressKey(letter);
