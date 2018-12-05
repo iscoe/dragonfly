@@ -627,18 +627,18 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
         var firstElementRowColumn = [
             $(firstElement).attr('id').split("-")[2],
             $(firstElement).attr('id').split("-")[3]
-        ]
+        ];
         var lastElementRowColumn = [
             $(lastElement).attr('id').split("-")[2],
             $(lastElement).attr('id').split("-")[3]
-        ]
-        this.tags = []
+        ];
+        this.tags = [];
         if (firstElementRowColumn[0] == lastElementRowColumn[0]) {
             if (firstElementRowColumn[1] < lastElementRowColumn[1]) {
                 for (var i = firstElementRowColumn[1]; i <=lastElementRowColumn[1]; i++) {
-                    var elementId = '#df-token-' + firstElementRowColumn[0] + '-' + i
-                    this.elements.push($(elementId))
-                    this.tags.push(startTag)
+                    var elementId = '#df-token-' + firstElementRowColumn[0] + '-' + i;
+                    this.elements.push($(elementId));
+                    this.tags.push(startTag);
                 }
             }
         } else {
@@ -650,8 +650,8 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
             firstElement.attr('class', 'df-token');
         }
 
-        firstElement.removeClass('df-bold-text')
-        lastElement.removeClass('df-bold-text')
+        firstElement.removeClass('df-bold-text');
+        lastElement.removeClass('df-bold-text');
 
         this.tag = startTag;
     }
@@ -820,7 +820,7 @@ dragonFly.Highlighter = class Highlighter {
             this.multiTokenTag = new dragonFly.MultiTokenTag(this.tags, this.currentTag);
 
             if (this.multiTokenTagClickCount == 1) {
-                this.multiTokenFirstElement.removeClass('df-bold-text')
+                this.multiTokenFirstElement.removeClass('df-bold-text');
             }
         }
     }
