@@ -208,6 +208,10 @@ dragonFly.ContextMenu = class ContextMenu {
         this.highlighter.contextMenuActive = true;
     }
 
+    /**
+     * Get the information about the tag like type and text
+     * @param {jQuery} token - Token element for tag
+     */
     getSource(token) {
         var result = {'type': null};
         var tag = token.data('tag');
@@ -544,26 +548,26 @@ dragonFly.Translations = class Translations {
 dragonFly.Mode = {DEL: 0, TAG: 1, SELECT: 2, CONCORDANCE: 3};
 
 /** Class representing a tag type. */
-dragonFly.Tag = class Tag {
+dragonFly.TagType = class TagType {
     /**
      * Create a tag type
-     * @param {string} type - The tag name
+     * @param {string} name - The tag type name
      */
-    constructor(type) {
-        this.type = type.toLowerCase();
-        this.start = "B-" + type;
-        this.inside = "I-" + type;
+    constructor(name) {
+        this.name = name.toLowerCase();
+        this.start = "B-" + name;
+        this.inside = "I-" + name;
     }
 };
 
 /** Class that holds the tag types. */
-dragonFly.Tags = class Tags {
+dragonFly.TagTypes = class TagTypes {
     constructor() {
-        this.per = new dragonFly.Tag("PER");
-        this.org = new dragonFly.Tag("ORG");
-        this.gpe = new dragonFly.Tag("GPE");
-        this.loc = new dragonFly.Tag("LOC");
-        this.tags = [this.per, this.org, this.gpe, this.loc];
+        this.per = new dragonFly.TagType("PER");
+        this.org = new dragonFly.TagType("ORG");
+        this.gpe = new dragonFly.TagType("GPE");
+        this.loc = new dragonFly.TagType("LOC");
+        this.types = [this.per, this.org, this.gpe, this.loc];
     }
 
     /**
@@ -578,8 +582,8 @@ dragonFly.Tags = class Tags {
         var tagType = value;
         tagType = tagType.slice(2);
         for (var i = 0; i < this.tags.length; i++) {
-            if (this.tags[i].type == tagType.toLowerCase()) {
-                return this.tags[i];
+            if (this.tags[i].name == tagType.toLowerCase()) {
+                return this.types[i];
             }
         }
         return;
@@ -590,12 +594,12 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
     /**
      * Create a multi-token tag.
      * @param {Tags} tags - Tags object with all possible tags.
-     * @param {Tag} startTag - Tag object that represents the entity type.
+     * @param {Tag} tagType - Tag object that represents the entity type.
      */
-    constructor(tags, startTag) {
+    constructor(tags, tagType) {
         this.elements = [];
         this.tags = tags;
-        this.tag = startTag;
+        this.tag = tagType;
     }
 
     /**
@@ -622,23 +626,30 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
         return this.elements.length;
     }
 
-    createMultiTokenTag(startTag, firstElement, lastElement) {
-
+    /**
+     * Create a multi-token tag from first and last element.
+     * @param {Tag} tagType - Tag object that represents the entity type.
+     * @param {obje} firstElement - First token element in the tag.
+     * @param {jQuery} lastElement - Last token element in the tag.
+     */
+    create(tagType, firstElement, lastElement) {
+        // df-token-[row]-[col]
         var firstElementRowColumn = [
-            parseInt($(firstElement).attr('id').split("-")[2],10),
-            parseInt($(firstElement).attr('id').split("-")[3],10)
+            parseInt($(firstElement).attr('id').split("-")[2]),
+            parseInt($(firstElement).attr('id').split("-")[3])
         ];
         var lastElementRowColumn = [
-            parseInt($(lastElement).attr('id').split("-")[2],10),
-            parseInt($(lastElement).attr('id').split("-")[3],10)
+            parseInt($(lastElement).attr('id').split("-")[2]),
+            parseInt($(lastElement).attr('id').split("-")[3])
         ];
+
         this.tags = [];
         if (firstElementRowColumn[0] == lastElementRowColumn[0]) {
             if (firstElementRowColumn[1] < lastElementRowColumn[1]) {
                 for (var i = firstElementRowColumn[1]; i <=lastElementRowColumn[1]; i++) {
                     var elementId = '#df-token-' + firstElementRowColumn[0] + '-' + i;
                     this.elements.push($(elementId));
-                    this.tags.push(startTag);
+                    this.tags.push(tagType);
                 }
             }
         } else {
@@ -653,10 +664,9 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
         firstElement.removeClass('df-bold-text');
         lastElement.removeClass('df-bold-text');
 
-        this.tag = startTag;
+        this.tag = tagType;
     }
 };
-
 
 
 dragonFly.Concordance = class Concordance {
@@ -839,7 +849,7 @@ dragonFly.Highlighter = class Highlighter {
     highlightTypeAndMode() {
         $(".df-type").removeClass('df-type-active');
         if (this.tagMode == dragonFly.Mode.TAG) {
-            var className = ".df-" + this.currentTag.type.toLowerCase();
+            var className = ".df-" + this.currentTag.name.toLowerCase();
             $(".df-type" + className).addClass('df-type-active');
         } else if (this.tagMode == dragonFly.Mode.DEL) {
             $(".df-del").addClass('df-type-active');
@@ -995,7 +1005,7 @@ dragonFly.Highlighter = class Highlighter {
                 } else if (this.multiTokenTagClickCount == 2) {
                     this.multiTokenLastElement = element;
                     this.multiTokenLastElement.addClass('df-bold-text');
-                    this.multiTokenTag.createMultiTokenTag(
+                    this.multiTokenTag.create(
                         this.multiTokenFirstTag,
                         this.multiTokenFirstElement,
                         this.multiTokenLastElement
@@ -1035,7 +1045,7 @@ dragonFly.Highlighter = class Highlighter {
         if (string.charAt(0) == 'B') {
             classes += " df-b-tag";
         }
-        classes += " df-" + tag.type;
+        classes += " df-" + tag.name;
         token.attr('class', classes);
 
         var tokenText = token.html().toLowerCase();
@@ -1228,13 +1238,13 @@ $(document).ready(function() {
         dragonFly.multiTagEventKey = 'ctrlKey';
     }
 
-    this.multiTokenTagClickCount = 0; // initialize click count to 0
+    this.multiTokenTagClickCount = 0;
 
     // set the margin to account for varying navbar sizes due to viewport
     $('body').css('margin-top', $('#df-nav').height() + 10);
 
     dragonFly.lang = $("meta[name=lang]").attr("content");
-    dragonFly.tags = new dragonFly.Tags();
+    dragonFly.tags = new dragonFly.TagTypes();
     dragonFly.concordance = new dragonFly.Concordance();
     dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tags, dragonFly.concordance);
     dragonFly.highlighter.initializeHighlight();
