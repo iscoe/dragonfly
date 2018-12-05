@@ -204,3 +204,6 @@ df-nav-slim .navbar-form {
 .tooltip {
     font-size: 14px; /* override bootstrap */
 }
+.df-bold-text {
+    font-weight:bold;
+}
