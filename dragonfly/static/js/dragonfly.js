@@ -581,14 +581,14 @@ dragonFly.TagTypes = class TagTypes {
      * @param {string} value - The tag string like 'B-PER'.
      * @return {dragonFly.Tag} Tag object or null if no match.
      */
-    getTag(value) {
+    getTagType(value) {
         if (value == null || value == "O") {
             return;
         }
         var tagType = value;
         tagType = tagType.slice(2);
-        for (var i = 0; i < this.tags.length; i++) {
-            if (this.tags[i].name == tagType.toLowerCase()) {
+        for (var i = 0; i < this.types.length; i++) {
+            if (this.types[i].name == tagType.toLowerCase()) {
                 return this.types[i];
             }
         }
@@ -599,13 +599,13 @@ dragonFly.TagTypes = class TagTypes {
 dragonFly.MultiTokenTag = class MultiTokenTag {
     /**
      * Create a multi-token tag.
-     * @param {Tags} tags - Tags object with all possible tags.
-     * @param {Tag} tagType - Tag object that represents the entity type.
+     * @param {TagTypes} tagTypes - TagTypes object with all possible tag types.
+     * @param {TagType} tagType - TagType object that represents the entity type.
      */
-    constructor(tags, tagType) {
+    constructor(tagTypes, tagType) {
         this.elements = [];
-        this.tags = tags;
-        this.tag = tagType;
+        this.tagTypes = tagTypes;
+        this.tagType = tagType;
     }
 
     /**
@@ -618,10 +618,10 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
 
     /**
      * Change the entity type.
-     * @param {Tag} tag - Tag object that represents the entity type.
+     * @param {TagType} tagType - TagType object that represents the entity type.
      */
-    setTag(tag) {
-        this.tag = tag;
+    setTagType(tagType) {
+        this.tagType = tagType;
     }
 
     /**
@@ -634,11 +634,13 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
 
     /**
      * Create a multi-token tag from first and last element.
-     * @param {Tag} tagType - Tag object that represents the entity type.
+     * @param {TagType} tagType - TagType object that represents the entity type.
      * @param {obje} firstElement - First token element in the tag.
      * @param {jQuery} lastElement - Last token element in the tag.
      */
     create(tagType, firstElement, lastElement) {
+        this.tagType = tagType;
+
         // df-token-[row]-[col]
         var firstElementRowColumn = [
             parseInt($(firstElement).attr('id').split("-")[2]),
@@ -649,13 +651,12 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
             parseInt($(lastElement).attr('id').split("-")[3])
         ];
 
-        this.tags = [];
+        //this.tokens = [];
         if (firstElementRowColumn[0] == lastElementRowColumn[0]) {
             if (firstElementRowColumn[1] < lastElementRowColumn[1]) {
-                for (var i = firstElementRowColumn[1]; i <=lastElementRowColumn[1]; i++) {
+                for (var i = firstElementRowColumn[1]; i <= lastElementRowColumn[1]; i++) {
                     var elementId = '#df-token-' + firstElementRowColumn[0] + '-' + i;
                     this.elements.push($(elementId));
-                    this.tags.push(tagType);
                 }
             }
         } else {
@@ -669,8 +670,6 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
 
         firstElement.removeClass('df-bold-text');
         lastElement.removeClass('df-bold-text');
-
-        this.tag = tagType;
     }
 };
 
@@ -776,18 +775,18 @@ dragonFly.Concordance = class Concordance {
 dragonFly.Highlighter = class Highlighter {
     /**
      * Create the highlighter manager.
-     * @param {Tags} tags - A representation of the tag types.
+     * @param {TagTypes} tagTypes - A representation of the tag types.
      * @param {Concordance} concordance - Object that manages the concordance search.
      */
-    constructor(tags, concordance) {
-        this.tags = tags;
+    constructor(tagTypes, concordance) {
+        this.tagTypes = tagTypes;
         this.concordance = concordance;
         this.isCascade = true;
         this.clickMode = dragonFly.ClickMode.TAG;
         this.prevClickMode = dragonFly.ClickMode.TAG;
-        this.currentTag = tags.per;
+        this.currentTagType = tagTypes.per;
         this.controlKeyDown = false;
-        this.multiTokenTag = new dragonFly.MultiTokenTag(this.tags);
+        this.multiTokenTag = new dragonFly.MultiTokenTag(this.tagTypes, this.currentTagType);
         this.anyTaggingPerformed = false;
         this.selectStart = null;
         this.undo = new dragonFly.Undo(10);
@@ -816,7 +815,7 @@ dragonFly.Highlighter = class Highlighter {
                 return;
             }
             this.controlKeyDown = true;
-            this.multiTokenTag = new dragonFly.MultiTokenTag(this.tags, this.currentTag);
+            this.multiTokenTag = new dragonFly.MultiTokenTag(this.tagTypes, this.currentTagType);
         }
     }
 
@@ -833,7 +832,7 @@ dragonFly.Highlighter = class Highlighter {
             if (this.multiTokenTag.size() > 0 && this.isCascade) {
                 this.cascadeMultiTokenTag(this.multiTokenTag);
             }
-            this.multiTokenTag = new dragonFly.MultiTokenTag(this.tags, this.currentTag);
+            this.multiTokenTag = new dragonFly.MultiTokenTag(this.tagTypes, this.currentTagType);
 
             if (this.multiTokenTagClickCount == 1) {
                 this.multiTokenFirstElement.removeClass('df-bold-text');
@@ -843,10 +842,10 @@ dragonFly.Highlighter = class Highlighter {
 
     /**
      * Get the current tag type.
-     * @return {Tag}
+     * @return {TagType}
      */
-    getCurrentTag() {
-        return this.currentTag;
+    getCurrentTagType() {
+        return this.currentTagType;
     }
 
     /**
@@ -855,7 +854,7 @@ dragonFly.Highlighter = class Highlighter {
     highlightTypeAndClickMode() {
         $(".df-type").removeClass('df-type-active');
         if (this.clickMode == dragonFly.ClickMode.TAG) {
-            var className = ".df-" + this.currentTag.name.toLowerCase();
+            var className = ".df-" + this.currentTagType.name.toLowerCase();
             $(".df-type" + className).addClass('df-type-active');
         } else if (this.clickMode == dragonFly.ClickMode.DEL) {
             $(".df-del").addClass('df-type-active');
@@ -874,8 +873,8 @@ dragonFly.Highlighter = class Highlighter {
         $(".df-token").each(function() {
             var tagValue = $(this).data("tag");
             if (tagValue != null && tagValue != "O") {
-                var tag = self.tags.getTag(tagValue);
-                self.highlightToken($(this), tag, tagValue, false);
+                var tagType = self.tagTypes.getTagType(tagValue);
+                self.highlightToken($(this), tagType, tagValue, false);
             }
         });
         // don't let people undo the loaded annotations so turn on undo after we're done
@@ -946,29 +945,29 @@ dragonFly.Highlighter = class Highlighter {
      * @param {string} letter - a letter or number representing the tag type.
      */
     setTagType(letter) {
-        var tag = null;
+        var tagType = null;
         switch (letter) {
             case 'p':
             case '1':
-                tag = this.tags.per;
+                tagType = this.tagTypes.per;
                 break;
             case 'o':
             case '2':
-                tag = this.tags.org;
+                tagType = this.tagTypes.org;
                 break;
             case 'g':
             case '3':
-                tag = this.tags.gpe;
+                tagType = this.tagTypes.gpe;
                 break;
             case 'l':
             case '4':
-                tag = this.tags.loc;
+                tagType = this.tagTypes.loc;
                 break;
         }
 
-        if (tag) {
+        if (tagType) {
             this.clickMode = dragonFly.ClickMode.TAG;
-            this.currentTag = tag;
+            this.currentTagType = tagType;
             this.highlightTypeAndClickMode();
         }
     }
@@ -997,7 +996,7 @@ dragonFly.Highlighter = class Highlighter {
         } else {
             // set this so we know whether to prevent user navigating away
             this.anyTaggingPerformed = true;
-            var tag = this.currentTag;
+            var tagType = this.currentTagType;
             if (this.controlKeyDown) {
                 this.multiTokenTagClickCount = this.multiTokenTagClickCount + 1;
 
@@ -1005,7 +1004,7 @@ dragonFly.Highlighter = class Highlighter {
                     this.undo.start();
                 }
                 if (this.multiTokenTagClickCount == 1) {
-                    this.multiTokenFirstTag = this.currentTag;
+                    this.multiTokenFirstTag = this.currentTagType;
                     this.multiTokenFirstElement = element;
                     this.multiTokenFirstElement.addClass('df-bold-text');
                 } else if (this.multiTokenTagClickCount == 2) {
@@ -1020,7 +1019,7 @@ dragonFly.Highlighter = class Highlighter {
                 }
             } else {
                 this.undo.start();
-                this.highlightToken(element, tag, tag.start, this.isCascade);
+                this.highlightToken(element, tagType, tagType.start, this.isCascade);
             }
         }
     }
@@ -1028,13 +1027,13 @@ dragonFly.Highlighter = class Highlighter {
     /**
      * Highlight a token and possibly perform a cascade to other tokens.
      * @param {jQuery} token - The token element to highlight.
-     * @param {Tag} tag - The tag type to apply.
+     * @param {TagType} tagType - The tag type to apply.
      * @param {string} string - The tag string (B-PER, I-ORG).
      * @param {boolean} cascade - Whether to cascade this to matching tokens.
      * @param {boolean} inferred - Is this a result of a cascade?
      * @return {boolean} Was the token highlighted?
      */
-    highlightToken(token, tag, string, cascade, inferred=false) {
+    highlightToken(token, tagType, string, cascade, inferred=false) {
         var self = this;
         if (inferred && token.data("inferred") != null && !token.data("inferred")) {
             return false;
@@ -1051,7 +1050,7 @@ dragonFly.Highlighter = class Highlighter {
         if (string.charAt(0) == 'B') {
             classes += " df-b-tag";
         }
-        classes += " df-" + tag.name;
+        classes += " df-" + tagType.name;
         token.attr('class', classes);
 
         var tokenText = token.html().toLowerCase();
@@ -1059,7 +1058,7 @@ dragonFly.Highlighter = class Highlighter {
         if (cascade) {
             $(".df-token").each(function() {
                 if (tokenText == $(this).html().toLowerCase()) {
-                    if (self.highlightToken($(this), tag, string, false, true)) {
+                    if (self.highlightToken($(this), tagType, string, false, true)) {
                         count += 1;
                     }
                 }
@@ -1077,9 +1076,9 @@ dragonFly.Highlighter = class Highlighter {
     highlightMultiTokenTag(tag) {
         for (var i = 0; i < tag.elements.length; i++) {
             if (i == 0) {
-                this.highlightToken(tag.elements[i], tag.tag, tag.tag.start, false);
+                this.highlightToken(tag.elements[i], tag.tagType, tag.tagType.start, false);
             } else {
-                this.highlightToken(tag.elements[i], tag.tag, tag.tag.inside, false);
+                this.highlightToken(tag.elements[i], tag.tagType, tag.tagType.inside, false);
             }
         }
     }
@@ -1103,9 +1102,8 @@ dragonFly.Highlighter = class Highlighter {
                     return;
                 }
                 // start building the multi-token tag as we match so far
-                var newTag = new dragonFly.MultiTokenTag(self.tags);
+                var newTag = new dragonFly.MultiTokenTag(self.tagTypes, tag.tagType);
                 newTag.update($(this));
-                newTag.setTag(tag.tag);
                 // get the next token
                 var idChunks = $(this).attr("id").split("-");
                 for (var i = 1; i < tag.elements.length; i++) {
@@ -1250,9 +1248,9 @@ $(document).ready(function() {
     $('body').css('margin-top', $('#df-nav').height() + 10);
 
     dragonFly.lang = $("meta[name=lang]").attr("content");
-    dragonFly.tags = new dragonFly.TagTypes();
+    dragonFly.tagTypes = new dragonFly.TagTypes();
     dragonFly.concordance = new dragonFly.Concordance();
-    dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tags, dragonFly.concordance);
+    dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tagTypes, dragonFly.concordance);
     dragonFly.highlighter.initializeHighlight();
     dragonFly.annotationSaver = new dragonFly.AnnotationSaver($("#df-filename").html());
     dragonFly.hints = new dragonFly.Hints(1);
