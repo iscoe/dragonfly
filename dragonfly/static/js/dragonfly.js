@@ -617,6 +617,14 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
     }
 
     /**
+     * Get first element
+     * @return {jQuery}
+     */
+    first() {
+        return this.elements[0];
+    }
+
+    /**
      * Change the entity type.
      * @param {TagType} tagType - TagType object that represents the entity type.
      */
@@ -632,45 +640,6 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
         return this.elements.length;
     }
 
-    /**
-     * Create a multi-token tag from first and last element.
-     * @param {TagType} tagType - TagType object that represents the entity type.
-     * @param {obje} firstElement - First token element in the tag.
-     * @param {jQuery} lastElement - Last token element in the tag.
-     */
-    create(tagType, firstElement, lastElement) {
-        this.tagType = tagType;
-
-        // df-token-[row]-[col]
-        var firstElementRowColumn = [
-            parseInt($(firstElement).attr('id').split("-")[2]),
-            parseInt($(firstElement).attr('id').split("-")[3])
-        ];
-        var lastElementRowColumn = [
-            parseInt($(lastElement).attr('id').split("-")[2]),
-            parseInt($(lastElement).attr('id').split("-")[3])
-        ];
-
-        //this.tokens = [];
-        if (firstElementRowColumn[0] == lastElementRowColumn[0]) {
-            if (firstElementRowColumn[1] < lastElementRowColumn[1]) {
-                for (var i = firstElementRowColumn[1]; i <= lastElementRowColumn[1]; i++) {
-                    var elementId = '#df-token-' + firstElementRowColumn[0] + '-' + i;
-                    this.elements.push($(elementId));
-                }
-            }
-        } else {
-
-            dragonFly.showStatus('danger', "Error: Can't annotate tokens across lines.");
-            firstElement.removeData("tag");
-            firstElement.removeAttr("data-tag");
-            firstElement.removeData("inferred");
-            firstElement.attr('class', 'df-token');
-        }
-
-        firstElement.removeClass('df-bold-text');
-        lastElement.removeClass('df-bold-text');
-    }
 };
 
 
@@ -785,8 +754,8 @@ dragonFly.Highlighter = class Highlighter {
         this.clickMode = dragonFly.ClickMode.TAG;
         this.prevClickMode = dragonFly.ClickMode.TAG;
         this.currentTagType = tagTypes.per;
-        this.controlKeyDown = false;
-        this.multiTokenTag = new dragonFly.MultiTokenTag(this.tagTypes, this.currentTagType);
+        this.multiTokenTag = null;
+        this.multiTokenClickCount = 0;
         this.anyTaggingPerformed = false;
         this.selectStart = null;
         this.undo = new dragonFly.Undo(10);
@@ -803,41 +772,23 @@ dragonFly.Highlighter = class Highlighter {
     }
 
     /**
-     * Change the internal state for multi-token tagging to on.
+     * Is the user holding down the multi-token mode key?
+     * @return {boolean}
      */
-    setControlKeyDown() {
-        // only change the state if in tag mode
-        if (this.clickMode == dragonFly.ClickMode.TAG) {
-            this.multiTokenTagClickCount = 0; // initialize click count to 0
-
-            if (this.controlKeyDown == true) {
-                // Windows continually fires the down event and we want to ignore those after first
-                return;
-            }
-            this.controlKeyDown = true;
-            this.multiTokenTag = new dragonFly.MultiTokenTag(this.tagTypes, this.currentTagType);
-        }
+    isMultiTokenOn() {
+        return event[dragonFly.multiTokenEventKey];
     }
 
     /**
      * Change the internal state for multi-token tagging to off.
      */
     setControlKeyUp() {
-        // only change the state if in tag mode
-        if (this.clickMode == dragonFly.ClickMode.TAG) {
-            this.multiTokenTagClickCount = 0; // reinitialize click count to 0
-
-            this.controlKeyDown = false;
-            // done tagging so apply cascade if on
-            if (this.multiTokenTag.size() > 0 && this.isCascade) {
-                this.cascadeMultiTokenTag(this.multiTokenTag);
-            }
-            this.multiTokenTag = new dragonFly.MultiTokenTag(this.tagTypes, this.currentTagType);
-
-            if (this.multiTokenTagClickCount == 1) {
-                this.multiTokenFirstElement.removeClass('df-bold-text');
-            }
+        this.multiTokenClickCount = 0;
+        // clear incomplete multi-token tag
+        if (this.multiTokenTag && this.multiTokenTag.size() > 0) {
+            this.processUndo();
         }
+        this.multiTokenTag = null;
     }
 
     /**
@@ -862,6 +813,16 @@ dragonFly.Highlighter = class Highlighter {
             $(".df-sel").addClass('df-type-active');
         } else {
             $(".df-find").addClass('df-type-active');
+        }
+    }
+
+    /**
+     * Undo the previous action
+     */
+    processUndo() {
+        var undoAction = this.undo.pop();
+        if (undoAction != null) {
+            undoAction.apply();
         }
     }
 
@@ -903,10 +864,6 @@ dragonFly.Highlighter = class Highlighter {
                 this.clickMode = dragonFly.ClickMode.DEL;
                 this.highlightTypeAndClickMode();
                 break;
-            case 'r':
-                // reset the state of the ui
-                this.controlKeyDown = false;
-                break;
             case 's':
                 // enter into select mode
                 this.prevClickMode = this.clickMode;
@@ -920,11 +877,7 @@ dragonFly.Highlighter = class Highlighter {
                 this.concordance.show();
                 break;
             case 'u':
-                // undo the previous action
-                var undoAction = this.undo.pop();
-                if (undoAction != null) {
-                    undoAction.apply();
-                }
+                this.processUndo();
                 break;
             case 'p':
             case '1':
@@ -978,14 +931,9 @@ dragonFly.Highlighter = class Highlighter {
      * @param {jQuery} element - Token element clicked.
      */
     clickToken(element, event) {
-        if (event[dragonFly.multiTagEventKey]){
-            if (this.multiTokenTagClickCount == 0) {
-                this.controlKeyDown = true;
-                this.setControlKeyDown();
-            }
-        }
-
         if (this.clickMode == dragonFly.ClickMode.DEL) {
+            // set this so we know whether to prevent user navigating away
+            this.anyTaggingPerformed = true;
             this.undo.start();
             this.undo.add(element);
             this.deleteTag(element);
@@ -996,30 +944,56 @@ dragonFly.Highlighter = class Highlighter {
         } else {
             // set this so we know whether to prevent user navigating away
             this.anyTaggingPerformed = true;
-            var tagType = this.currentTagType;
-            if (this.controlKeyDown) {
-                this.multiTokenTagClickCount = this.multiTokenTagClickCount + 1;
 
-                if (this.multiTokenTag.size() == 0) {
-                    this.undo.start();
-                }
-                if (this.multiTokenTagClickCount == 1) {
-                    this.multiTokenFirstTag = this.currentTagType;
-                    this.multiTokenFirstElement = element;
-                    this.multiTokenFirstElement.addClass('df-bold-text');
-                } else if (this.multiTokenTagClickCount == 2) {
-                    this.multiTokenLastElement = element;
-                    this.multiTokenLastElement.addClass('df-bold-text');
-                    this.multiTokenTag.create(
-                        this.multiTokenFirstTag,
-                        this.multiTokenFirstElement,
-                        this.multiTokenLastElement
-                        );
-                    this.highlightMultiTokenTag(this.multiTokenTag);
-                }
+            if (this.isMultiTokenOn()) {
+                this.handleMultiTokenClick(element);
             } else {
                 this.undo.start();
+                var tagType = this.currentTagType;
                 this.highlightToken(element, tagType, tagType.start, this.isCascade);
+            }
+        }
+    }
+
+    /**
+     * Handle the clicks when the control/option key is down for multi-token tagging
+     * @param {jQuery} element - Token div that was clicked
+     */
+    handleMultiTokenClick(element) {
+        this.multiTokenClickCount = this.multiTokenClickCount + 1;
+
+        if (this.multiTokenClickCount == 1) {
+            this.undo.start();
+            // first click in multi-token tag
+            this.multiTokenTag = new dragonFly.MultiTokenTag(this.tagTypes, this.currentTagType);
+            this.multiTokenTag.update(element);
+            this.highlightMultiTokenTag(this.multiTokenTag);
+        } else if (this.multiTokenClickCount == 2) {
+            // final click in multi-token tag
+            var firstElement = this.multiTokenTag.first();
+            var lastElement = element;
+
+            // df-token-[row]-[col]
+            var firstElementRow = parseInt($(firstElement).attr('id').split("-")[2])
+            var firstElementCol = parseInt($(firstElement).attr('id').split("-")[3])
+            var lastElementRow = parseInt($(lastElement).attr('id').split("-")[2])
+            var lastElementCol = parseInt($(lastElement).attr('id').split("-")[3])
+
+            if (firstElementRow == lastElementRow && firstElementCol < lastElementCol) {
+                for (var i = firstElementCol + 1; i <= lastElementCol; i++) {
+                    var elementId = '#df-token-' + firstElementRow + '-' + i;
+                    this.multiTokenTag.update($(elementId));
+                }
+
+                if (this.isCascade) {
+                    this.highlightMultiTokenTag(this.multiTokenTag);
+                    this.cascadeMultiTokenTag(this.multiTokenTag);
+                } else {
+                    this.highlightMultiTokenTag(this.multiTokenTag);
+                }
+                this.multiTokenTag = null;
+            } else {
+                dragonFly.showStatus('danger', "Tagging must be left to right on the same line. Invalid tag cleared.");
             }
         }
     }
@@ -1234,12 +1208,12 @@ $(document).ready(function() {
     // According to http://unixpapa.com/js/key.html, shift = 16, control = 17, alt = 18, caps lock = 20
     if (/Mac/.test(window.navigator.platform)) {
         // Option key on Macs
-        dragonFly.multiTagKey = '18';
-        dragonFly.multiTagEventKey = 'altKey';
+        dragonFly.multiTokenKey = '18';
+        dragonFly.multiTokenEventKey = 'altKey';
     } else {
         // Control key for Windows and Linux
-        dragonFly.multiTagKey = '17';
-        dragonFly.multiTagEventKey = 'ctrlKey';
+        dragonFly.multiTokenKey = '17';
+        dragonFly.multiTokenEventKey = 'ctrlKey';
     }
 
     this.multiTokenTagClickCount = 0;
@@ -1273,14 +1247,8 @@ $(document).ready(function() {
         dragonFly.highlighter.pressKey(String.fromCharCode(event.which));
     });
 
-    $(document).on("keydown", function(event) {
-        if (event.which == dragonFly.multiTagKey) {
-            dragonFly.highlighter.setControlKeyDown();
-        }
-    });
-
     $(document).on("keyup", function(event) {
-        if (event.which == dragonFly.multiTagKey) {
+        if (event.which == dragonFly.multiTokenKey) {
             dragonFly.highlighter.setControlKeyUp();
         }
     });
