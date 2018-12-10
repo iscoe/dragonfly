@@ -573,9 +573,7 @@ dragonFly.TagTypes = class TagTypes {
         this.landmark = new dragonFly.TagType("LANDMARK");
         this.spatialindicator = new dragonFly.TagType("SPATIALINDICATOR");
         //this.loc = new dragonFly.TagType("LOC");
-        this.types = [this.trajectory, this.landmark, this.spatialindicator,
-            //this.loc
-        ];
+        this.types = [this.trajectory, this.landmark, this.spatialindicator];
     }
 
     /**
@@ -881,13 +879,13 @@ dragonFly.Highlighter = class Highlighter {
             case 'u':
                 this.processUndo();
                 break;
-            case 'p':
+            case 't':
             case '1':
-            case 'o':
-            case '2':
-            case 'g':
-            case '3':
             case 'l':
+            case '2':
+            case 'i':
+            //case '3':
+            //case 'l':
             case '4':
                 // change the tag type
                 this.setTagType(letter);

@@ -43,9 +43,7 @@
 .df-spatialindicator {
     background-color: rgba(87, 89, 148, 0.6);
 }
-/*.df-loc {
-    background-color: rgba(196, 212, 175, 1.0);
-}*/
+
 .df-del, .df-sel, .df-find {
     background-color: rgba(33, 33, 33, 0.5);
 }
