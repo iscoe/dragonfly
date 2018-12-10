@@ -569,11 +569,11 @@ dragonFly.TagType = class TagType {
 /** Class that holds the tag types. */
 dragonFly.TagTypes = class TagTypes {
     constructor() {
-        this.trajector = new dragonFly.TagType("TRAJECTOR");
-        this.landmark = new dragonFly.TagType("LANDMARK");
-        this.spatialindicator = new dragonFly.TagType("SPATIALINDICATOR");
-        //this.loc = new dragonFly.TagType("LOC");
-        this.types = [this.trajector, this.landmark, this.spatialindicator];
+        this.traj = new dragonFly.TagType("TRAJ");
+        this.si = new dragonFly.TagType("SI");
+        this.trla = new dragonFly.TagType("TRLA");
+        this.land = new dragonFly.TagType("LAND");
+        this.types = [this.traj, this.si, this.trla, this.land];
     }
 
     /**
@@ -881,11 +881,11 @@ dragonFly.Highlighter = class Highlighter {
                 break;
             case 't':
             case '1':
-            case 'l':
-            case '2':
             case 'i':
-            //case '3':
-            //case 'l':
+            case '2':
+            case 'j':
+            case '3':
+            case 'l':
             case '4':
                 // change the tag type
                 this.setTagType(letter);
@@ -902,20 +902,20 @@ dragonFly.Highlighter = class Highlighter {
         switch (letter) {
             case 't':
             case '1':
-                tagType = this.tagTypes.trajector;
-                break;
-            case 'l':
-            case '2':
-                tagType = this.tagTypes.landmark;
+                tagType = this.tagTypes.traj;
                 break;
             case 'i':
-            case '3':
-                tagType = this.tagTypes.spatialindicator;
+            case '2':
+                tagType = this.tagTypes.si;
                 break;
-            /*case 'l':
+            case 'j':
+            case '3':
+                tagType = this.tagTypes.trla;
+                break;
+            case 'l':
             case '4':
-                tagType = this.tagTypes.loc;
-                break;*/
+                tagType = this.tagTypes.land;
+                break;
         }
 
         if (tagType) {
