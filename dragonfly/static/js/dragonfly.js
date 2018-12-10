@@ -4,19 +4,19 @@
  * Distributed under the terms of the Apache 2.0 License.
  */
 
-var dragonFly =  dragonFly || {};
+var dragonFly = dragonFly || {};
 
 /**
  * Show status message.
  * @param {string} type - 'success' or 'danger'.
  * @param {string} text - The text to display.
  */
-dragonFly.showStatus = function(type, text) {
+dragonFly.showStatus = function (type, text) {
     $(".alerts").append('<div class="alert alert-' + type + ' alert-dismissable">' +
-            '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' +
-            text +'</div>');
+        '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' +
+        text + '</div>');
     if (type == "success") {
-        $(".alerts").children().delay(4000).fadeTo(1000, 0, function() {
+        $(".alerts").children().delay(4000).fadeTo(1000, 0, function () {
             $(this).alert('close');
         });
     }
@@ -55,12 +55,12 @@ dragonFly.Settings = class Settings {
             url: '/settings',
             type: 'GET',
             dataType: 'json',
-            success: function(data) {
+            success: function (data) {
                 self.settings = data;
                 self.generateHtml();
                 self.applySettings();
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 dragonFly.showStatus('danger', 'Error contacting the server');
             }
         });
@@ -82,9 +82,9 @@ dragonFly.Settings = class Settings {
         var boolSettings = [];
         for (var prop in this.settings) {
             if (typeof this.settings[prop] === 'boolean') {
-                boolSettings.push({label: prop, value: this.settings[prop]});
+                boolSettings.push({ label: prop, value: this.settings[prop] });
             } else {
-                textSettings.push({label: prop, value: this.settings[prop]});
+                textSettings.push({ label: prop, value: this.settings[prop] });
             }
         }
 
@@ -121,8 +121,8 @@ dragonFly.Settings = class Settings {
         if (this.isAutoSave()) {
             if (this.timerId == null) {
                 var self = this;
-                var autoSave = function() {self.annotationSaver.save(false)};
-                this.timerId = window.setInterval(autoSave, 60*1000);
+                var autoSave = function () { self.annotationSaver.save(false) };
+                this.timerId = window.setInterval(autoSave, 60 * 1000);
             }
         } else {
             if (this.timerId != null) {
@@ -141,9 +141,9 @@ dragonFly.Settings = class Settings {
         $.ajax({
             url: '/settings',
             type: 'POST',
-            data: {json: JSON.stringify(this.settings)},
+            data: { json: JSON.stringify(this.settings) },
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 if (response.success) {
                     dragonFly.showStatus('success', response.message);
                     self.applySettings();
@@ -151,7 +151,7 @@ dragonFly.Settings = class Settings {
                     dragonFly.showStatus('danger', response.message);
                 }
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 dragonFly.showStatus('danger', 'Error contacting the server');
             }
         });
@@ -164,7 +164,7 @@ dragonFly.Settings = class Settings {
      */
     convertToObject(array) {
         var obj = {};
-        $.each(array, function() {
+        $.each(array, function () {
             if (this.value === "true" || this.value === "false") {
                 this.value = (this.value == "true");
             }
@@ -194,7 +194,7 @@ dragonFly.ContextMenu = class ContextMenu {
         event.preventDefault();
         var top = event.pageY;
         var left = event.pageX;
-        $("#df-context-menu").css({top: top, left: left, position:'absolute'});
+        $("#df-context-menu").css({ top: top, left: left, position: 'absolute' });
         var sourceInfo = this.getSource(token);
         if (sourceInfo === null) {
             return;
@@ -204,10 +204,10 @@ dragonFly.ContextMenu = class ContextMenu {
         $("#df-context-menu").removeClass('hidden');
         $("input[name = 'translation']").focus();
 
-        $(document).one("click", function() {
+        $(document).one("click", function () {
             self.hide();
         });
-        $("#df-context-menu").on('click', function(event) {
+        $("#df-context-menu").on('click', function (event) {
             event.stopPropagation();
         });
 
@@ -219,7 +219,7 @@ dragonFly.ContextMenu = class ContextMenu {
      * @param {jQuery} token - Token element for tag
      */
     getSource(token) {
-        var result = {'type': null};
+        var result = { 'type': null };
         var tag = token.data('tag');
         if (tag == null || tag == 'O') {
             result['text'] = token.html();
@@ -282,16 +282,16 @@ dragonFly.ContextMenu = class ContextMenu {
             type: 'POST',
             data: JSON.stringify(data),
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 if (response.success) {
                     dragonFly.showStatus('success', response.message);
                     self.hide();
-                    self.translationManager.update(data.source, {trans: data.translation, type: data.type});
+                    self.translationManager.update(data.source, { trans: data.translation, type: data.type });
                 } else {
                     dragonFly.showStatus('danger', response.message);
                 }
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 dragonFly.showStatus('danger', 'Error contacting the server');
             }
         });
@@ -396,11 +396,11 @@ dragonFly.Hints = class Hints {
             url: '/hints',
             type: 'GET',
             dataType: 'json',
-            success: function(data) {
+            success: function (data) {
                 self.hints = data;
                 self.process();
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 dragonFly.showStatus('danger', 'Error contacting the server');
             }
         });
@@ -422,7 +422,7 @@ dragonFly.Hints = class Hints {
             }
         }
         // TODO row is hard coded to the second row (usually transliteration)
-        $(".df-row div:nth-child(2)").each(function() {
+        $(".df-row div:nth-child(2)").each(function () {
             for (var i = 0; i < self.hints.length; i++) {
                 var text = $(this).text();
                 var match = text.match(self.hints[i].regex);
@@ -464,11 +464,11 @@ dragonFly.Translations = class Translations {
             url: '/stop_words',
             type: 'GET',
             dataType: 'json',
-            success: function(data) {
+            success: function (data) {
                 self.stopWords = data;
                 self.loadTranslations();
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 dragonFly.showStatus('danger', 'Error contacting the server');
             }
         });
@@ -483,12 +483,12 @@ dragonFly.Translations = class Translations {
             url: '/translations/' + this.lang,
             type: 'GET',
             dataType: 'json',
-            success: function(data) {
+            success: function (data) {
                 self.translations = data;
                 self.createMap();
                 self.apply();
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 dragonFly.showStatus('danger', 'Error contacting the server');
             }
         });
@@ -499,7 +499,7 @@ dragonFly.Translations = class Translations {
      */
     createMap() {
         for (var source in this.translations) {
-            this.add(source, {'trans': this.translations[source][0], 'type': this.translations[source][1]})
+            this.add(source, { 'trans': this.translations[source][0], 'type': this.translations[source][1] })
         }
     }
 
@@ -523,7 +523,7 @@ dragonFly.Translations = class Translations {
      */
     apply() {
         var self = this;
-        $(".df-token").each(function() {
+        $(".df-token").each(function () {
             var token = $(this).html().toLowerCase();
             if (self.transMap.has(token)) {
                 var title = self.transMap.get(token).type + ' : ' + self.transMap.get(token).trans
@@ -532,7 +532,7 @@ dragonFly.Translations = class Translations {
                 $(this).attr('data-toggle', 'tooltip');
             }
         });
-        $('[data-toggle=tooltip]').tooltip({delay: 200, placement: 'auto left'});
+        $('[data-toggle=tooltip]').tooltip({ delay: 200, placement: 'auto left' });
     }
 
     /**
@@ -551,7 +551,7 @@ dragonFly.Translations = class Translations {
  * @readonly
  * @enum {number}
  */
-dragonFly.ClickMode = {DEL: 0, TAG: 1, SELECT: 2, CONCORDANCE: 3};
+dragonFly.ClickMode = { DEL: 0, TAG: 1, SELECT: 2, CONCORDANCE: 3 };
 
 /** Class representing a tag type. */
 dragonFly.TagType = class TagType {
@@ -569,11 +569,13 @@ dragonFly.TagType = class TagType {
 /** Class that holds the tag types. */
 dragonFly.TagTypes = class TagTypes {
     constructor() {
-        this.per = new dragonFly.TagType("PER");
-        this.org = new dragonFly.TagType("ORG");
-        this.gpe = new dragonFly.TagType("GPE");
-        this.loc = new dragonFly.TagType("LOC");
-        this.types = [this.per, this.org, this.gpe, this.loc];
+        this.trajectory = new dragonFly.TagType("TRAJECTORY");
+        this.landmark = new dragonFly.TagType("LANDMARK");
+        this.spatialindicator = new dragonFly.TagType("SPATIALINDICATOR");
+        //this.loc = new dragonFly.TagType("LOC");
+        this.types = [this.trajectory, this.landmark, this.spatialindicator,
+            //this.loc
+        ];
     }
 
     /**
@@ -661,12 +663,12 @@ dragonFly.Concordance = class Concordance {
         $.ajax({
             url: '/search',
             type: 'POST',
-            data: {'term': word},
+            data: { 'term': word },
             dataType: 'json',
-            success: function(data) {
+            success: function (data) {
                 self.displayResults(word, data);
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 dragonFly.showStatus('danger', 'Error contacting the server');
             }
         });
@@ -682,10 +684,10 @@ dragonFly.Concordance = class Concordance {
         var html = '';
         $('.df-term-count').html("Count: " + data.count);
         var refs = data.refs;
-        for (var i=0; i<refs.length; i++) {
+        for (var i = 0; i < refs.length; i++) {
             html += '<div class="df-result">';
             html += this.getCopyButton(refs[i].doc);
-            for (var j=0; j<refs[i].text.length; j++){
+            for (var j = 0; j < refs[i].text.length; j++) {
                 html += '<div class="df-section df-row">';
                 if (word == refs[i].text[j]) {
                     html += '<div class="df-result-highlight">' + refs[i].text[j] + '</div>';
@@ -702,7 +704,7 @@ dragonFly.Concordance = class Concordance {
             html += '</div>';
         }
         $('.df-results').html(html);
-        $('.df-copy > button').on('click', function() {
+        $('.df-copy > button').on('click', function () {
             copyToClipboard($(this).data('doc-name'));
             return false;
         });
@@ -715,7 +717,7 @@ dragonFly.Concordance = class Concordance {
      */
     getCopyButton(doc) {
         var html = '<div class="df-copy">';
-        html += '<button type="button" class="btn btn-default" title="Copy doc name" data-doc-name="'+ doc + '">';
+        html += '<button type="button" class="btn btn-default" title="Copy doc name" data-doc-name="' + doc + '">';
         html += '<span class="glyphicon glyphicon-copy" aria-hidden="true" />';
         html += '</button></div>';
         return html;
@@ -753,7 +755,7 @@ dragonFly.Highlighter = class Highlighter {
         this.isCascade = true;
         this.clickMode = dragonFly.ClickMode.TAG;
         this.prevClickMode = dragonFly.ClickMode.TAG;
-        this.currentTagType = tagTypes.per;
+        this.currentTagType = tagTypes.trajectory;
         this.multiTokenTag = null;
         this.multiTokenClickCount = 0;
         this.anyTaggingPerformed = false;
@@ -831,7 +833,7 @@ dragonFly.Highlighter = class Highlighter {
      */
     initializeHighlight() {
         var self = this;
-        $(".df-token").each(function() {
+        $(".df-token").each(function () {
             var tagValue = $(this).data("tag");
             if (tagValue != null && tagValue != "O") {
                 var tagType = self.tagTypes.getTagType(tagValue);
@@ -900,22 +902,22 @@ dragonFly.Highlighter = class Highlighter {
     setTagType(letter) {
         var tagType = null;
         switch (letter) {
-            case 'p':
+            case 't':
             case '1':
-                tagType = this.tagTypes.per;
-                break;
-            case 'o':
-            case '2':
-                tagType = this.tagTypes.org;
-                break;
-            case 'g':
-            case '3':
-                tagType = this.tagTypes.gpe;
+                tagType = this.tagTypes.trajectory;
                 break;
             case 'l':
+            case '2':
+                tagType = this.tagTypes.landmark;
+                break;
+            case 'i':
+            case '3':
+                tagType = this.tagTypes.spatialindicator;
+                break;
+            /*case 'l':
             case '4':
                 tagType = this.tagTypes.loc;
-                break;
+                break;*/
         }
 
         if (tagType) {
@@ -1007,7 +1009,7 @@ dragonFly.Highlighter = class Highlighter {
      * @param {boolean} inferred - Is this a result of a cascade?
      * @return {boolean} Was the token highlighted?
      */
-    highlightToken(token, tagType, string, cascade, inferred=false) {
+    highlightToken(token, tagType, string, cascade, inferred = false) {
         var self = this;
         if (inferred && token.data("inferred") != null && !token.data("inferred")) {
             return false;
@@ -1030,7 +1032,7 @@ dragonFly.Highlighter = class Highlighter {
         var tokenText = token.html().toLowerCase();
         var count = 0;
         if (cascade) {
-            $(".df-token").each(function() {
+            $(".df-token").each(function () {
                 if (tokenText == $(this).html().toLowerCase()) {
                     if (self.highlightToken($(this), tagType, string, false, true)) {
                         count += 1;
@@ -1065,7 +1067,7 @@ dragonFly.Highlighter = class Highlighter {
         var self = this;
         var firstTokenText = tag.elements[0].html().toLowerCase();
         var count = 0;
-        $(".df-token").each(function() {
+        $(".df-token").each(function () {
             if (firstTokenText == $(this).html().toLowerCase()) {
                 if (tag.elements[0].attr("id") == $(this).attr("id")) {
                     return;
@@ -1127,7 +1129,7 @@ dragonFly.Highlighter = class Highlighter {
             // copy text from the child of each df-section
             var text = this.selectStart.children().first().html();
             if (!this.selectStart.is(token.parent())) {
-                this.selectStart.nextUntil(token.parent()).each(function() {
+                this.selectStart.nextUntil(token.parent()).each(function () {
                     text = text.concat(' ', $(this).children().first().html());
                 });
                 text = text.concat(' ', token.html());
@@ -1164,9 +1166,9 @@ dragonFly.AnnotationSaver = class AnnotationSaver {
         $.ajax({
             url: '/save',
             type: 'POST',
-            data: {json: JSON.stringify(data)},
+            data: { json: JSON.stringify(data) },
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 if (response.success) {
                     if (notify) {
                         dragonFly.showStatus('success', response.message);
@@ -1175,7 +1177,7 @@ dragonFly.AnnotationSaver = class AnnotationSaver {
                     dragonFly.showStatus('danger', response.message);
                 }
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 dragonFly.showStatus('danger', 'Error contacting the server');
             }
         });
@@ -1187,13 +1189,13 @@ dragonFly.AnnotationSaver = class AnnotationSaver {
      */
     collectAnnotations() {
         var tokens = [];
-        $(".df-sentence").each(function() {
-            $(this).find(".df-token").each(function() {
+        $(".df-sentence").each(function () {
+            $(this).find(".df-token").each(function () {
                 var tagValue = $(this).data('tag');
                 if (tagValue != null) {
-                    var token = {token: $(this).html(), tag: tagValue }
+                    var token = { token: $(this).html(), tag: tagValue }
                 } else {
-                    var token = {token: $(this).html(), tag: 'O'}
+                    var token = { token: $(this).html(), tag: 'O' }
                 }
                 tokens.push(token);
             });
@@ -1204,7 +1206,7 @@ dragonFly.AnnotationSaver = class AnnotationSaver {
     }
 };
 
-$(document).ready(function() {
+$(document).ready(function () {
     // According to http://unixpapa.com/js/key.html, shift = 16, control = 17, alt = 18, caps lock = 20
     if (/Mac/.test(window.navigator.platform)) {
         // Option key on Macs
@@ -1235,69 +1237,69 @@ $(document).ready(function() {
     dragonFly.settings.load();
     dragonFly.contextMenu = new dragonFly.ContextMenu(dragonFly.highlighter, dragonFly.translations);
 
-    $("input[id = 'cascade']").on("click", function() {
+    $("input[id = 'cascade']").on("click", function () {
         dragonFly.highlighter.toggleCascade();
     });
 
-    $(".df-token").on("click", function(event) {
+    $(".df-token").on("click", function (event) {
         dragonFly.highlighter.clickToken($(this), event);
     });
 
-    $(document).on("keypress", function(event) {
+    $(document).on("keypress", function (event) {
         dragonFly.highlighter.pressKey(String.fromCharCode(event.which));
     });
 
-    $(document).on("keyup", function(event) {
+    $(document).on("keyup", function (event) {
         if (event.which == dragonFly.multiTokenKey) {
             dragonFly.highlighter.setControlKeyUp();
         }
     });
 
     // change the click mode or tag type by clicking on navbar
-    $(".df-type").on("click", function(event) {
+    $(".df-type").on("click", function (event) {
         var letter = $(this).attr("title");
         dragonFly.highlighter.pressKey(letter);
     });
 
     // user can indicate which sentences have been reviewed
-    $(".df-sentence-badge").on("click", function(event) {
+    $(".df-sentence-badge").on("click", function (event) {
         $(this).toggleClass("df-complete");
     });
 
-    $("#df-save").on("click", function(event) {
+    $("#df-save").on("click", function (event) {
         dragonFly.annotationSaver.save($(this));
         $(this).blur();
     });
 
-    $("#df-settings-save").on("click", function(event) {
+    $("#df-settings-save").on("click", function (event) {
         $('#df-settings-modal').modal('hide');
         dragonFly.settings.save();
     });
 
     // leaving focus on settings button is distracting so we remove it
-    $('#df-settings-modal').on('shown.bs.modal', function(event) {
-        $('#df-settings-button').one('focus', function(event) {
+    $('#df-settings-modal').on('shown.bs.modal', function (event) {
+        $('#df-settings-button').one('focus', function (event) {
             $(this).blur();
         });
     });
 
-    $(".df-token").on("contextmenu", function(event) {
+    $(".df-token").on("contextmenu", function (event) {
         dragonFly.contextMenu.show($(this), event);
     });
 
-    $("#df-context-menu-submit").on('click', function(event) {
+    $("#df-context-menu-submit").on('click', function (event) {
         dragonFly.contextMenu.save();
         event.preventDefault();
     });
 
-    $(window).on("beforeunload", function() {
+    $(window).on("beforeunload", function () {
         if (dragonFly.highlighter.anyTaggingPerformed && !dragonFly.annotationSaver.saveClicked) {
             return "Changes have not been saved.";
         }
     });
 
     // keep the sentence IDs in same location as user horizontally scrolls if desired
-    $(window).scroll(function() {
+    $(window).scroll(function () {
         if (dragonFly.settings.isSentenceIdAutoScroll()) {
             $('.df-sentence-id').css({
                 'left': $(this).scrollLeft(),
