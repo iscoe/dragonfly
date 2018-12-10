@@ -15,7 +15,7 @@ class TranslationDictManager(object):
     The key of the dictionary is the source string.
     Each list has two entries: translation string and entity type.
     """
-    ENTITY_TYPES = ["TRAJECTORY", 'LANDMARK', 'SPATIALINDICATOR', 'NONE']
+    ENTITY_TYPES = ["TRAJECTOR", 'LANDMARK', 'SPATIALINDICATOR', 'NONE']
 
     def __init__(self, base_dir):
         self.base_dir = base_dir
@@ -78,7 +78,7 @@ class TranslationDictManager(object):
 
     def _guess_type(self, type):
         if type == 'T':
-            return 'TRAJECTORY'
+            return 'TRAJECTOR'
         elif type == 'L':
             return 'LANDMARK'
         elif type == 'I':
