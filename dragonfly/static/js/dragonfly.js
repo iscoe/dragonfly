@@ -569,11 +569,11 @@ dragonFly.TagType = class TagType {
 /** Class that holds the tag types. */
 dragonFly.TagTypes = class TagTypes {
     constructor() {
-        this.trajectory = new dragonFly.TagType("TRAJECTORY");
+        this.trajector = new dragonFly.TagType("TRAJECTOR");
         this.landmark = new dragonFly.TagType("LANDMARK");
         this.spatialindicator = new dragonFly.TagType("SPATIALINDICATOR");
         //this.loc = new dragonFly.TagType("LOC");
-        this.types = [this.trajectory, this.landmark, this.spatialindicator];
+        this.types = [this.trajector, this.landmark, this.spatialindicator];
     }
 
     /**
@@ -753,7 +753,7 @@ dragonFly.Highlighter = class Highlighter {
         this.isCascade = true;
         this.clickMode = dragonFly.ClickMode.TAG;
         this.prevClickMode = dragonFly.ClickMode.TAG;
-        this.currentTagType = tagTypes.trajectory;
+        this.currentTagType = tagTypes.trajector;
         this.multiTokenTag = null;
         this.multiTokenClickCount = 0;
         this.anyTaggingPerformed = false;
@@ -902,7 +902,7 @@ dragonFly.Highlighter = class Highlighter {
         switch (letter) {
             case 't':
             case '1':
-                tagType = this.tagTypes.trajectory;
+                tagType = this.tagTypes.trajector;
                 break;
             case 'l':
             case '2':
