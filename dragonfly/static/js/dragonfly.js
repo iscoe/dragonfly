@@ -750,7 +750,7 @@ dragonFly.Highlighter = class Highlighter {
     constructor(tagTypes, concordance) {
         this.tagTypes = tagTypes;
         this.concordance = concordance;
-        this.isCascade = true;
+        this.isCascade = false;
         this.clickMode = dragonFly.ClickMode.TAG;
         this.prevClickMode = dragonFly.ClickMode.TAG;
         this.currentTagType = tagTypes.traj;
