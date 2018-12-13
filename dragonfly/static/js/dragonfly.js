@@ -569,11 +569,11 @@ dragonFly.TagType = class TagType {
 /** Class that holds the tag types. */
 dragonFly.TagTypes = class TagTypes {
     constructor() {
-        this.traj = new dragonFly.TagType("TRAJ");
-        this.si = new dragonFly.TagType("SI");
-        this.trla = new dragonFly.TagType("TRLA");
         this.land = new dragonFly.TagType("LAND");
-        this.types = [this.traj, this.si, this.trla, this.land];
+        this.si = new dragonFly.TagType("SI");
+        this.adj = new dragonFly.TagType("ADJ");
+        this.gag = new dragonFly.TagType("GAG");
+        this.types = [this.land, this.si, this.adj, this.gag];
     }
 
     /**
@@ -753,7 +753,7 @@ dragonFly.Highlighter = class Highlighter {
         this.isCascade = false;
         this.clickMode = dragonFly.ClickMode.TAG;
         this.prevClickMode = dragonFly.ClickMode.TAG;
-        this.currentTagType = tagTypes.traj;
+        this.currentTagType = tagTypes.land;
         this.multiTokenTag = null;
         this.multiTokenClickCount = 0;
         this.anyTaggingPerformed = false;
@@ -879,13 +879,13 @@ dragonFly.Highlighter = class Highlighter {
             case 'u':
                 this.processUndo();
                 break;
-            case 't':
+            case 'l':
             case '1':
             case 'i':
             case '2':
-            case 'j':
+            case 'a':
             case '3':
-            case 'l':
+            case 'g':
             case '4':
                 // change the tag type
                 this.setTagType(letter);
@@ -900,21 +900,21 @@ dragonFly.Highlighter = class Highlighter {
     setTagType(letter) {
         var tagType = null;
         switch (letter) {
-            case 't':
+            case 'l':
             case '1':
-                tagType = this.tagTypes.traj;
+                tagType = this.tagTypes.land;
                 break;
             case 'i':
             case '2':
                 tagType = this.tagTypes.si;
                 break;
-            case 'j':
+            case 'a':
             case '3':
-                tagType = this.tagTypes.trla;
+                tagType = this.tagTypes.adj;
                 break;
-            case 'l':
+            case 'g':
             case '4':
-                tagType = this.tagTypes.land;
+                tagType = this.tagTypes.gag;
                 break;
         }
 
