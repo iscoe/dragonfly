@@ -34,15 +34,15 @@
 .df-type-active {
     border: 3px solid #666;
 }
-.df-traj {
+.df-land {
     background-color: rgba(241, 125, 128, 0.8);
 }
 .df-si {
     background-color: rgba(87, 89, 148, 0.6);
 }
-.df-trla {
+.df-adj {
     background-color: rgba(196, 212, 175, 1.0);
-}.df-land {
+}.df-gag {
     background-color: rgba(104, 168, 173, 0.8);
 }
 
