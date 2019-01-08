@@ -773,9 +773,10 @@ dragonFly.Highlighter = class Highlighter {
 
     /**
      * Is the user holding down the multi-token mode key?
+     * @param {Event} event - The click event.
      * @return {boolean}
      */
-    isMultiTokenOn() {
+    isMultiTokenOn(event) {
         return event[dragonFly.multiTokenEventKey];
     }
 
@@ -929,6 +930,7 @@ dragonFly.Highlighter = class Highlighter {
      * Process a token click.
      * The result depends on what click mode we are in (tagging, delete, select).
      * @param {jQuery} element - Token element clicked.
+     * @param {Event} event - The click event.
      */
     clickToken(element, event) {
         if (this.clickMode == dragonFly.ClickMode.DEL) {
@@ -945,7 +947,7 @@ dragonFly.Highlighter = class Highlighter {
             // set this so we know whether to prevent user navigating away
             this.anyTaggingPerformed = true;
 
-            if (this.isMultiTokenOn()) {
+            if (this.isMultiTokenOn(event)) {
                 this.handleMultiTokenClick(element);
             } else {
                 this.undo.start();
