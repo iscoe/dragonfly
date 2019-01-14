@@ -8,7 +8,7 @@ by copying reference annotation directories and re-writing tsv files.
 Annotation directories must start with "annotations-" and all must
 be top level directories in the input directory.
 If an output directory is not passed in, the output is saved to a directory
-<input path>-disambiguation.
+<input path>-adjudicate.
 """
 
 
@@ -117,9 +117,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "path", help="directory with tsv files to disambiguate with corresponding annotation directories")
+        "path", help="directory with tsv files to adjudicate with corresponding annotation directories")
     parser.add_argument("-o", "--output_directory_name",
-                        help="optional name for output directory to store reference annotations and updated tsv files to disambiguate")
+                        help="optional name for output directory to store reference annotations and updated tsv files to adjudicate")
     parser.add_argument("-r", "--reference_annotations", help="annotation directory used as reference annotation set")
     parser.add_argument("-e", "--tsv_file_extension", help="optional file extension for tsv files (default is .conll.txt)")
     parser.add_argument("-p", "--annotation_dir_prefix", help="optional prefix for annotation directories (default is annotation-)")
@@ -137,9 +137,9 @@ if __name__ == '__main__':
     else:
         if input_directory.endswith('/') or input_directory.endswith("\\"):
             input_dir_formatted = input_directory[0:len(input_directory) - 1]
-            output_directory = input_dir_formatted + "-disambiguation"
+            output_directory = input_dir_formatted + "-adjudicate"
         else:
-            output_directory = input_directory + "-disambiguation"
+            output_directory = input_directory + "-adjudicate"
 
     if os.path.exists(output_directory):
         print("Error: {} already exists".format(output_directory))
