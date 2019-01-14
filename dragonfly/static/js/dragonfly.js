@@ -844,9 +844,9 @@ dragonFly.Highlighter = class Highlighter {
     };
 
     /**
-     * Apply highlight to additional annotations (in rows) for visualization.
+     * Apply highlight to adjudication annotations for visualization.
      */
-    initializeHighlightReferenceAnnotations() {
+    highlightAdjudicationAnnotations() {
         var tags = dragonFly.tagTypes.types.map(o => o.name);
         $(".df-col-entry").each(function () {
             var col_entry = $(this).text();
@@ -1247,7 +1247,7 @@ $(document).ready(function() {
     dragonFly.concordance = new dragonFly.Concordance();
     dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tagTypes, dragonFly.concordance);
     dragonFly.highlighter.initializeHighlight();
-    dragonFly.highlighter.initializeHighlightReferenceAnnotations();
+    dragonFly.highlighter.highlightAdjudicationAnnotations();
     dragonFly.annotationSaver = new dragonFly.AnnotationSaver($("#df-filename").html());
     dragonFly.hints = new dragonFly.Hints(1);
     dragonFly.hints.run();

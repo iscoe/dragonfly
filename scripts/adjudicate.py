@@ -33,10 +33,8 @@ def get_tag_list_formatted(annotation_file_contents_as_list):
 def get_tsv_filename_from_anno_filename(annotation_filename):
     return annotation_filename.replace(".anno", "")
 
-
 def get_anno_filename_from_tsv_filename(tsv_filename):
     return tsv_filename + ".anno"
-
 
 # get dictionary of existing tags for annotations-2 through annotations-n
 def load_annotation_directories(input_dir, reference_annotation_directory_name):
@@ -168,6 +166,23 @@ if __name__ == '__main__':
         tsv_file_extension = "conll.txt"
 
     # get dictionary of existing tags for annotations-2 through annotations-n
+    '''
+    Example:
+    {
+        "annotations-1": {
+                    "tsv_file_1": [["B-PER"],["I-PER"],...["O"]]
+                    "tsv_file_2": [["O"],["B-LOC"],...["B-GPE"]]
+                    "tsv_file_4": [["O"],["O"],...["O"]]
+
+                }
+        "annotations-2": {
+                    "tsv_file_1": [["B-PER"],["O"],...["O"]]
+                    "tsv_file_2": [["O"],["B-LOC"],...["O"]]
+                    "tsv_file_3": [["B-GPE"],["I-GPE"],...["O"]]
+                }
+
+    }
+    '''
     annotations_lookup_by_directory, tsv_files_with_annotations = load_annotation_directories(input_directory,
                                                                                               reference_annotation_dir_name)
 
@@ -178,7 +193,7 @@ if __name__ == '__main__':
     tsv_files_with_annotations = [tsv_file for tsv_file in tsv_files if tsv_file in tsv_files_with_annotations]
     tsv_files_without_annotations = [tsv_file for tsv_file in tsv_files if tsv_file not in tsv_files_with_annotations]
 
-    # if the tsv file has annotations
+    # if the tsv file has annotations re-write the tsv file with the annotations as a new column
     for tsv_file in tsv_files_with_annotations:
         annotation_file_name = get_anno_filename_from_tsv_filename(tsv_file)
 
@@ -196,5 +211,6 @@ if __name__ == '__main__':
         rewrite_tsv_file_with_tags(f_write, src_tsv_file, additional_annotations_for_tsv)
 
     # if the file does not have any annotations copy it over
+    # TODO: if updated tsvs now have headers - these should as welll
     for tsv_file in tsv_files_without_annotations:
         shutil.copyfile(os.path.join(input_directory, tsv_file), os.path.join(output_directory, tsv_file))
