@@ -122,6 +122,7 @@ if __name__ == '__main__':
                         help="optional name for output directory to store reference annotations and updated tsv files to disambiguate")
     parser.add_argument("-r", "--reference_annotations", help="annotation directory used as reference annotation set")
     parser.add_argument("-e", "--tsv_file_extension", help="optional file extension for tsv files (default is .conll.txt)")
+    parser.add_argument("-p", "--annotation_dir_prefix", help="optional prefix for annotation directories (default is annotation-)")
 
     args = parser.parse_args()
 
@@ -145,6 +146,11 @@ if __name__ == '__main__':
         quit()
     else:
         os.makedirs(output_directory)
+
+    if args.annotation_dir_prefix:
+        annotation_dir_prefix = args.annotation_dir_prefix
+    else:
+        annotation_dir_prefix = "annotation-"
 
     if args.reference_annotations:
         reference_annotation_dir_name = args.reference_annotations
