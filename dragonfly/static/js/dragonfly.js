@@ -844,6 +844,25 @@ dragonFly.Highlighter = class Highlighter {
     };
 
     /**
+     * Apply highlight to additional annotations (in rows) for visualization.
+     */
+    initializeHighlightReferenceAnnotations() {
+        var tags = dragonFly.tagTypes.types.map(o => o.name);
+        $(".df-col-entry").each(function () {
+            var col_entry = $(this).text();
+            var col_entry_tokens = col_entry.split("-");
+            if (col_entry_tokens.length == 2 && (tags.indexOf(col_entry_tokens[1].toLowerCase()) >= 0)) {
+                var classes = "df-token";
+                if (col_entry.charAt(0) == 'B') {
+                    classes += " df-b-tag";
+                }
+                classes += " df-" + col_entry.split("-")[1];
+                $(this).addClass(classes);
+            }
+        });
+    };
+
+    /**
      * Process a user key press.
      * @param {string} letter - The letter the user pressed.
      */
@@ -1228,6 +1247,7 @@ $(document).ready(function() {
     dragonFly.concordance = new dragonFly.Concordance();
     dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tagTypes, dragonFly.concordance);
     dragonFly.highlighter.initializeHighlight();
+    dragonFly.highlighter.initializeHighlightReferenceAnnotations();
     dragonFly.annotationSaver = new dragonFly.AnnotationSaver($("#df-filename").html());
     dragonFly.hints = new dragonFly.Hints(1);
     dragonFly.hints.run();
