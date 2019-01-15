@@ -1,0 +1,27 @@
+My	O
+dog	O
+named	O
+Max	O
+is	O
+2	O
+-	O
+years	O
+old	O
+.	O
+
+He	O
+was	O
+born	O
+in	O
+North	B-GPE
+Carolina	I-GPE
+.	O
+
+Now	O
+he 	B-PER
+lives	O
+in 	O
+the	O
+DC	B-GPE
+area	B-LOC
+.	O

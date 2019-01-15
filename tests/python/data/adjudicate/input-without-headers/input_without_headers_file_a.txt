@@ -1,0 +1,4 @@
+Milyen	What
+hõmérséklet	temperature
+van	is it
+?	?
