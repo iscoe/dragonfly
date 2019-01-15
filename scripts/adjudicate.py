@@ -97,5 +97,4 @@ for tsv_file in tsv_files_with_annotations:
     manager.rewrite_tsv_file_with_tags(f_write, src_tsv_file, additional_annotations_for_tsv)
 
 # if the file does not have any annotations copy it over
-for tsv_file in tsv_files_without_annotations:
-    shutil.copyfile(os.path.join(input_directory, tsv_file), os.path.join(output_directory, tsv_file))
+manager.copy_tsv_files_without_annotations(tsv_files_without_annotations)
