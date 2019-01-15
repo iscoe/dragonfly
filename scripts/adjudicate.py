@@ -3,6 +3,7 @@ import os
 import shutil
 import sys
 import glob
+
 # forgive me father, for I have sinned
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 import dragonfly
@@ -23,7 +24,8 @@ parser.add_argument("-o", "--output_directory_name",
                     help="optional name for output directory to store reference annotations and updated tsv files to adjudicate")
 parser.add_argument("-r", "--reference_annotations", help="annotation directory used as reference annotation set")
 parser.add_argument("-e", "--tsv_file_extension", help="optional file extension for tsv files (default is .conll.txt)")
-parser.add_argument("-p", "--annotation_dir_prefix", help="optional prefix for annotation directories (default is annotation-)")
+parser.add_argument("-p", "--annotation_dir_prefix",
+                    help="optional prefix for annotation directories (default is annotation-)")
 
 args = parser.parse_args()
 
@@ -33,14 +35,15 @@ else:
     print("Error: {} does not exist".format(args.path))
     quit()
 
+DEFAULT_ADJUDICATE_OUTPUT_FOLDER_SUFFIX = "-adjudicate"
 if args.output_directory_name:
     output_directory = args.output_directory_name
 else:
     if input_directory.endswith('/') or input_directory.endswith("\\"):
         input_dir_formatted = input_directory[0:len(input_directory) - 1]
-        output_directory = input_dir_formatted + "-adjudicate"
+        output_directory = input_dir_formatted + DEFAULT_ADJUDICATE_OUTPUT_FOLDER_SUFFIX
     else:
-        output_directory = input_directory + "-adjudicate"
+        output_directory = input_directory + DEFAULT_ADJUDICATE_OUTPUT_FOLDER_SUFFIX
 
 if os.path.exists(output_directory):
     print("Error: {} already exists".format(output_directory))
@@ -68,7 +71,7 @@ else:
     tsv_file_extension = "conll.txt"
 
 manager = dragonfly.AdjudicationManager(input_directory, output_directory,
-                                      tsv_file_extension, annotation_dir_prefix,reference_annotation_dir_name)
+                                        tsv_file_extension, annotation_dir_prefix, reference_annotation_dir_name)
 
 output_annotations_directory = os.path.join(output_directory, 'annotations')
 manager.copy_reference_annotation_files()
@@ -80,10 +83,10 @@ tsv_files = [os.path.basename(tsv_file_path) for tsv_file_path in tsv_file_paths
 tsv_files_with_annotations = [tsv_file for tsv_file in tsv_files if tsv_file in tsv_files_with_annotations]
 tsv_files_without_annotations = [tsv_file for tsv_file in tsv_files if tsv_file not in tsv_files_with_annotations]
 
-manager.rewrite_tsv_files_with_annotations(tsv_files_with_annotations,annotations_lookup_by_directory)
+manager.rewrite_tsv_files_with_annotations(tsv_files_with_annotations, annotations_lookup_by_directory)
 manager.copy_tsv_files_without_annotations(tsv_files_without_annotations)
 
 print("Reference Annotation Directory:", manager.reference_annotations)
 print("Adjudication Annotation Directory(s):", manager.annotation_directories)
-print(len(tsv_files_with_annotations),"tsv files with annotations")
-print(len(tsv_files_without_annotations),"tsv files without annotations")
+print(len(tsv_files_with_annotations), "tsv files with annotations")
+print(len(tsv_files_without_annotations), "tsv files without annotations")

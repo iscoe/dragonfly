@@ -23,9 +23,9 @@ class AdjudicationManager(object):
         self.annotation_directories = self.get_annotation_directories()
 
     def get_annotation_directories(self):
-        annotation_dirs_paths = glob.glob(os.path.join(self.input_directory,  self.annotation_dir_prefix) + "*")
-        if os.path.exists(os.path.join(self.input_directory,"annotations")):
-            annotation_dirs_paths.append(os.path.join(self.input_directory,"annotations"))
+        annotation_dirs_paths = glob.glob(os.path.join(self.input_directory, self.annotation_dir_prefix) + "*")
+        if os.path.exists(os.path.join(self.input_directory, "annotations")):
+            annotation_dirs_paths.append(os.path.join(self.input_directory, "annotations"))
 
         annotation_dirs = [os.path.basename(annotation_dir_path) for annotation_dir_path in annotation_dirs_paths if
                            os.path.basename(annotation_dir_path) != self.reference_annotations]
@@ -116,7 +116,7 @@ class AdjudicationManager(object):
             annotation_file_name = self.get_anno_filename_from_tsv_filename(tsv_file)
 
             f_read = open(os.path.join(self.input_directory, tsv_file), "r", encoding='utf8')
-            f_write = open(os.path.join(self.output_directory, tsv_file), "w",encoding='utf8')
+            f_write = open(os.path.join(self.output_directory, tsv_file), "w", encoding='utf8')
 
             src_tsv_file = f_read.read().split("\n")
 

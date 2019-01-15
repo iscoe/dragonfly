@@ -6,6 +6,7 @@ import glob
 from dragonfly.adjudicate import AdjudicationManager
 from dragonfly.data import InputReader, Document
 
+
 class AdjudicateTest(unittest.TestCase):
     def setUp(self):
         self.output_dir_with_headers = tempfile.mkdtemp()
@@ -15,14 +16,12 @@ class AdjudicateTest(unittest.TestCase):
         shutil.rmtree(self.output_dir_with_headers)
         shutil.rmtree(self.output_dir_without_headers)
 
-
     def test_input_with_headers(self):
         input_dir = "data/adjudicate/input-with-headers"
         reference_annotations = "annotations"
         tsv_file_extension = ".txt"
         annotation_dir_prefix = "annotations-"
         output_dir = self.output_dir_with_headers
-
 
         manager = AdjudicationManager(input_dir, output_dir,
                                       tsv_file_extension, annotation_dir_prefix,
@@ -41,14 +40,15 @@ class AdjudicateTest(unittest.TestCase):
         tsv_files_without_annotations = [tsv_file for tsv_file in tsv_files if
                                          tsv_file not in tsv_files_with_annotations]
 
-        self.assertEqual(len(tsv_files), (len(tsv_files_with_annotations)+len(tsv_files_without_annotations)))
+        self.assertEqual(len(tsv_files), (len(tsv_files_with_annotations) + len(tsv_files_without_annotations)))
 
         manager.copy_reference_annotation_files()
         manager.rewrite_tsv_files_with_annotations(tsv_files_with_annotations, annotations_lookup_by_directory)
         manager.copy_tsv_files_without_annotations(tsv_files_without_annotations)
 
         original_filename = os.path.join(output_dir, 'input_with_headers_file_1.txt')
-        annotations_filename = os.path.join(os.path.join(output_dir,"annotations"), 'input_with_headers_file_1.txt.anno')
+        annotations_filename = os.path.join(os.path.join(output_dir, "annotations"),
+                                            'input_with_headers_file_1.txt.anno')
         document = Document(original_filename, InputReader(original_filename).sentences)
         annotations = InputReader(annotations_filename).sentences
         document.attach(annotations)
@@ -107,8 +107,7 @@ class AdjudicateTest(unittest.TestCase):
                                       tsv_file_extension, annotation_dir_prefix,
                                       reference_annotations)
 
-        self.assertEquals(manager.get_identifier_from_annotation_dir(reference_annotations),"2")
-
+        self.assertEquals(manager.get_identifier_from_annotation_dir(reference_annotations), "2")
 
     def _test_annotation_directories(self, manager, expected_anno_dirs):
         annotation_dirs = manager.annotation_directories
@@ -117,4 +116,3 @@ class AdjudicateTest(unittest.TestCase):
         self.assertListEqual(annotation_dirs, expected_anno_dirs)
         annotations_lookup_by_directory, tsv_files_with_annotations = manager.load_annotation_directories()
         self.assertListEqual(list(annotations_lookup_by_directory.keys()), expected_anno_dirs)
-
