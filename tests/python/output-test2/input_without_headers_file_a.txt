@@ -1,0 +1,5 @@
+TOKEN	b	c	COLUMN_1
+Milyen	O	O	What
+hõmérséklet	B-LOC	B-GPE	temperature
+van	O	O	is it
+?	?O	?O	?

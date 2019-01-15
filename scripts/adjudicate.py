@@ -80,21 +80,5 @@ tsv_files = [os.path.basename(tsv_file_path) for tsv_file_path in tsv_file_paths
 tsv_files_with_annotations = [tsv_file for tsv_file in tsv_files if tsv_file in tsv_files_with_annotations]
 tsv_files_without_annotations = [tsv_file for tsv_file in tsv_files if tsv_file not in tsv_files_with_annotations]
 
-for tsv_file in tsv_files_with_annotations:
-    annotation_file_name = manager.get_anno_filename_from_tsv_filename(tsv_file)
-
-    f_read = open(os.path.join(input_directory, tsv_file), "r")
-    f_write = open(os.path.join(output_directory, tsv_file), "w")
-
-    src_tsv_file = f_read.read().split("\n")
-
-    additional_annotations_for_tsv = {}
-    for annotation_directory in annotations_lookup_by_directory.keys():
-        if annotation_file_name in annotations_lookup_by_directory[annotation_directory].keys():
-            additional_annotations_for_tsv[annotation_directory] = \
-            annotations_lookup_by_directory[annotation_directory][annotation_file_name]
-
-    manager.rewrite_tsv_file_with_tags(f_write, src_tsv_file, additional_annotations_for_tsv)
-
-# if the file does not have any annotations copy it over
+manager.rewrite_tsv_files_with_annotations(tsv_files_with_annotations,annotations_lookup_by_directory)
 manager.copy_tsv_files_without_annotations(tsv_files_without_annotations)

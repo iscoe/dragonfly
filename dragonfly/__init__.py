@@ -8,8 +8,6 @@ import logging.handlers
 import sys
 import os
 from .translations import TranslationDictManager
-from .adjudicate import AdjudicationManager
-
 
 app = Flask(__name__)
 try:
