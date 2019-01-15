@@ -16,6 +16,7 @@ class AdjudicationManager(object):
             if os.path.exists(os.path.join(self.input_directory, "annotations")):
                 self.reference_annotations = "annotations"
             else:
+                self.reference_annotations = None
                 self.reference_annotations = self.get_random_reference_annotation_dir()
         else:
             self.reference_annotations = ref_annos
@@ -50,8 +51,8 @@ class AdjudicationManager(object):
                 if tsv_file_name not in tsv_files_with_annotations:
                     tsv_files_with_annotations.append(tsv_file_name)
 
-                f = open(annotation_file_path, "r")
-                annotation_file_contents = [row.split('\t') for row in f]
+                f = open(annotation_file_path, "rb")
+                annotation_file_contents = [row.decode('utf-8').split('\t') for row in f]
                 annotation_file_contents_formatted = self.get_tag_list_formatted(annotation_file_contents)
                 annotations_lookup_by_sub_directory[annotation_directory][
                     annotation_file_name] = annotation_file_contents_formatted
@@ -110,6 +111,24 @@ class AdjudicationManager(object):
         for src_file in src_files:
             src_file_path = os.path.join(src_file)
             shutil.copy(src_file_path, dest_dir)
+
+    def copy_tsv_files_without_annotations(self, tsv_files):
+        for tsv_file in tsv_files:
+            tsv_file_path = os.path.join(self.input_directory, tsv_file)
+            f_read = open(tsv_file_path, 'r')
+            tsv_file_contents = f_read.read().split("\n")
+            if not self._has_header(tsv_file_contents):
+                # re-write the TSV file with the new header
+                f_write = open(self.output_directory + "/"+ tsv_file, 'w')
+                row_tokens = tsv_file_contents[0].rstrip().split('\t')
+                line = ["TOKEN"] + ['COLUMN_' + str(x) for x in range(1, len(row_tokens))]
+                f_write.write("\t".join(line))
+                for i in range(0, len(tsv_file_contents)):
+                    f_write.write(tsv_file_contents[i - 1] + "\n")
+
+            else:
+                shutil.copyfile(os.path.join(self.input_directory, tsv_file),
+                                os.path.join(self.output_directory, tsv_file))
 
     @staticmethod
     def get_tag_list_formatted(annotation_file_contents_as_list):
