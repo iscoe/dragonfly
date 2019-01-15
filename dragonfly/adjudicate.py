@@ -145,7 +145,7 @@ class AdjudicationManager(object):
             tsv_file_contents = f_read.read().split("\n")
             if not self._has_header(tsv_file_contents):
                 # re-write the TSV file with the new header
-                f_write = open(os.path.join(self.output_directory, tsv_file), 'w',encoding="utf8")
+                f_write = open(os.path.join(self.output_directory, tsv_file), 'w', encoding="utf8")
                 row_tokens = tsv_file_contents[0].rstrip().split('\t')
                 line = ["TOKEN"] + ['COLUMN_' + str(x) for x in range(1, len(row_tokens))]
                 f_write.write("\t".join(line))

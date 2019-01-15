@@ -71,7 +71,7 @@ manager = dragonfly.AdjudicationManager(input_directory, output_directory,
                                       tsv_file_extension, annotation_dir_prefix,reference_annotation_dir_name)
 
 output_annotations_directory = os.path.join(output_directory, 'annotations')
-manager.copy_reference_annotation_files(output_annotations_directory)
+manager.copy_reference_annotation_files()
 
 annotations_lookup_by_directory, tsv_files_with_annotations = manager.load_annotation_directories()
 
@@ -82,3 +82,8 @@ tsv_files_without_annotations = [tsv_file for tsv_file in tsv_files if tsv_file 
 
 manager.rewrite_tsv_files_with_annotations(tsv_files_with_annotations,annotations_lookup_by_directory)
 manager.copy_tsv_files_without_annotations(tsv_files_without_annotations)
+
+print("Reference Annotation Directory:", manager.reference_annotations)
+print("Adjudication Annotation Directory(s):", manager.annotation_directories)
+print(len(tsv_files_with_annotations),"tsv files with annotations")
+print(len(tsv_files_without_annotations),"tsv files without annotations")
