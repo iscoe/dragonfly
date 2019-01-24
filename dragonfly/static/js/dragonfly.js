@@ -852,7 +852,7 @@ dragonFly.Highlighter = class Highlighter {
             var col_entry = $(this).text();
             var col_entry_tokens = col_entry.split("-");
             if (col_entry_tokens.length == 2 && (tags.indexOf(col_entry_tokens[1].toLowerCase()) >= 0)) {
-                var classes = "df-token";
+                var classes = "";
                 if (col_entry.charAt(0) == 'B') {
                     classes += " df-b-tag";
                 }
