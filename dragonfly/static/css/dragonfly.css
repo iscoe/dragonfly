@@ -45,6 +45,9 @@
 }.df-gag {
     background-color: rgba(104, 168, 173, 0.8);
 }
+.df-dif {
+    background-color: rgba(243, 240, 120, .85);
+}
 
 .df-del, .df-sel, .df-find {
     background-color: rgba(33, 33, 33, 0.5);
