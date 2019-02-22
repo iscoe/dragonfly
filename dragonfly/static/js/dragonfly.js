@@ -574,7 +574,8 @@ dragonFly.TagTypes = class TagTypes {
         this.adj = new dragonFly.TagType("ADJ");
         this.gag = new dragonFly.TagType("GAG");
         this.dif = new dragonFly.TagType("DIF");
-        this.types = [this.land, this.si, this.adj, this.gag, this.dif];
+        this.dir = new dragonFly.TagType("DIR");
+        this.types = [this.land, this.si, this.adj, this.gag, this.dif, this.dir];
     }
 
     /**
@@ -890,6 +891,8 @@ dragonFly.Highlighter = class Highlighter {
             case '4':
             case 'k':
             case '5':
+            case 'j':
+            case '6':
                 // change the tag type
                 this.setTagType(letter);
                 break;
@@ -922,6 +925,10 @@ dragonFly.Highlighter = class Highlighter {
             case 'k':
             case '5':
                 tagType = this.tagTypes.dif;
+                break;
+            case 'j':
+            case '6':
+                tagType = this.tagTypes.dir;
                 break;
         }
 

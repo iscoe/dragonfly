@@ -48,6 +48,9 @@
 .df-dif {
     background-color: rgba(243, 240, 120, .85);
 }
+.df-dir {
+    background-color: rgba(220, 122, 230, .6);
+}
 
 .df-del, .df-sel, .df-find {
     background-color: rgba(33, 33, 33, 0.5);
