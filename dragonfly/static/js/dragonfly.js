@@ -1022,11 +1022,16 @@ dragonFly.Highlighter = class Highlighter {
         token.data("tag", string);
         token.data("inferred", inferred);
 
+        var in_dict = token.attr('class').indexOf('df-in-dict') !== -1;
+
         var classes = "df-token";
         if (string.charAt(0) == 'B') {
             classes += " df-b-tag";
         }
         classes += " df-" + tagType.name;
+        if (in_dict) {
+            classes += " df-in-dict";
+        }
         token.attr('class', classes);
 
         var tokenText = token.html().toLowerCase();
