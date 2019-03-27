@@ -165,8 +165,12 @@ df-nav-slim .navbar-form {
 .df-token, .df-type, .df-sentence-badge, .df-column-labels {
     cursor: pointer;
 }
+.df-token {
+    margin: 2px 0;
+}
 .df-in-dict {
     border: 2px solid #676767;
+    margin: 0;
 }
 .df-b-tag {
     border-left: 5px solid #333;
