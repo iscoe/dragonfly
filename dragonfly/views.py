@@ -16,6 +16,7 @@ from .translations import TranslationDictManager
 def index(filename):
     lang = app.config.get('dragonfly.lang')
     lister = app.config.get('dragonfly.input')
+    tags = app.config.get('dragonfly.tags')
     annotations_path = app.config.get('dragonfly.annotations')
     home_dir = app.config.get('dragonfly.home_dir')
     settings_manager = SettingsManager(home_dir)
@@ -48,7 +49,9 @@ def index(filename):
     # remove any path information
     title = os.path.basename(filename)
 
-    return flask.render_template('index.html', title=title, document=document, index=index, next_index=next_index, sm=settings_manager, lang=lang)
+    return flask.render_template('index.html', title=title, document=document,
+                                 index=index, next_index=next_index,
+                                 sm=settings_manager, lang=lang, tags=json.dumps(tags))
 
 
 def get_file_indexes(request, lister, filename):

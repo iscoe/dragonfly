@@ -34,17 +34,23 @@
 .df-type-active {
     border: 3px solid #666;
 }
-.df-per {
+.df-tag-1 {
     background-color: rgba(241, 125, 128, 0.8);
 }
-.df-org {
+.df-tag-2 {
     background-color: rgba(104, 168, 173, 0.8);
 }
-.df-gpe {
+.df-tag-3 {
     background-color: rgba(87, 89, 148, 0.6);
 }
-.df-loc {
+.df-tag-4 {
     background-color: rgba(196, 212, 175, 1.0);
+}
+.df-tag-5 {
+    background-color: rgba(243, 240, 120, .85);
+}
+.df-tag-6 {
+    background-color: rgba(220, 122, 230, .6);
 }
 .df-del, .df-sel, .df-find {
     background-color: rgba(33, 33, 33, 0.5);
