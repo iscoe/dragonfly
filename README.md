@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/iscoe/dragonfly.svg?branch=master)](https://travis-ci.com/iscoe/dragonfly)
+
 Dragonfly Annotation Tool
 ============================
 Dragonfly is a tool for performing named entity annotations.
