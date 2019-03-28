@@ -51,22 +51,19 @@ class TypeStats(object):
 
 
 class Stats(object):
-    TYPES = ['GPE', 'LOC', 'ORG', 'PER']
+    OTHER = 'O'
 
     def __init__(self):
         self.num_tokens = 0
         self.num_tagged_tokens = 0
-        self.entities = {
-            'GPE': TypeStats('GPE'),
-            'LOC': TypeStats('LOC'),
-            'ORG': TypeStats('ORG'),
-            'PER': TypeStats('PER'),
-        }
+        self.entities = {}
 
     def add(self, rows):
         self.num_tagged_tokens += len(rows)
         entity_type = Stats.get_type(rows)
-        if entity_type in self.TYPES:
+        if entity_type != self.OTHER:
+            if entity_type not in self.entities:
+                self.entities[entity_type] = TypeStats(entity_type)
             self.entities[entity_type].add(Stats.get_name(rows))
 
     def increment_tokens(self):

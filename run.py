@@ -18,6 +18,7 @@ if __name__ == '__main__':
     parser.add_argument("-d", "--hints", help="optional hints displayed on the transliterations")
     parser.add_argument("-p", "--port", help="optional port to use (default is 5000)")
     parser.add_argument("-e", "--ext", help="optional file extension to match (default is .txt)")
+    parser.add_argument("-t", "--tags", help="optional list of tags (default is PER,ORG,GPE,LOC)")
     args = parser.parse_args()
 
     if args.output:
@@ -43,6 +44,10 @@ if __name__ == '__main__':
     if not args.ext:
         args.ext = '.txt'
 
+    if not args.tags:
+        args.tags = 'PER,ORG,GPE,LOC'
+    tags = [x.strip().upper() for x in args.tags.split(',')]
+
     if os.path.isdir(args.path):
         index_dir = os.path.join(args.path, '.index')
     else:
@@ -53,6 +58,7 @@ if __name__ == '__main__':
     app.config['dragonfly.input'] = FileLister(args.path, args.ext)
     app.config['dragonfly.annotations'] = args.annotations
     app.config['dragonfly.hints'] = args.hints
+    app.config['dragonfly.tags'] = tags
 
     # load index - this may take a few seconds with a large index
     app.dragonfly_index = Indexer(index_dir)

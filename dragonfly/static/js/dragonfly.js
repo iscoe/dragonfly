@@ -4,7 +4,7 @@
  * Distributed under the terms of the Apache 2.0 License.
  */
 
-var dragonFly =  dragonFly || {};
+var dragonFly = dragonFly || {};
 
 /**
  * Show status message.
@@ -14,7 +14,7 @@ var dragonFly =  dragonFly || {};
 dragonFly.showStatus = function(type, text) {
     $(".alerts").append('<div class="alert alert-' + type + ' alert-dismissable">' +
             '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' +
-            text +'</div>');
+            text + '</div>');
     if (type == "success") {
         $(".alerts").children().delay(4000).fadeTo(1000, 0, function() {
             $(this).alert('close');
@@ -559,40 +559,87 @@ dragonFly.TagType = class TagType {
      * Create a tag type
      * @param {string} name - The tag type name
      */
-    constructor(name) {
-        this.name = name.toLowerCase();
+    constructor(id, name) {
+        this.id = id;
+        this.name = name;
+        this.class = "df-tag-" + id;
         this.start = "B-" + name;
         this.inside = "I-" + name;
     }
 };
 
-/** Class that holds the tag types. */
 dragonFly.TagTypes = class TagTypes {
-    constructor() {
-        this.per = new dragonFly.TagType("PER");
-        this.org = new dragonFly.TagType("ORG");
-        this.gpe = new dragonFly.TagType("GPE");
-        this.loc = new dragonFly.TagType("LOC");
-        this.types = [this.per, this.org, this.gpe, this.loc];
+    /**
+     * Create all tag types
+     * @param {array} tagTypes - Array of tag names
+     */
+    constructor(tagTypes) {
+        this.typeMap = {};
+        this.typeList = [];
+        for (var i = 0; i < tagTypes.length; i++) {
+            var index = '' + (i + 1)
+            var object = new dragonFly.TagType(index, tagTypes[i]);
+            this.typeMap[index] = object;
+            this.typeList.push(object);
+        }
     }
 
     /**
-     * Get the tag type from a tag string.
-     * @param {string} value - The tag string like 'B-PER'.
-     * @return {dragonFly.Tag} Tag object or null if no match.
+     * Is this a tag type?
+     * @param {string} id - Tag type id
+     * @return boolean
      */
-    getTagType(value) {
+    isTagType(id) {
+        // todo cast to number
+        return id <= this.typeList.length;
+    }
+
+    /**
+     * Get tag type object
+     * @param {string} id - Tag type id
+     * @return TagType
+     */
+    getTagType(id) {
+        return this.typeMap[id];
+    }
+
+    /**
+     * Get initial tag type object
+     * @return TagType
+     */
+    getStartTagType() {
+        // 1 is the first tag type id
+        return this.getTagType('1');
+    }
+
+    /**
+     * Get tag type object from the full tag string
+     * @param {string} value - Tag string
+     * @return TagType
+     */
+    getTagTypeFromString(value) {
         if (value == null || value == "O") {
             return;
         }
         var tagType = value;
         tagType = tagType.slice(2);
-        for (var i = 0; i < this.types.length; i++) {
-            if (this.types[i].name == tagType.toLowerCase()) {
-                return this.types[i];
+        for (var i = 0; i < this.typeList.length; i++) {
+            if (this.typeList[i].name == tagType) {
+                return this.typeList[i];
             }
         }
-        return;
+    }
+
+    /**
+     * Add tag type buttons to DOM
+     */
+    injectButtons() {
+        for (var i = this.typeList.length - 1; i >= 0; i--) {
+            var id = this.typeList[i].id;
+            var label = this.typeList[i].name;
+            $('.navbar-labels').prepend('<span class="navbar-text label df-type df-tag-' + id + '" title="' + id + '">' + label + '</span>');
+        }
+        $('.navbar-labels span:first-child').addClass('df-type-active');
     }
 };
 
@@ -753,7 +800,7 @@ dragonFly.Highlighter = class Highlighter {
         this.isCascade = true;
         this.clickMode = dragonFly.ClickMode.TAG;
         this.prevClickMode = dragonFly.ClickMode.TAG;
-        this.currentTagType = tagTypes.per;
+        this.currentTagType = this.tagTypes.getStartTagType();
         this.multiTokenTag = null;
         this.multiTokenClickCount = 0;
         this.anyTaggingPerformed = false;
@@ -806,7 +853,7 @@ dragonFly.Highlighter = class Highlighter {
     highlightTypeAndClickMode() {
         $(".df-type").removeClass('df-type-active');
         if (this.clickMode == dragonFly.ClickMode.TAG) {
-            var className = ".df-" + this.currentTagType.name.toLowerCase();
+            var className = ".df-tag-" + this.currentTagType.id;
             $(".df-type" + className).addClass('df-type-active');
         } else if (this.clickMode == dragonFly.ClickMode.DEL) {
             $(".df-del").addClass('df-type-active');
@@ -832,15 +879,26 @@ dragonFly.Highlighter = class Highlighter {
      */
     initializeHighlight() {
         var self = this;
+        var mismatchedTags = new Set();
         $(".df-token").each(function() {
             var tagValue = $(this).data("tag");
             if (tagValue != null && tagValue != "O") {
-                var tagType = self.tagTypes.getTagType(tagValue);
-                self.highlightToken($(this), tagType, tagValue, false);
+                var tagType = self.tagTypes.getTagTypeFromString(tagValue);
+                if (typeof tagType !== 'undefined') {
+                    self.highlightToken($(this), tagType, tagValue, false);
+                } else {
+                    // we're loading data with a different tag set
+                    mismatchedTags.add(tagValue);
+                }
             }
         });
         // don't let people undo the loaded annotations so turn on undo after we're done
         this.undoActive = true;
+
+        if (mismatchedTags.size > 0) {
+            var tags = Array.from(mismatchedTags).join(', ');
+            dragonFly.showStatus('danger', 'Incompatiable saved annotations: ' + tags);
+        }
     };
 
     /**
@@ -880,49 +938,14 @@ dragonFly.Highlighter = class Highlighter {
             case 'u':
                 this.processUndo();
                 break;
-            case 'p':
-            case '1':
-            case 'o':
-            case '2':
-            case 'g':
-            case '3':
-            case 'l':
-            case '4':
-                // change the tag type
-                this.setTagType(letter);
+            default:
+                if (!isNaN(letter) && this.tagTypes.isTagType(letter)) {
+                    // change the tag type
+                    this.clickMode = dragonFly.ClickMode.TAG;
+                    this.currentTagType = this.tagTypes.getTagType(letter);
+                    this.highlightTypeAndClickMode();
+                }
                 break;
-        }
-    }
-
-    /**
-     * Set the current tag type.
-     * @param {string} letter - a letter or number representing the tag type.
-     */
-    setTagType(letter) {
-        var tagType = null;
-        switch (letter) {
-            case 'p':
-            case '1':
-                tagType = this.tagTypes.per;
-                break;
-            case 'o':
-            case '2':
-                tagType = this.tagTypes.org;
-                break;
-            case 'g':
-            case '3':
-                tagType = this.tagTypes.gpe;
-                break;
-            case 'l':
-            case '4':
-                tagType = this.tagTypes.loc;
-                break;
-        }
-
-        if (tagType) {
-            this.clickMode = dragonFly.ClickMode.TAG;
-            this.currentTagType = tagType;
-            this.highlightTypeAndClickMode();
         }
     }
 
@@ -1028,7 +1051,7 @@ dragonFly.Highlighter = class Highlighter {
         if (string.charAt(0) == 'B') {
             classes += " df-b-tag";
         }
-        classes += " df-" + tagType.name;
+        classes += " df-tag-" + tagType.id;
         if (in_dict) {
             classes += " df-in-dict";
         }
@@ -1229,8 +1252,9 @@ $(document).ready(function() {
     $('body').css('margin-top', $('#df-nav').height() + 10);
 
     dragonFly.lang = $("meta[name=lang]").attr("content");
-    dragonFly.tagTypes = new dragonFly.TagTypes();
     dragonFly.concordance = new dragonFly.Concordance();
+    dragonFly.tagTypes = new dragonFly.TagTypes(dragonfly_tags);
+    dragonFly.tagTypes.injectButtons();
     dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tagTypes, dragonFly.concordance);
     dragonFly.highlighter.initializeHighlight();
     dragonFly.annotationSaver = new dragonFly.AnnotationSaver($("#df-filename").html());

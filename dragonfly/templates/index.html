@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+<script>var dragonfly_tags = {{ tags|safe }}</script>
 {% set max_col_width = sm.get_column_width() %}
 {% for s in range(document.sentences|length) %}
     {% set sentence = document.sentences[s] %}

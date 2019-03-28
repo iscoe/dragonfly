@@ -15,7 +15,6 @@ class TranslationDictManager(object):
     The key of the dictionary is the source string.
     Each list has two entries: translation string and entity type.
     """
-    ENTITY_TYPES = ["PER", 'ORG', 'GPE', 'LOC', 'NONE']
 
     def __init__(self, base_dir):
         self.base_dir = base_dir
@@ -23,8 +22,6 @@ class TranslationDictManager(object):
     def add(self, lang, source, translation, type):
         source = source.lower()
         type = type.upper()
-        if type not in self.ENTITY_TYPES:
-            type = self._guess_type(type)
         trans_dict = self.get(lang)
         trans_dict[source] = [translation, type]
         self.save(lang, trans_dict)
@@ -75,26 +72,3 @@ class TranslationDictManager(object):
                     trans_dict[row[PHRASE]] = [row[TRANS], row[TYPE]]
         self.save(lang, trans_dict)
         return count
-
-    def _guess_type(self, type):
-        if type == 'P':
-            return 'PER'
-        elif type == 'O':
-            return 'ORG'
-        elif type == 'G':
-            return 'GPE'
-        elif type == 'L':
-            return 'LOC'
-        elif type == 'N':
-            return 'NONE'
-        elif type == '':
-            return 'NONE'
-
-        distances = list(map(lambda x: self._get_hamming_distance(x, type), self.ENTITY_TYPES))
-        return self.ENTITY_TYPES[distances.index(min(distances))]
-
-    @staticmethod
-    def _get_hamming_distance(s1, s2):
-        s1 = s1.ljust(max(len(s1), len(s2)))
-        s2 = s2.ljust(max(len(s1), len(s2)))
-        return sum(map(str.__ne__, s1, s2))

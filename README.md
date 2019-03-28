@@ -57,34 +57,42 @@ Once the server is running, direct your browser to http://localhost:5000/
 Dragonfly creates a `.dragonfly` directory in the user's home directory.
 It saves settings and translation dictionaries to this directory.
 
+The tag types can be specified on the command line using the -t option:
+```
+python3 run.py -t PER,ORG,LOC,MISC lang directory
+```
+The default tag set is PER, ORG, GPE, LOC in support of LoReHLT. O is the tag applied to
+tokens that are outside of named entities.
+
 Annotate
 -------------------
 ### Single token tagging
-1. Select the tag type by selecting a letter: 'p' for PER, 'o' for ORG, 'g' for GPE, 'l' for LOC.
+1. Select the tag type by pressing the number associated with the type (first tag type is 1 and so on).
 2. Click on a token for a B tag.
 3. Continue clicking tokens for that tag type. Select a different letter for a different entity type.
 
-Note: you can also use '1', '2', '3', '4' for PER, ORG, GPE, LOC.
 
 ### Cascade
 Toggle the cascade through its checkbox in the navigation bar or by pressing 'c'.
 
-The cascade will highlight all matching tokens in the document unless that token has been previously tagged.
+The cascade will tag all matching tokens in the document unless that token has been previously tagged.
 
 ### Multi-token tagging
 1. Select tag mode as with single token tagging.
-2. Hold down the control key on Linux and Windows or option key on MacOSX and click on each token from left to right.
+2. Hold down the control key on Linux and Windows or option key on MacOSX and click the first token and then last token.
 3. If cascade is on, it will not cascade to tags that have already been tagged.
+
+Multi-token tags cannot span sentences.
 
 ### Selecting tokens
 To copy tokens to your clipboard, press 's' to enter select mode.
-Then click on the first token to copy and the last token to copy in a single sentence.
+Then click on the first and the last token to copy in a single sentence.
 Clicking the same token twice copies that token.
 
 ### Other commands
 * To delete a token tagging, select delete mode ('d') and click on the token.
 * To undo an action, press 'u'.
-* To advance to the next screen, press the spacebar or scroll.
+* To advance to the next sentences for a document, press the spacebar or scroll.
 * To save the annotations, click the save button.
 * To move to the next document in the directory, click the next button (or previous button for the previous file).
 * To skip to a particular file, type the filename as part of the url: http://localhost:5000/IL5_SN_0001.txt

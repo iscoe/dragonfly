@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, 
 Correct annotation files based on a transform file.
 The transform file should be 2 columns tab separated with the first being the string of interest.
 Case is ignored and the first column can be a multi-token phrase.
-The 2nd column is the tag type O, PER, ORG, LOC, GPE.
+The 2nd column is the tag type (Default types are O, PER, ORG, LOC, GPE).
 Example:
 New York\tGPE
 Pastafarian\tO
@@ -53,7 +53,6 @@ TAG = 1
 
 
 class Transform(object):
-    CHANGES = ['O', 'PER', 'ORG', 'LOC', 'GPE']
     SEP = '\u2620'
 
     def __init__(self, row):
@@ -65,8 +64,6 @@ class Transform(object):
         value = value.strip().upper()
         if value in ['DEL', 'DELETE', 'RM', 'REMOVE']:
             value = 'O'
-        if value not in self.CHANGES:
-            raise ValueError("{} is an unknown change".format(value))
         return value
 
     def apply(self, rows):
