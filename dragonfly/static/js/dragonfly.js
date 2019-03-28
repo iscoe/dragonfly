@@ -590,8 +590,11 @@ dragonFly.TagTypes = class TagTypes {
      * @return boolean
      */
     isTagType(id) {
-        // todo cast to number
-        return id <= this.typeList.length;
+        // test if integer
+        if (id >>> 0 !== parseFloat(id)) {
+            return false;
+        }
+        return Number(id) <= this.typeList.length;
     }
 
     /**
@@ -939,7 +942,7 @@ dragonFly.Highlighter = class Highlighter {
                 this.processUndo();
                 break;
             default:
-                if (!isNaN(letter) && this.tagTypes.isTagType(letter)) {
+                if (this.tagTypes.isTagType(letter)) {
                     // change the tag type
                     this.clickMode = dragonFly.ClickMode.TAG;
                     this.currentTagType = this.tagTypes.getTagType(letter);
