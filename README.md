@@ -156,5 +156,5 @@ Test
 ------------
 To run the unit tests:
 ```
-nosetests python/tests
+nosetests tests/python
 ```
