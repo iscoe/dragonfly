@@ -7,7 +7,6 @@ import logging
 import logging.handlers
 import sys
 import os
-from .translations import TranslationDictManager
 
 
 app = Flask(__name__)
