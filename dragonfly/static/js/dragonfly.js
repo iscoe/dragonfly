@@ -546,13 +546,6 @@ dragonFly.Translations = class Translations {
     }
 };
 
-/**
- * Enum for click mode.
- * @readonly
- * @enum {number}
- */
-dragonFly.ClickMode = {DEL: 0, TAG: 1, SELECT: 2, CONCORDANCE: 3};
-
 /** Class representing a tag type. */
 dragonFly.TagType = class TagType {
     /**
@@ -695,6 +688,13 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
 
 dragonFly.Concordance = class Concordance {
     /**
+     * Create a Concordance object
+     */
+    constructor() {
+        this.minimizedHeight = $('.df-concordance').height();
+    }
+
+    /**
      * Search the concordance
      */
     search(word) {
@@ -772,7 +772,7 @@ dragonFly.Concordance = class Concordance {
     }
 
     /**
-     * Show the concordance window if not viewable
+     * Show the concordance window
      */
     show() {
         var cw = $('.df-concordance');
@@ -780,6 +780,13 @@ dragonFly.Concordance = class Concordance {
             cw.height(200);
         }
         this.handleResize(cw);
+    }
+
+    /**
+     * Hide the concordance window
+     */
+    hide() {
+        $('.df-concordance').height(this.minimizedHeight);
     }
 
     /**
@@ -792,6 +799,13 @@ dragonFly.Concordance = class Concordance {
         $('.df-body').css('margin-bottom', $('.df-concordance').height());
     }
 };
+
+/**
+ * Enum for click mode.
+ * @readonly
+ * @enum {number}
+ */
+dragonFly.ClickMode = {DEL: 0, TAG: 1, SELECT: 2, CONCORDANCE: 3};
 
 dragonFly.Highlighter = class Highlighter {
     /**
@@ -936,7 +950,7 @@ dragonFly.Highlighter = class Highlighter {
                 break;
             case 'f':
                 // concordance mode
-                this.tagClickMode = dragonFly.ClickMode.CONCORDANCE;
+                this.clickMode = dragonFly.ClickMode.CONCORDANCE;
                 this.highlightTypeAndClickMode();
                 this.concordance.show();
                 break;
