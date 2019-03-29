@@ -4,5 +4,5 @@
 annotations
 node_modules
 *.json
-data/
+/data/
 *.DS_Store
