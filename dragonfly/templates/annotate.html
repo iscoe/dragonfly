@@ -1,9 +1,14 @@
 {% extends "base.html" %}
+{% block nav %}
+  <script>
+  var dragonfly_tags = {{ tags|safe }};
+  var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
+  </script>
+  {% include 'nav.html' %}
+{% endblock %}
+
 {% block content %}
-<script>
-var dragonfly_tags = {{ tags|safe }};
-var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
-</script>
+<div class="container-fluid df-body">
 {% set max_col_width = sm.get_column_width() %}
 {% for s in range(document.sentences|length) %}
     {% set sentence = document.sentences[s] %}
@@ -46,4 +51,11 @@ var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
         {% endfor %}
     </div>
 {% endfor %}
+</div>
+{% endblock %}
+
+{% block extras %}
+  {% include 'find.html' %}
+  {% include 'settings.html' %}
+  {% include 'context.html' %}
 {% endblock %}

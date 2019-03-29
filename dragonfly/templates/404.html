@@ -1,16 +1,6 @@
-<html>
-  <head>
-    <title>Dragonfly : Error</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" media="screen">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dragonfly.css') }}" media="screen">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <script src=" {{url_for('static', filename='js/jquery-3.2.1.min.js')}} "></script>
-    <script src=" {{url_for('static', filename='js/bootstrap.min.js')}} "></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  </head>
-  <body>
-    <div class="container-fluid df-body">
-      <h1>404: Unknown document</h1>
-    </div>
-  </body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+  <h1>404: Unknown document</h1>
+</div>
+{% endblock %}

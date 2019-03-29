@@ -24,7 +24,7 @@ def index(filename):
 
     index, next_index = get_file_indexes(flask.request, lister, filename)
     if index is None:
-        return flask.render_template('404.html'), 404
+        return flask.render_template('404.html', title="Error"), 404
     filename = lister.get_filename(index)
     app.logger.info('Serving ' + filename)
     reader = InputReader(filename)
@@ -50,7 +50,7 @@ def index(filename):
     # remove any path information
     title = os.path.basename(filename)
 
-    return flask.render_template('index.html', title=title, document=document,
+    return flask.render_template('annotate.html', title=title, document=document,
                                  index=index, next_index=next_index,
                                  sm=settings_manager, lang=lang, tags=json.dumps(tags))
 

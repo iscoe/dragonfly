@@ -1,0 +1,45 @@
+<div class="navbar navbar-default navbar-fixed-top" id="df-nav">
+  <div class="container-fluid">
+    <div class="navbar-header df-header-metadata">
+      <span id="df-filename" class="navbar-text">{{ title }}</span>
+    </div>
+    <div class="navbar-header navbar-labels">
+      <span class="navbar-text label df-type df-del" title="d">DEL</span>
+      <span class="navbar-text label df-type df-sel" title="s">SEL</span>
+      <span class="navbar-text label df-type df-find" title="f">FIND</span>
+    </div>
+    <div class="navbar-header navbar-buttons navbar-right">
+      <div class="btn-group">
+        {% if index > 0 %}
+        <a class="btn btn-default df-navbar-button" id="df-prev-doc" title="Previous" aria-label="Previous" href="\?index={{ index - 1 }}">
+          <span class="glyphicon glyphicon-triangle-left"></span>
+        </a>
+        {% else %}
+        <span class="btn btn-default df-navbar-button disabled" id="df-prev-doc" title="Previous" aria-label="Previous">
+          <span class="glyphicon glyphicon-triangle-left disabled"></span>
+        </span>
+        {% endif %}
+        {% if next_index %}
+        <a class="btn btn-default df-navbar-button" id="df-next-doc" title="Next" aria-label="Next" href="\?index={{ next_index }}">
+          <span class="glyphicon glyphicon-triangle-right"></span>
+        </a>
+        {% else %}
+        <span class="btn btn-default df-navbar-button disabled" id="df-next-doc" title="Next" aria-label="Next">
+          <span class="glyphicon glyphicon-triangle-right"></span>
+        </span>
+        {% endif %}
+        <button type="button" id="df-save" class="btn btn-default df-navbar-button" title="Save" aria-label="Save">
+          <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+        </button>
+        <button type="button" id="df-settings-button" class="btn btn-default df-navbar-button" title="Settings" aria-label="Settings" data-toggle="modal" data-target="#df-settings-modal">
+          <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+    <div class="navbar-header navbar-right">
+      <label class="navbar-text checkbox-inline">
+        <input type="checkbox" id="cascade" value="cascade" checked> Cascade
+      </label>
+    </div>
+  </div>
+</div>
