@@ -788,6 +788,8 @@ dragonFly.Concordance = class Concordance {
      */
     handleResize(element) {
         $('.df-results').height(element.height() - 45);
+        // resize margin of main window so user can scroll to last sentence
+        $('.df-body').css('margin-bottom', $('.df-concordance').height());
     }
 };
 
