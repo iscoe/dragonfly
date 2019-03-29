@@ -787,6 +787,7 @@ dragonFly.Concordance = class Concordance {
      */
     hide() {
         $('.df-concordance').height(this.minimizedHeight);
+        $('.df-body').css('margin-bottom', 0);
     }
 
     /**
@@ -884,6 +885,14 @@ dragonFly.Highlighter = class Highlighter {
     }
 
     /**
+     * Revert to the previous click mode
+     */
+    revertClickMode() {
+        this.clickMode = this.prevClickMode;
+        this.highlightTypeAndClickMode();
+    }
+
+    /**
      * Undo the previous action
      */
     processUndo() {
@@ -950,6 +959,7 @@ dragonFly.Highlighter = class Highlighter {
                 break;
             case 'f':
                 // concordance mode
+                this.prevClickMode = this.clickMode;
                 this.clickMode = dragonFly.ClickMode.CONCORDANCE;
                 this.highlightTypeAndClickMode();
                 this.concordance.show();
@@ -1183,8 +1193,7 @@ dragonFly.Highlighter = class Highlighter {
             }
             copyToClipboard(text);
             this.selectStart = null;
-            this.clickMode = this.prevClickMode;
-            this.highlightTypeAndClickMode();
+            this.revertClickMode();
             dragonFly.showStatus('success', 'Copied');
         }
     }
@@ -1364,5 +1373,10 @@ $(document).ready(function() {
         onDrag: function (event, element, newWidth, newHeight, opt) {
             dragonFly.concordance.handleResize(element);
         }
+    });
+
+    $('#df-concordance-close').on('click', function() {
+        dragonFly.concordance.hide();
+        dragonFly.highlighter.revertClickMode();
     });
 });
