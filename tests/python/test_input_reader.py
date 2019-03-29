@@ -39,7 +39,7 @@ class DocumentTest(unittest.TestCase):
     def test_applying_annotations(self):
         original_filename = get_filename('data/input_no_annotations.tsv')
         annotations_filename = get_filename('data/input_with_annotations.tsv')
-        document = Document(original_filename, InputReader(original_filename).sentences)
+        document = Document(original_filename, InputReader(original_filename).sentences, False)
         annotations = InputReader(annotations_filename).sentences
         document.attach(annotations)
 
@@ -48,7 +48,7 @@ class DocumentTest(unittest.TestCase):
     def test_applying_annotations_with_wrong_length(self):
         original_filename = get_filename('data/input_no_annotations.tsv')
         annotations_filename = get_filename('data/input_with_wrong_annotations_length.tsv')
-        document = Document(original_filename, InputReader(original_filename).sentences)
+        document = Document(original_filename, InputReader(original_filename).sentences, False)
         annotations = InputReader(annotations_filename).sentences
         with self.assertRaises(ValueError) as context:
             document.attach(annotations)
@@ -56,7 +56,7 @@ class DocumentTest(unittest.TestCase):
     def test_applying_annotations_with_wrong_words(self):
         original_filename = get_filename('data/input_no_annotations.tsv')
         annotations_filename = get_filename('data/input_with_wrong_annotations.tsv')
-        document = Document(original_filename, InputReader(original_filename).sentences)
+        document = Document(original_filename, InputReader(original_filename).sentences, False)
         annotations = InputReader(annotations_filename).sentences
         with self.assertRaises(ValueError) as context:
             document.attach(annotations)
