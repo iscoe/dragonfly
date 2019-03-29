@@ -11,16 +11,20 @@ class FileLister(object):
     """
     Get the name of a file to annotate
     """
-    def __init__(self, input, file_ext):
-        self.path = input
-        if os.path.isdir(input):
+    def __init__(self, path, file_ext):
+        self.path = path
+        if os.path.isdir(path):
             self.is_dir = True
             pattern = '*' + file_ext
-            self.filenames = [x for x in glob.glob(os.path.join(input, pattern)) if os.path.isfile(x)]
+            self.filenames = [x for x in glob.glob(os.path.join(path, pattern)) if os.path.isfile(x)]
             self.filenames = sorted(self.filenames)
         else:
+            if not os.path.exists(path):
+                raise ValueError("Path {} does not exist".format(path))
             self.is_dir = False
-            self.filenames = [input]
+            self.filenames = [path]
+        if self.size() == 0:
+            raise ValueError("No files for params for {} with extension {}".format(path, file_ext))
 
     def get_filename(self, index):
         if index < len(self.filenames):
@@ -33,6 +37,9 @@ class FileLister(object):
             if filename in self.filenames[index[0]]:
                 return index[0]
         return None
+
+    def size(self):
+        return len(self.filenames)
 
     def has_next(self, index):
         return (index + 1) < len(self.filenames)
