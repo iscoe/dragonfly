@@ -1319,6 +1319,26 @@ $(document).ready(function() {
         }
     });
 
+    // ctrl+s for save annotations and ctrl+arrow for navigation
+    $(document).on("keydown", function(event) {
+        if (event.ctrlKey || event.metaKey) {
+            if (String.fromCharCode(event.which).toLowerCase() == 's') {
+                event.preventDefault();
+                dragonFly.annotationSaver.save($(this));
+            } else if (event.which == 37) {
+                var url = $('#df-prev-doc').attr('href');
+                if (url) {
+                    window.location.href = url;
+                }
+            } else if (event.which == 39) {
+                var url = $('#df-next-doc').attr('href');
+                if (url) {
+                    window.location.href = url;
+                }
+            }
+        }
+    });
+
     // change the click mode or tag type by clicking on navbar
     $(".df-type").on("click", function(event) {
         var letter = $(this).attr("title");
