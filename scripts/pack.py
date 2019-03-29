@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2017-2018, The Johns Hopkins University Applied Physics Laboratory LLC
+# Copyright 2017-2019, The Johns Hopkins University Applied Physics Laboratory LLC
 # All rights reserved.
 # Distributed under the terms of the Apache 2.0 License.
 

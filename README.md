@@ -11,7 +11,7 @@ Some operating systems make python and pip available as pip3 and python3.
 
 License and Copyright
 ----------------------
-Copyright 2017-2018 Johns Hopkins University Applied Physics Laboratory
+Copyright 2017-2019 Johns Hopkins University Applied Physics Laboratory
 
 Licensed under the Apache License, Version 2.0
 
