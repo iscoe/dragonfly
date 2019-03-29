@@ -27,7 +27,8 @@ def index(filename):
         return flask.render_template('404.html'), 404
     filename = lister.get_filename(index)
     app.logger.info('Serving ' + filename)
-    document = Document(filename, InputReader(filename).sentences)
+    reader = InputReader(filename)
+    document = Document(filename, reader.sentences, reader.terminal_blank_line)
 
     if annotations_path:
         if lister.is_dir:

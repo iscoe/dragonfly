@@ -86,7 +86,7 @@ class Document(object):
     """
     Contains a list of sentences and optional annotations
     """
-    def __init__(self, filename, sentences):
+    def __init__(self, filename, sentences, terminal_blank_line):
         self.filename = filename
         self.sentences = sentences
         self.num_sentences = len(sentences)
@@ -94,6 +94,7 @@ class Document(object):
         self.has_annotations = False
         self.has_translation = False
         self.translation = None
+        self.terminal_blank_line = terminal_blank_line
 
     def attach(self, annotations):
         """annotations are sentences from InputReader"""
@@ -179,6 +180,7 @@ class InputReader(object):
         self.num_columns = 0
         self.column_labels = []
         self.sentences = []
+        self.terminal_blank_line = True
         self._load()
 
     def _load(self):
@@ -201,8 +203,9 @@ class InputReader(object):
                     self.sentences.append(self._process_sentence(data))
                     data = []
             if data:
-                # catch last sentence that might not have an empty line after it
+                # catch last sentence that does not have an empty line after it
                 self.sentences.append(self._process_sentence(data))
+                self.terminal_blank_line = False
 
     def _is_header(self, row):
         return row[0].lower() in ['tok', 'token', 'tokens']

@@ -1211,9 +1211,10 @@ dragonFly.AnnotationSaver = class AnnotationSaver {
      * Create an annotation saver.
      * @param {string} filename - The filename being edited.
      */
-    constructor(filename) {
+    constructor(filename, terminalBlankLine) {
         this.filename = filename;
         this.saveClicked = false;
+        this.terminalBlankLine = terminalBlankLine;
     }
 
     /**
@@ -1265,6 +1266,9 @@ dragonFly.AnnotationSaver = class AnnotationSaver {
             // end of sentence gets a blank line
             tokens.push({});
         });
+        if (!this.terminalBlankLine) {
+            tokens.pop();
+        }
         return tokens;
     }
 };
@@ -1292,7 +1296,7 @@ $(document).ready(function() {
     dragonFly.tagTypes.injectButtons();
     dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tagTypes, dragonFly.concordance);
     dragonFly.highlighter.initializeHighlight();
-    dragonFly.annotationSaver = new dragonFly.AnnotationSaver($("#df-filename").html());
+    dragonFly.annotationSaver = new dragonFly.AnnotationSaver($("#df-filename").html(), dragonfly_terminal_blank_line);
     dragonFly.hints = new dragonFly.Hints(1);
     dragonFly.hints.run();
     dragonFly.translations = new dragonFly.Translations(dragonFly.lang);
