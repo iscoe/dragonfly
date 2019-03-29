@@ -18,7 +18,7 @@ import argparse
 import os
 import sys
 
-# forgive me father, for I have sinned
+# don't assume the user has install dragonfly
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 import dragonfly
 

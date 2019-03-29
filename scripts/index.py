@@ -4,6 +4,14 @@
 # All rights reserved.
 # Distributed under the terms of the Apache 2.0 License.
 
+#
+# Build an index over the files
+#
+# usage: index.py files_dir
+#
+# Creates a hidden .index directory
+#
+
 import argparse
 import collections
 import csv

@@ -4,6 +4,12 @@
 # All rights reserved.
 # Distributed under the terms of the Apache 2.0 License.
 
+#
+# Correct annotation files based on a transform file
+#
+# usage: correct.py file_dir transform_file output_dir
+#
+
 import argparse
 import csv
 import glob

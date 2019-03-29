@@ -4,6 +4,12 @@
 # All rights reserved.
 # Distributed under the terms of the Apache 2.0 License.
 
+#
+# Uses the translation dictionary to look for missing tags
+#
+# usage: missing.py lang annotation_dir
+#
+
 import argparse
 import collections
 import csv
