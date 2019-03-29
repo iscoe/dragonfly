@@ -75,9 +75,11 @@ Annotate
 
 
 ### Cascade
-Toggle the cascade through its checkbox in the navigation bar or by pressing 'c'.
-
 The cascade will tag all matching tokens in the document unless that token has been previously tagged.
+
+Toggle the cascade through its checkbox in the navigation bar or by pressing 'c'.
+To persist the cascade setting between documents, use the Settings dialog.
+
 
 ### Multi-token tagging
 1. Select tag mode as with single token tagging.
@@ -149,8 +151,7 @@ Settings
 ------------
 Settings are persisted between annotation sessions.
 Most take effect immediately upon a change.
-The exception is column width.
-This is server-side and requires a page reload.
+The exception is column width which requires a page reload.
 
 Test
 ------------

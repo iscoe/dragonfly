@@ -12,7 +12,8 @@ class SettingsManager(object):
         'Column Width': 40,
         'Auto Scrolling Sentence IDs': True,
         'Display Row Labels': True,
-        'Auto Save': False
+        'Auto Save': False,
+        'Cascade On': True
     }
 
     SETTINGS_FILENAME = 'settings.json'

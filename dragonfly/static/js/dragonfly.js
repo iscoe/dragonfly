@@ -45,6 +45,10 @@ dragonFly.Settings = class Settings {
         return this.settings['Auto Save'];
     }
 
+    isCascadeOn() {
+        return this.settings['Cascade On'];
+    }
+
     /**
      * Load settings from server.
      * This uses ajax to load the settings object.
@@ -129,6 +133,9 @@ dragonFly.Settings = class Settings {
                 window.clearInterval(this.timerId);
                 this.timerId = null;
             }
+        }
+        if (this.isCascadeOn() != $("#cascade").prop("checked")) {
+            $(document).trigger({type: 'keypress', which: 'c'.charCodeAt(0), ctrlKey: false});
         }
     }
 
