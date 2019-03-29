@@ -127,11 +127,6 @@ def translations(lang):
     return flask.jsonify(trans)
 
 
-@app.route('/stop_words')
-def stop_words():
-    return flask.jsonify(app.dragonfly_index.stop_words)
-
-
 @app.route('/search', methods=['POST'])
 def search():
     term = flask.request.form['term']

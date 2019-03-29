@@ -231,28 +231,8 @@ dragonFly.ContextMenu = class ContextMenu {
         if (tag == null || tag == 'O') {
             result['text'] = token.html();
         } else {
-            if (tag.includes('I-')) {
-                dragonFly.showStatus('danger', "You must click the first tag of a sequence");
-                return null;
-            }
-            var text = token.html();
-            var tagString = tag.replace('B', 'I');
-            result['type'] = tag.replace('B-', '');
-            var idChunks = token.attr("id").split("-");
-            while (true) {
-                idChunks[idChunks.length - 1]++;
-                var nextToken = $("#" + idChunks.join("-"));
-                if (nextToken.length) {
-                    if (nextToken.data('tag') == tagString) {
-                        text = text.concat(' ', nextToken.html());
-                    } else {
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            }
-            result['text'] = text;
+            result['text'] = token.html();
+            result['type'] = tag.slice(2);
         }
         return result;
     }
@@ -450,41 +430,13 @@ dragonFly.Translations = class Translations {
     constructor(lang) {
         this.lang = lang;
         this.translations = [];
-        this.stopWords = [];
         this.transMap = new Map();
     }
 
     /**
-     * Load the translations and stop words from the server and apply them to the page.
+     * Load the translations and apply them to the page.
      */
     load() {
-        // daisy chain load stop words, load translations, and process
-        this.loadStopWords();
-    }
-
-    /**
-     * Load the stop words and kick off translations loading.
-     */
-    loadStopWords() {
-        var self = this;
-        $.ajax({
-            url: '/stop_words',
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                self.stopWords = data;
-                self.loadTranslations();
-            },
-            error: function(xhr) {
-                dragonFly.showStatus('danger', 'Error contacting the server');
-            }
-        });
-    }
-
-    /**
-     * Load the translations and kick off web page update
-     */
-    loadTranslations() {
         var self = this;
         $.ajax({
             url: '/translations/' + this.lang,
@@ -516,13 +468,7 @@ dragonFly.Translations = class Translations {
      * @param {string} info - Object with keys trans and type.
      */
     add(source, info) {
-        var sourceTokens = source.toLowerCase().split(' ');
-        for (var i = 0; i < sourceTokens.length; i++) {
-            // only add tokens that are not stop words for translation lookup
-            if (!this.stopWords.includes(sourceTokens[i])) {
-                this.transMap.set(sourceTokens[i], info);
-            }
-        }
+        this.transMap.set(source.toLowerCase(), info)
     }
 
     /**
@@ -533,7 +479,11 @@ dragonFly.Translations = class Translations {
         $(".df-token").each(function() {
             var token = $(this).html().toLowerCase();
             if (self.transMap.has(token)) {
-                var title = self.transMap.get(token).type + ' : ' + self.transMap.get(token).trans
+                if (self.transMap.get(token).type) {
+                    var title = self.transMap.get(token).type + ' : ' + self.transMap.get(token).trans;
+                } else {
+                    var title = self.transMap.get(token).trans;
+                }
                 $(this).addClass('df-in-dict');
                 $(this).attr('title', title);
                 $(this).attr('data-toggle', 'tooltip');
