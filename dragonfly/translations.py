@@ -57,6 +57,17 @@ class TranslationDictManager(object):
                 fp.write("{}\t{}\t{}\n".format(source, *trans_dict[source]))
         return count
 
+    @staticmethod
+    def export_external(input_path, output_path):
+        filename = input_path
+        with open(filename, 'r', encoding='utf8') as ifp, open(output_path, 'w', encoding='utf8') as ofp:
+            trans_dict = json.load(ifp)
+            count = 0
+            for source in trans_dict.keys():
+                count += 1
+                ofp.write("{}\t{}\t{}\n".format(source, *trans_dict[source]))
+        return count
+
     def import_(self, lang, filename):
         PHRASE, TRANS, TYPE = [0, 1, 2]
         trans_dict = self.get(lang)

@@ -12,6 +12,8 @@
 # It writes the file [lang].tsv to the current directory.
 # The file has 3 columns: source phrase, translation, entity type
 #
+# There is support for specifying a path to a dictionary file. See below.
+#
 
 import argparse
 import os
@@ -28,6 +30,7 @@ if sys.version_info < MIN_PYTHON:
 parser = argparse.ArgumentParser()
 parser.add_argument("lang", help="3 letter language code")
 parser.add_argument("-f", "--force", help="force an overwrite of local file", action="store_true")
+parser.add_argument("-d", "--dictionary", help="path to a specific dictionary json file")
 args = parser.parse_args()
 
 args.lang = args.lang.lower()
@@ -35,7 +38,10 @@ output_filename = "{}.tsv".format(args.lang)
 if os.path.exists(output_filename) and not args.force:
     sys.exit("Error: {} already exists. Run with -f to force it to overwrite".format(output_filename))
 
-home_dir = os.path.join(os.path.expanduser("~"), '.dragonfly')
-tdm = dragonfly.TranslationDictManager(home_dir)
-num_items = tdm.export(args.lang, output_filename)
+if args.dictionary:
+    num_items = dragonfly.TranslationDictManager.export_external(args.dictionary, output_filename)
+else:
+    home_dir = os.path.join(os.path.expanduser("~"), '.dragonfly')
+    tdm = dragonfly.TranslationDictManager(home_dir)
+    num_items = tdm.export(args.lang, output_filename)
 print("Exported {} items".format(num_items))
