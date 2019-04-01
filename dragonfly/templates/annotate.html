@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+
+{% import 'macros.html' as macros %}
+
 {% block nav %}
   <script>
   var dragonfly_tags = {{ tags|safe }};
@@ -24,30 +27,7 @@
         {% endfor %}
         </div>
         {% for tok in range(sentence.length) %}
-            <div class="df-section df-row">
-            {% for row in sentence.rows %}
-            {% if loop.index == 1 %}
-                {% if document.has_annotations %}
-                <div class="df-token noselect" id="df-token-{{ sentence.index }}-{{ tok }}"
-                     data-tag="{{ row.annotations[tok] }}">{{ row.strings[tok] }}</div>
-                {% else %}
-                <div class="df-token" id="df-token-{{ sentence.index }}-{{ tok }}">{{ row.strings[tok] }}</div>
-                {% endif %}
-            {% else %}
-                {% if row.strings[tok]|length > max_col_width %}
-                  {% set display_text = row.strings[tok][:max_col_width] + "…" %}
-                  {% if row.strings[tok]|length > 400 %}
-                    {% set tooltip_text = row.strings[tok][:400] %}
-                  {% else %}
-                    {% set tooltip_text = row.strings[tok] %}
-                  {% endif %}
-                {% else %}
-                  {% set display_text = row.strings[tok] %}
-                {% endif %}
-                <div {% if row.strings[tok]|length > max_col_width %} data-toggle="tooltip" title="{{ tooltip_text }}" {% endif %}>{{ display_text }}</div>
-            {% endif %}
-            {% endfor %}
-            </div>
+            {{ macros.render_token(sentence, tok, max_col_width, document.has_annotations) }}
         {% endfor %}
     </div>
 {% endfor %}
