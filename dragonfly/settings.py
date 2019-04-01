@@ -13,7 +13,7 @@ class SettingsManager(object):
         'Auto Scrolling Sentence IDs': True,
         'Display Row Labels': True,
         'Auto Save': False,
-        'Cascade On': True
+        'Cascade By Default': True
     }
 
     SETTINGS_FILENAME = 'settings.json'

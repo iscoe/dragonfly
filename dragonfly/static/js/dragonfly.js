@@ -46,7 +46,7 @@ dragonFly.Settings = class Settings {
     }
 
     isCascadeOn() {
-        return this.settings['Cascade On'];
+        return this.settings['Cascade By Default'];
     }
 
     /**
