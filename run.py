@@ -28,8 +28,8 @@ if __name__ == '__main__':
             output_dir = os.path.join(args.path, 'annotations')
         else:
             output_dir = os.path.join(os.path.dirname(args.path), 'annotations')
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     if not os.path.exists(args.path):
         print("Error: {} does not exist".format(args.path))
