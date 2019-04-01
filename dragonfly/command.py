@@ -89,7 +89,10 @@ class Runner(object):
         app.config['dragonfly.tags'] = args.tags
 
         if self.mode == self.ADJUDICATE:
+            app.config['dragonfly.mode'] = 'adjudicate'
             app.config['dragonfly.annotation_dirs'] = args.annotations
+        else:
+            app.config['dragonfly.mode'] = 'annotate'
 
         # load index - this may take a few seconds with a large index
         index_dir = os.path.join(args.data, '.index')

@@ -5,8 +5,8 @@
 from dragonfly import app
 import flask
 import json
-import os
-from .data import InputReader, Document, OutputWriter, AnnotationLoader, HintLoader, TranslationLoader
+from .data import OutputWriter, HintLoader
+from .mode import ModeManager
 from .settings import SettingsManager
 from .translations import TranslationDictManager
 
@@ -14,54 +14,13 @@ from .translations import TranslationDictManager
 @app.route('/', defaults={'filename': None})
 @app.route('/<filename>')
 def index(filename):
-    lang = app.config.get('dragonfly.lang')
-    lister = app.config.get('dragonfly.input')
-    tags = app.config.get('dragonfly.tags')
-    annotations_path = app.config.get('dragonfly.output')
-    home_dir = app.config.get('dragonfly.home_dir')
-    settings_manager = SettingsManager(home_dir)
-    settings_manager.load()
-
-    index, next_index = get_file_indexes(flask.request, lister, filename)
-    if index is None:
+    mode = app.config.get('dragonfly.mode')
+    manager = ModeManager(mode)
+    index = flask.request.args.get('index')
+    content = manager.render(app, filename, index)
+    if not content:
         return flask.render_template('404.html', title="Error"), 404
-    filename = lister.get_filename(index)
-    app.logger.info('Serving ' + filename)
-    reader = InputReader(filename)
-    document = Document(filename, reader.sentences, reader.terminal_blank_line)
-
-    loader = AnnotationLoader(annotations_path)
-    annotations_filename = loader.get(filename)
-    if annotations_filename:
-        document.attach(InputReader(annotations_filename).sentences)
-
-    trans_loader = TranslationLoader(lister.path)
-    translation = trans_loader.get(filename)
-    if translation:
-        document.attach_translation(translation)
-
-    # remove any path information
-    title = os.path.basename(filename)
-
-    return flask.render_template('annotate.html', title=title, document=document,
-                                 index=index, next_index=next_index,
-                                 sm=settings_manager, lang=lang, tags=json.dumps(tags))
-
-
-def get_file_indexes(request, lister, filename):
-    index = request.args.get('index')
-    # filename takes priority over index
-    if filename:
-        index = lister.get_index_from_filename(filename)
-        if index is None:
-            return None, None
-    index = int(index) if index is not None else 0
-    if index not in lister:
-        return None, None
-    next_index = None
-    if lister.has_next(index):
-        next_index = index + 1
-    return index, next_index
+    return content
 
 
 @app.route('/save', methods=['POST'])
