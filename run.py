@@ -27,12 +27,10 @@ if __name__ == '__main__':
         print("Error: {} is not a directory".format(args.data))
         quit()
 
-    if args.output:
-        output_dir = args.output
-    else:
-        output_dir = os.path.join(args.data, 'annotations')
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    if not args.output:
+        args.output = os.path.join(args.data, 'annotations')
+    if not os.path.exists(args.output):
+        os.makedirs(args.output)
 
     if not args.port:
         args.port = 5000
@@ -42,17 +40,17 @@ if __name__ == '__main__':
 
     if not args.tags:
         args.tags = 'PER,ORG,GPE,LOC'
-    tags = [x.strip().upper() for x in args.tags.split(',')]
+    args.tags = [x.strip().upper() for x in args.tags.split(',')]
 
     app.config['dragonfly.lang'] = args.lang.lower()
     app.config['dragonfly.input'] = FileLister(args.data, args.ext)
-    app.config['dragonfly.output'] = output_dir
+    app.config['dragonfly.output'] = args.output
     app.config['dragonfly.hints'] = args.hints
-    app.config['dragonfly.tags'] = tags
+    app.config['dragonfly.tags'] = args.tags
 
     # load index - this may take a few seconds with a large index
     index_dir = os.path.join(args.data, '.index')
     app.dragonfly_index = Indexer(index_dir)
 
-    app.logger.info('Loading from {} and saving to {}'.format(args.data, output_dir))
+    app.logger.info('Loading from {} and saving to {}'.format(args.data, args.output))
     app.run(debug=True, host='0.0.0.0', port=int(args.port))
