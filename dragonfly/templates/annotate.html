@@ -15,36 +15,36 @@
     {% if document.has_translation %}
     <div class="df-translation">{{ document.translation[s] }}</div>
     {% endif %}
-    <div class="df-sentence" id="df-sentence-{{ sentence.id }}">
-        <div class="df-sentence-id"><span class="df-sentence-badge badge" id="{{ sentence.id }}">{{ sentence.id }}</span></div>
+    <div class="df-sentence" id="df-sentence-{{ sentence.index }}">
+        <div class="df-sentence-id"><span class="df-sentence-badge badge" id="{{ sentence.index }}">{{ sentence.index }}</span></div>
         <div class="df-section df-margin-div"></div>
         <div class="df-section df-column-labels">
-        {% for column in sentence.columns %}
-            <div>{{ column.label }}</div>
+        {% for row in sentence.rows %}
+            <div>{{ row.label }}</div>
         {% endfor %}
         </div>
-        {% for c in range(sentence.length) %}
+        {% for tok in range(sentence.length) %}
             <div class="df-section df-row">
-            {% for column in sentence.columns %}
+            {% for row in sentence.rows %}
             {% if loop.index == 1 %}
                 {% if document.has_annotations %}
-                <div class="df-token noselect" id="df-token-{{ sentence.id }}-{{ c }}"
-                     data-tag="{{ column.annotations[c] }}">{{ column.strings[c] }}</div>
+                <div class="df-token noselect" id="df-token-{{ sentence.index }}-{{ tok }}"
+                     data-tag="{{ row.annotations[tok] }}">{{ row.strings[tok] }}</div>
                 {% else %}
-                <div class="df-token" id="df-token-{{ sentence.id }}-{{ c }}">{{ column.strings[c] }}</div>
+                <div class="df-token" id="df-token-{{ sentence.index }}-{{ tok }}">{{ row.strings[tok] }}</div>
                 {% endif %}
             {% else %}
-                {% if column.strings[c]|length > max_col_width %}
-                  {% set column_text = column.strings[c][:max_col_width] + "…" %}
-                  {% if column.strings[c]|length > 400 %}
-                    {% set tooltip_text = column.strings[c][:400] %}
+                {% if row.strings[tok]|length > max_col_width %}
+                  {% set display_text = row.strings[tok][:max_col_width] + "…" %}
+                  {% if row.strings[tok]|length > 400 %}
+                    {% set tooltip_text = row.strings[tok][:400] %}
                   {% else %}
-                    {% set tooltip_text = column.strings[c] %}
+                    {% set tooltip_text = row.strings[tok] %}
                   {% endif %}
                 {% else %}
-                  {% set column_text = column.strings[c] %}
+                  {% set display_text = row.strings[tok] %}
                 {% endif %}
-                <div {% if column.strings[c]|length > max_col_width %} data-toggle="tooltip" title="{{ tooltip_text }}" {% endif %}>{{ column_text }}</div>
+                <div {% if row.strings[tok]|length > max_col_width %} data-toggle="tooltip" title="{{ tooltip_text }}" {% endif %}>{{ display_text }}</div>
             {% endif %}
             {% endfor %}
             </div>

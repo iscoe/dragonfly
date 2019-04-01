@@ -13,14 +13,14 @@ class InputReaderTest(unittest.TestCase):
         filename = get_filename('data/input_basic.tsv')
         reader = InputReader(filename)
         self.assertEqual(2, len(reader.sentences))
-        self.assertEqual(0, reader.sentences[0].id)
-        self.assertEqual(1, reader.sentences[1].id)
-        self.assertEqual('TOKEN', reader.sentences[0].columns[0].label)
-        self.assertEqual('acantilado', reader.sentences[0].columns[0].strings[2])
-        self.assertEqual('TRANSLATION', reader.sentences[0].columns[1].label)
-        self.assertEqual('the cliff', reader.sentences[0].columns[1].strings[2])
-        self.assertEqual(0, reader.sentences[1].columns[0].id)
-        self.assertEqual(1, reader.sentences[1].columns[1].id)
+        self.assertEqual(0, reader.sentences[0].index)
+        self.assertEqual(1, reader.sentences[1].index)
+        self.assertEqual('TOKEN', reader.sentences[0].rows[0].label)
+        self.assertEqual('acantilado', reader.sentences[0].rows[0].strings[2])
+        self.assertEqual('TRANSLATION', reader.sentences[0].rows[1].label)
+        self.assertEqual('the cliff', reader.sentences[0].rows[1].strings[2])
+        self.assertEqual(0, reader.sentences[1].rows[0].index)
+        self.assertEqual(1, reader.sentences[1].rows[1].index)
         self.assertEqual(True, reader.terminal_blank_line)
 
     def test_with_no_final_empty_line(self):
@@ -43,7 +43,7 @@ class DocumentTest(unittest.TestCase):
         annotations = InputReader(annotations_filename).sentences
         document.attach(annotations)
 
-        self.assertEqual('B-GPE', document.sentences[0].columns[0].annotations[5])
+        self.assertEqual('B-GPE', document.sentences[0].rows[0].annotations[5])
 
     def test_applying_annotations_with_wrong_length(self):
         original_filename = get_filename('data/input_no_annotations.tsv')

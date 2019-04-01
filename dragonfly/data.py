@@ -76,6 +76,9 @@ class TranslationLoader(object):
 
 
 class Document(object):
+    TOKENS = 0
+    ANNOTATIONS = 1
+
     """
     Contains a list of sentences and optional annotations
     """
@@ -104,74 +107,98 @@ class Document(object):
         if len(annotations) != self.num_sentences:
             return False
         # first word must match
-        if annotations[0].columns[0].strings[0] != self.sentences[0].columns[0].strings[0]:
+        if annotations[0].rows[Document.TOKENS].strings[0] != self.sentences[0].rows[Document.TOKENS].strings[0]:
             return False
         return True
 
     def _set_annotations(self, annotations):
         for index, sentence in enumerate(self.sentences):
             # tag annotations stored in the second column
-            sentence.attach(annotations[index].columns[1])
+            sentence.attach(annotations[index].rows[Document.ANNOTATIONS])
 
     @staticmethod
     def _count_tokens(sentences):
         total = 0
         for sentence in sentences:
-            first_column = sentence.columns[0]
-            total += len(first_column.strings)
+            tokens = sentence.rows[0]
+            total += len(tokens.strings)
         return total
+
+    def __repr__(self):
+        return "<Document ({}): {}>".format(self.filename, self.sentences)
 
 
 class Sentence(object):
+    TOKEN = 0
+
     """
-    Represents a single sentence with its multiple columns of information (translations, PoS, gazetteer data, etc.)
+    Represents a single sentence with its multiple rows of information (translations, PoS, gazetteer data, etc.)
     """
-    def __init__(self, id):
-        self.id = id
-        self.columns = []
+    def __init__(self, index):
+        self.index = index
+        self.rows = []
 
     @property
     def length(self):
-        return len(self.columns[0].strings)
+        return len(self.rows[Sentence.TOKEN].strings)
 
-    def add(self, column):
-        self.columns.append(column)
+    def add(self, row):
+        self.rows.append(row)
 
-    def update(self, index, string):
-        self.columns[index].strings.append(string)
+    def append(self, index, string):
+        """append a new string to a particular row"""
+        self.rows[index].append(string)
 
     def attach(self, annotations):
-        """attach annotations store in a SentenceColumn object to the tokens column"""
-        self.columns[0].annotations = annotations.strings
+        """attach annotations to the tokens row"""
+        self.rows[Sentence.TOKEN].attach(annotations.strings)
+
+    def __repr__(self):
+        return "<Sentence {}: {}>".format(self.index, self.rows)
 
 
-class SentenceColumn(object):
+class SentenceRow(object):
     """
-    Represents a sentence from a single column
+    Represents a single row of a sentence: tokens or transliterations or translations or ...
+
+     Args:
+        index (int): row index
+        label (string): column label
     """
-    def __init__(self, id, label):
-        self.id = id
+    def __init__(self, index, label):
+        self.index = index
         self.label = label
         self.strings = []
         self.annotations = []
+
+    def append(self, string):
+        self.strings.append(string)
+
+    def attach(self, annotations):
+        self.annotations = annotations
 
     @property
     def length(self):
         return len(self.strings)
 
+    def __repr__(self):
+        return "<Row {} ({}): {}>".format(self.index, self.label, self.strings)
+
 
 class InputReader(object):
     """
     This parses a tsv file into a list of Sentence objects.
-    Each Sentence has a list of SentenceColumn objects which correspond to the column data for that sentence.
-    The first column in the csv must be the original tokens.
+    Each Sentence has a list of SentenceRow objects which correspond to the column data for that sentence.
+    The first column in the tsv must be the original tokens.
     If the first row is a header, the first column header must be TOKEN.
     There must be an empty line between sentences.
+    The last line could be the last token or a blank line.
+    The data in the tsv is organized in columns, but we represent with rows for display purposes.
     """
     def __init__(self, filename):
         self.filename = filename
-        self.num_columns = 0
-        self.column_labels = []
+        self.num_rows = 0
+        self.row_labels = []
         self.sentences = []
         self.terminal_blank_line = True
         self._load()
@@ -183,9 +210,9 @@ class InputReader(object):
             if not first_row:
                 # todo some sort of error message here
                 return
-            self.num_columns = len(first_row)
+            self.num_rows = len(first_row)
             has_header = self._is_header(first_row)
-            self.column_labels = self._create_column_labels(first_row, has_header)
+            self.row_labels = self._create_row_labels(first_row, has_header)
 
             data = [] if has_header else [first_row]
             for row in reader:
@@ -200,34 +227,36 @@ class InputReader(object):
                 self.sentences.append(self._process_sentence(data))
                 self.terminal_blank_line = False
 
-    def _is_header(self, row):
+    @staticmethod
+    def _is_header(row):
         return row[0].lower() in ['tok', 'token', 'tokens']
 
     def _is_data(self, row):
         "Must have right number of columns and have data in one of the columns"
-        if len(row) != self.num_columns:
+        if len(row) != self.num_rows:
             return False
         have_data = False
-        for column in row:
-            have_data |= bool(column)
+        for value in row:
+            have_data |= bool(value)
         return have_data
 
-    def _create_column_labels(self, row, use_values=True):
+    @staticmethod
+    def _create_row_labels(row, use_values=True):
         if use_values:
             return [label.strip() for label in row]
         else:
             labels = []
             for index, value in enumerate(row, 1):
-                labels.append('column {}'.format(index))
+                labels.append('row {}'.format(index))
             return labels
 
     def _process_sentence(self, data):
         sentence = Sentence(len(self.sentences))
-        for index, label in enumerate(self.column_labels):
-            sentence.add(SentenceColumn(index, label))
+        for index, label in enumerate(self.row_labels):
+            sentence.add(SentenceRow(index, label))
         for row in data:
-            for column, value in enumerate(row):
-                sentence.update(column, value)
+            for index, value in enumerate(row):
+                sentence.append(index, value)
         return sentence
 
 
