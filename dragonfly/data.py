@@ -9,22 +9,15 @@ import glob
 
 class FileLister(object):
     """
-    Get the name of a file to annotate
+    Get the name of a file to annotate from a directory
     """
     def __init__(self, path, file_ext):
         self.path = path
-        if os.path.isdir(path):
-            self.is_dir = True
-            pattern = '*' + file_ext
-            self.filenames = [x for x in glob.glob(os.path.join(path, pattern)) if os.path.isfile(x)]
-            self.filenames = sorted(self.filenames)
-            if self.size() == 0:
-                raise ValueError("No files for directory {} with extension {}".format(path, file_ext))
-        else:
-            if not os.path.exists(path):
-                raise ValueError("Path {} does not exist".format(path))
-            self.is_dir = False
-            self.filenames = [path]
+        pattern = '*' + file_ext
+        self.filenames = [x for x in glob.glob(os.path.join(path, pattern)) if os.path.isfile(x)]
+        self.filenames = sorted(self.filenames)
+        if self.size() == 0:
+            raise ValueError("No files for directory {} with extension {}".format(path, file_ext))
 
     def get_filename(self, index):
         if index < len(self.filenames):

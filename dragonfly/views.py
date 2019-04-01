@@ -17,7 +17,7 @@ def index(filename):
     lang = app.config.get('dragonfly.lang')
     lister = app.config.get('dragonfly.input')
     tags = app.config.get('dragonfly.tags')
-    annotations_path = app.config.get('dragonfly.annotations')
+    annotations_path = app.config.get('dragonfly.output')
     home_dir = app.config.get('dragonfly.home_dir')
     settings_manager = SettingsManager(home_dir)
     settings_manager.load()
@@ -30,19 +30,12 @@ def index(filename):
     reader = InputReader(filename)
     document = Document(filename, reader.sentences, reader.terminal_blank_line)
 
-    if annotations_path:
-        if lister.is_dir:
-            loader = AnnotationLoader(annotations_path)
-            annotations_filename = loader.get(filename)
-            if annotations_filename:
-                document.attach(InputReader(annotations_filename).sentences)
-        else:
-            document.attach(InputReader(annotations_path).sentences)
+    loader = AnnotationLoader(annotations_path)
+    annotations_filename = loader.get(filename)
+    if annotations_filename:
+        document.attach(InputReader(annotations_filename).sentences)
 
-    if lister.is_dir:
-        trans_loader = TranslationLoader(lister.path)
-    else:
-        trans_loader = TranslationLoader(os.path.dirname(lister.path))
+    trans_loader = TranslationLoader(lister.path)
     translation = trans_loader.get(filename)
     if translation:
         document.attach_translation(translation)

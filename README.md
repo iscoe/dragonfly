@@ -24,34 +24,19 @@ pip3 install -r requirements.txt
 
 Run
 ---------------
-To annotate a single tsv file:
+To annotate a directory of tsv files:
 ```
-python3 run.py lang filename
+python3 run.py [lang] [data dir]
 ```
 
 `lang` is the ISO 639 language code (recommend 639-3).
 A complete list is available on the [SIL website](https://iso639-3.sil.org/code_tables/639/data).
 
-To annotate all the files in a directory:
-```
-python3 run.py lang directory
-```
-
-By default, annotations are saved in a directory called annotations where the input files are located.
+By default, annotations are saved in a sub-directory called annotations where the input files are located.
 To change this:
 ```
-python3 run.py -o my_annotation_dir lang tsv_filename
+python3 run.py -o [annotation dir] [lang] [data dir]
 ```
-
-To load previous annotations from a file or directory:
-```
-python3 run.py -a annotation_path lang tsv_filename
-```
-By default, it will load annotations that are available in the current output directory.
-
-If the first column of the first row has a value of 'TOKEN', the first row is treated as a header.
-
-The output is a two column tsv file of token and tag.
 
 Once the server is running, direct your browser to http://localhost:5000/
 (Additional instances can be run concurrently by selecting a different port with the -p option.)
@@ -61,10 +46,21 @@ It saves settings and translation dictionaries to this directory.
 
 The tag types can be specified on the command line using the -t option:
 ```
-python3 run.py -t PER,ORG,LOC,MISC lang directory
+python3 run.py -t PER,ORG,LOC,MISC [lang] [data_dir]
 ```
 The default tag set is PER, ORG, GPE, LOC in support of LoReHLT. O is the tag applied to
 tokens that are outside of named entities.
+
+### Data Formats
+Dragonfly expects tab separated value files which we will call CoNLL format.
+The first column are the tokens to be annotated.
+Additional columns provide context for the tokens and could include
+transliterations, translations, or other semantic information.
+Sentences should be followed by an empty line.
+
+If the first column of the first row has a value of 'TOKEN', the first row is treated as a header.
+
+The output is a two column tsv file of token and tag.
 
 Annotate
 -------------------
@@ -139,13 +135,13 @@ The regular expressions are processed from top to bottom and only the first matc
 The hints file is loaded on the command line with the --hints or -d option (d for dictionary):
 
 ```
-python3 run.py --hints il5_hints.tsv lang il5_to_be_annotated
+python3 run.py --hints il5_hints.tsv [lang] [data dir]
 ```
 
 ### Translation
 When annotating the file `x.txt`, if there is a file in the same directory with the name `x.txt.eng`, 
 it is loaded and displayed above the token row. The file should be a sentence segmented file with one
-sentence per line that matches the divisions in the conll formatted input file.
+sentence per line that matches the divisions in the CoNLL formatted input file.
 
 Settings
 ------------
