@@ -92,12 +92,18 @@ class Document(object):
         self.translation = None
         self.terminal_blank_line = terminal_blank_line
 
-    def attach(self, annotations):
+    def attach_annotations(self, annotations):
         """annotations are sentences from InputReader"""
         if not self._validate_annotations(annotations):
             raise ValueError("Annotations do not match input file")
         self._set_annotations(annotations)
         self.has_annotations = True
+
+    def attach_adj_annotations(self, name, annotations):
+        """adjudication annotations are added as new rows"""
+        if not self._validate_annotations(annotations):
+            raise ValueError("Annotations do not match input file")
+        self._set_adj_annotations(name, annotations)
 
     def attach_translation(self, translation):
         self.has_translation = True
@@ -113,8 +119,13 @@ class Document(object):
 
     def _set_annotations(self, annotations):
         for index, sentence in enumerate(self.sentences):
-            # tag annotations stored in the second column
+            # tag annotations are stored in the second column of annotation file
             sentence.attach(annotations[index].rows[Document.ANNOTATIONS])
+
+    def _set_adj_annotations(self, name, annotations):
+        for index, sentence in enumerate(self.sentences):
+            # tag annotations are stored in the second column of annotation file
+            sentence.insert_adj_row(name, annotations[index].rows[Document.ANNOTATIONS])
 
     @staticmethod
     def _count_tokens(sentences):
@@ -153,6 +164,12 @@ class Sentence(object):
         """attach annotations to the tokens row"""
         self.rows[Sentence.TOKEN].attach(annotations.strings)
 
+    def insert_adj_row(self, name, row):
+        """insert a new row for adjudication"""
+        row.label = name
+        row.adjudicate = True
+        self.rows.insert(Sentence.TOKEN + 1, row)
+
     def __repr__(self):
         return "<Sentence {}: {}>".format(self.index, self.rows)
 
@@ -170,6 +187,7 @@ class SentenceRow(object):
         self.label = label
         self.strings = []
         self.annotations = []
+        self.adjudicate = False
 
     def append(self, string):
         self.strings.append(string)

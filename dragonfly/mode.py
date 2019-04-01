@@ -58,14 +58,28 @@ class ModeManager(object):
         loader = AnnotationLoader(output_path)
         annotations_filename = loader.get(filename)
         if annotations_filename:
-            document.attach(InputReader(annotations_filename).sentences)
+            document.attach_annotations(InputReader(annotations_filename).sentences)
 
     def _attach_multiple_annotations(self, document, output_path, filename, annotations_dirs):
-        display_annotation_dir = annotations_dirs.pop(0)
-        loader = AnnotationLoader(display_annotation_dir)
+        # todo How to handle partially complete dir of adjudicated files
+        loader = AnnotationLoader(output_path)
         annotations_filename = loader.get(filename)
         if annotations_filename:
-            document.attach(InputReader(annotations_filename).sentences)
+            document.attach_annotations(InputReader(annotations_filename).sentences)
+        else:
+            display_annotation_dir = annotations_dirs[0]
+            loader = AnnotationLoader(display_annotation_dir)
+            annotations_filename = loader.get(filename)
+            if annotations_filename:
+                document.attach_annotations(InputReader(annotations_filename).sentences)
+
+        annotations_dirs.reverse()
+        for annotations_dir in annotations_dirs:
+            loader = AnnotationLoader(annotations_dir)
+            annotations_filename = loader.get(filename)
+            if annotations_filename:
+                name = os.path.basename(annotations_dir)
+                document.attach_adj_annotations(name, InputReader(annotations_filename).sentences)
 
     def _get_file_indexes(self, index, lister, filename):
         # filename takes priority over index
