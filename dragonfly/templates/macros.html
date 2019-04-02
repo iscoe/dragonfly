@@ -9,6 +9,11 @@
     <div class="df-token" id="df-token-{{ sentence.index }}-{{ tok }}">{{ row.strings[tok] }}</div>
       {% endif %}
     {% else %}{# Non-Tokens #}
+      {% if row.adjudicate %}
+        {% set tok_class = "df-adjudicate" %}
+      {% else %}
+        {% set tok_class = "" %}
+      {% endif %}
       {% if row.strings[tok]|length > max_col_width %}
         {% set display_text = row.strings[tok][:max_col_width] + "…" %}
         {% if row.strings[tok]|length > 400 %}
@@ -19,7 +24,7 @@
       {% else %}
         {% set display_text = row.strings[tok] %}
       {% endif %}
-    <div {% if row.strings[tok]|length > max_col_width %} data-toggle="tooltip" title="{{ tooltip_text }}" {% endif %}>{{ display_text }}</div>
+    <div class="{{ tok_class }}" {% if row.strings[tok]|length > max_col_width %} data-toggle="tooltip" title="{{ tooltip_text }}" {% endif %}>{{ display_text }}</div>
     {% endif %}
   {% endfor %}
 </div>

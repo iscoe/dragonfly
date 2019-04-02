@@ -583,6 +583,16 @@ dragonFly.TagTypes = class TagTypes {
         }
     }
 
+    getReversedMap() {
+        var map = {};
+        for (var code in this.typeMap) {
+            map[this.typeMap[code].start] = code;
+            map[this.typeMap[code].inside] = code;
+        }
+        console.log(map);
+        return map;
+    }
+
     /**
      * Add tag type buttons to DOM
      */
@@ -884,6 +894,24 @@ dragonFly.Highlighter = class Highlighter {
             var tags = Array.from(mismatchedTags).join(', ');
             dragonFly.showStatus('danger', 'Incompatiable saved annotations: ' + tags);
         }
+
+        this.initializeAdjudicationHighlight();
+    };
+
+    /**
+     * Highlight adjudication rows
+     */
+    initializeAdjudicationHighlight() {
+        var map = this.tagTypes.getReversedMap();
+        $(".df-adjudicate").each(function() {
+            var value = $(this).text();
+            if (value in map) {
+                $(this).addClass("df-tag-" + map[value]);
+                if (value.charAt(0) == 'B') {
+                    $(this).addClass("df-b-tag");
+                }
+            }
+        });
     };
 
     /**

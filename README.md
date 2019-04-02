@@ -22,11 +22,11 @@ Install
 pip3 install -r requirements.txt
 ```
 
-Run
+Running in Annotation Mode
 ---------------
 To annotate a directory of tsv files:
 ```
-python3 run.py [lang] [data dir]
+python3 annotate.py [lang] [data dir]
 ```
 
 `lang` is the ISO 639 language code (recommend 639-3).
@@ -35,7 +35,7 @@ A complete list is available on the [SIL website](https://iso639-3.sil.org/code_
 By default, annotations are saved in a sub-directory called annotations where the input files are located.
 To change this:
 ```
-python3 run.py -o [annotation dir] [lang] [data dir]
+python3 annotate.py -o [annotation dir] [lang] [data dir]
 ```
 
 Once the server is running, direct your browser to http://localhost:5000/
@@ -46,7 +46,7 @@ It saves settings and translation dictionaries to this directory.
 
 The tag types can be specified on the command line using the -t option:
 ```
-python3 run.py -t PER,ORG,LOC,MISC [lang] [data_dir]
+python3 annotate.py -t PER,ORG,LOC,MISC [lang] [data_dir]
 ```
 The default tag set is PER, ORG, GPE, LOC in support of LoReHLT. O is the tag applied to
 tokens that are outside of named entities.
@@ -135,7 +135,7 @@ The regular expressions are processed from top to bottom and only the first matc
 The hints file is loaded on the command line with the --hints or -d option (d for dictionary):
 
 ```
-python3 run.py --hints il5_hints.tsv [lang] [data dir]
+python3 annotate.py --hints il5_hints.tsv [lang] [data dir]
 ```
 
 ### Translation
@@ -148,6 +148,18 @@ Settings
 Settings are persisted between annotation sessions.
 Most take effect immediately upon a change.
 The exception is column width which requires a page reload.
+
+Adjudication
+--------------
+Once you have annotations from more than one annotator on the same set of files,
+you may want to compare and adjudicate among them.
+
+```
+python3 adjudicate.py -o [output dir] [lang] [data dir] [annotation dir1] [annotation dir2] ...
+```
+The default tags come from the first annotation directory specified on the command line.
+The adjudicated annotations are stored to the output directory (a required argument).
+The UI works the same as annotating.
 
 Test
 ------------
