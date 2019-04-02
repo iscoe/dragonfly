@@ -94,15 +94,13 @@ class Document(object):
 
     def attach_annotations(self, annotations):
         """annotations are sentences from InputReader"""
-        if not self._validate_annotations(annotations):
-            raise ValueError("Annotations do not match input file")
+        self._validate_annotations(annotations)
         self._set_annotations(annotations)
         self.has_annotations = True
 
     def attach_adj_annotations(self, name, annotations):
         """adjudication annotations are added as new rows"""
-        if not self._validate_annotations(annotations):
-            raise ValueError("Annotations do not match input file")
+        self._validate_annotations(annotations)
         self._set_adj_annotations(name, annotations)
 
     def attach_translation(self, translation):
@@ -111,11 +109,12 @@ class Document(object):
 
     def _validate_annotations(self, annotations):
         if len(annotations) != self.num_sentences:
-            return False
+            raise ValueError("Annotations and input file are different lengths")
         # first word must match
-        if annotations[0].rows[Document.TOKENS].strings[0] != self.sentences[0].rows[Document.TOKENS].strings[0]:
-            return False
-        return True
+        first_word_doc = self.sentences[0].rows[Document.TOKENS].strings[0]
+        first_word_anno = annotations[0].rows[Document.TOKENS].strings[0]
+        if first_word_doc != first_word_anno:
+            raise ValueError("Input file and annotations do not match: {} != {}".format(first_word_doc, first_word_anno))
 
     def _set_annotations(self, annotations):
         for index, sentence in enumerate(self.sentences):
