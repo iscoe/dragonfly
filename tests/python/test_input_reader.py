@@ -41,7 +41,7 @@ class DocumentTest(unittest.TestCase):
         annotations_filename = get_filename('data/input_with_annotations.tsv')
         document = Document(original_filename, InputReader(original_filename).sentences, False)
         annotations = InputReader(annotations_filename).sentences
-        document.attach(annotations)
+        document.attach_annotations(annotations)
 
         self.assertEqual('B-GPE', document.sentences[0].rows[0].annotations[5])
 
@@ -51,7 +51,7 @@ class DocumentTest(unittest.TestCase):
         document = Document(original_filename, InputReader(original_filename).sentences, False)
         annotations = InputReader(annotations_filename).sentences
         with self.assertRaises(ValueError) as context:
-            document.attach(annotations)
+            document.attach_annotations(annotations)
 
     def test_applying_annotations_with_wrong_words(self):
         original_filename = get_filename('data/input_no_annotations.tsv')
@@ -59,4 +59,4 @@ class DocumentTest(unittest.TestCase):
         document = Document(original_filename, InputReader(original_filename).sentences, False)
         annotations = InputReader(annotations_filename).sentences
         with self.assertRaises(ValueError) as context:
-            document.attach(annotations)
+            document.attach_annotations(annotations)
