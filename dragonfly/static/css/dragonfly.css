@@ -175,7 +175,7 @@ df-nav-slim .navbar-form {
     margin-left: 45px;
     padding: 0;
 }
-.df-token, .df-type, .df-sentence-badge, .df-column-labels {
+.df-token, .df-type, .df-sentence-badge {
     cursor: pointer;
 }
 .df-section > div {
