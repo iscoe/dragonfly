@@ -74,6 +74,10 @@ class Stats(object):
         self.num_tokens += 1
 
     @property
+    def percentage_tagged(self):
+        return 100 * self.num_tagged_tokens / self.num_tokens
+
+    @property
     def num_entities(self):
         return sum([s.num_entities for s in self.entities.values()])
 

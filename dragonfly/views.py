@@ -8,6 +8,7 @@ import json
 from .data import OutputWriter, HintLoader
 from .mode import ModeManager
 from .settings import SettingsManager
+from .stats import Stats
 from .translations import TranslationDictManager
 
 
@@ -84,3 +85,11 @@ def search():
     term = flask.request.form['term']
     results = app.dragonfly_index.lookup(term)
     return flask.jsonify(results)
+
+
+@app.route('/stats')
+def stats():
+    output_dir = app.config.get('dragonfly.output')
+    stats = Stats()
+    stats.collect(output_dir)
+    return flask.render_template('stats.html', stats=stats)

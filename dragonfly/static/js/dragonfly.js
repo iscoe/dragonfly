@@ -1400,4 +1400,12 @@ $(document).ready(function() {
         dragonFly.concordance.hide();
         dragonFly.highlighter.revertClickMode();
     });
+
+    $('#df-stats-modal').on('show.bs.modal', function(event) {
+        var body = $(this).find('.modal-body');
+        body.load('/stats');
+        $('#df-stats-button').one('focus', function(event) {
+            $(this).blur();
+        });
+    });
 });
