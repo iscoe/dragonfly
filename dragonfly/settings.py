@@ -13,6 +13,7 @@ class SettingsManager(object):
         'Auto Scrolling Sentence IDs': True,
         'Display Row Labels': True,
         'Auto Save': False,
+        'Auto Save On Nav': False,
         'Cascade By Default': True
     }
 

@@ -45,6 +45,10 @@ dragonFly.Settings = class Settings {
         return this.settings['Auto Save'];
     }
 
+    isAutoSaveOnNav() {
+        return this.settings['Auto Save On Nav'];
+    }
+
     isCascadeOn() {
         return this.settings['Cascade By Default'];
     }
@@ -583,13 +587,16 @@ dragonFly.TagTypes = class TagTypes {
         }
     }
 
+    /**
+     * Get a map of tag -> integer id
+     * @return Object
+     */
     getReversedMap() {
         var map = {};
         for (var code in this.typeMap) {
             map[this.typeMap[code].start] = code;
             map[this.typeMap[code].inside] = code;
         }
-        console.log(map);
         return map;
     }
 
@@ -1306,7 +1313,7 @@ $(document).ready(function() {
         if (event.ctrlKey || event.metaKey) {
             if (String.fromCharCode(event.which).toLowerCase() == 's') {
                 event.preventDefault();
-                dragonFly.annotationSaver.save($(this));
+                dragonFly.annotationSaver.save();
             } else if (event.which == 37) {
                 var url = $('#df-prev-doc').attr('href');
                 if (url) {
@@ -1333,7 +1340,7 @@ $(document).ready(function() {
     });
 
     $("#df-save").on("click", function(event) {
-        dragonFly.annotationSaver.save($(this));
+        dragonFly.annotationSaver.save();
         $(this).blur();
     });
 
@@ -1360,7 +1367,12 @@ $(document).ready(function() {
 
     $(window).on("beforeunload", function() {
         if (dragonFly.highlighter.anyTaggingPerformed && !dragonFly.annotationSaver.saveClicked) {
-            return "Changes have not been saved.";
+            if (dragonFly.settings.isAutoSaveOnNav()) {
+                dragonFly.annotationSaver.save(false);
+            } else {
+                // this actual text may not display depending on browser
+                return "Changes have not been saved.";
+            }
         }
     });
 
