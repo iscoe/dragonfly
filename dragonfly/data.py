@@ -223,10 +223,10 @@ class InputReader(object):
     def _load(self):
         with open(self.filename, 'r', encoding='utf8') as fp:
             reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
-            first_row = next(reader)
-            if not first_row:
-                # todo some sort of error message here
-                return
+            try:
+                first_row = next(reader)
+            except StopIteration:
+                raise ValueError("{} is an empty file".format(self.filename))
             self.num_rows = len(first_row)
             has_header = self._is_header(first_row)
             self.row_labels = self._create_row_labels(first_row, has_header)
