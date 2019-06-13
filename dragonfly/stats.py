@@ -75,6 +75,8 @@ class Stats(object):
 
     @property
     def percentage_tagged(self):
+        if self.num_tokens == 0:
+            return 0
         return 100 * self.num_tagged_tokens / self.num_tokens
 
     @property
