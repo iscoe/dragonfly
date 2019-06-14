@@ -169,6 +169,7 @@ df-nav-slim .navbar-form {
     border-right: 1px solid #e7e7e7;
 }
 .df-section > div {
+    margin: 2px 0;
     padding: 2px;
 }
 .df-margin-div {
@@ -178,14 +179,13 @@ df-nav-slim .navbar-form {
 .df-token, .df-type, .df-sentence-badge {
     cursor: pointer;
 }
-.df-section > div {
-    margin: 2px 0;
+.df-section > div:first-child {
+    border: 2px solid white;
 }
-.df-in-dict {
+.df-section > div.df-in-dict {
     border: 2px solid #676767;
-    margin: 0 !important;
 }
-.df-b-tag {
+.df-section > div.df-b-tag {
     border-left: 5px solid #333;
 }
 .df-complete {
