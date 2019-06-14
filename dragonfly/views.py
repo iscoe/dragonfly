@@ -17,8 +17,8 @@ from .translations import TranslationDictManager
 def index(filename):
     mode = app.config.get('dragonfly.mode')
     manager = ModeManager(mode)
-    index = flask.request.args.get('index')
-    content = manager.render(app, filename, index)
+    file_index = flask.request.args.get('index')
+    content = manager.render(app, filename, file_index)
     if not content:
         return flask.render_template('404.html', title="Error"), 404
     return content

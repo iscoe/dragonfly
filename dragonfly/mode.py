@@ -25,6 +25,7 @@ class ModeManager(object):
         tags = app.config.get('dragonfly.tags')
         home_dir = app.config.get('dragonfly.home_dir')
         output_path = app.config.get('dragonfly.output')
+        rtl = app.config.get('dragonfly.rtl')
         settings_manager = SettingsManager(home_dir)
         settings_manager.load()
 
@@ -51,7 +52,7 @@ class ModeManager(object):
             document.attach_translation(translation)
 
         return flask.render_template('annotate.html', title=title, document=document,
-                                     index=index, next_index=next_index,
+                                     index=index, next_index=next_index, rtl=rtl,
                                      sm=settings_manager, lang=lang, tags=json.dumps(tags))
 
     def _attach_single_annotations(self, document, output_path, filename):

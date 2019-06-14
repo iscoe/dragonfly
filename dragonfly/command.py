@@ -45,6 +45,7 @@ class Runner(object):
         parser.add_argument("-p", "--port", help="optional port to use (default is 5000)")
         parser.add_argument("-e", "--ext", help="optional file extension to match (default is .txt)")
         parser.add_argument("-t", "--tags", help="optional list of tags (default is PER,ORG,GPE,LOC)")
+        parser.add_argument("--rtl", action='store_true', help="option to display text RTL")
         return parser.parse_args()
 
     def _process_args(self, args):
@@ -87,6 +88,8 @@ class Runner(object):
         app.config['dragonfly.output'] = args.output
         app.config['dragonfly.hints'] = args.hints
         app.config['dragonfly.tags'] = args.tags
+        # for rtl, manually turn off settings for Auto Scrolling Sentence IDs and probably Display Row Labels
+        app.config['dragonfly.rtl'] = args.rtl
 
         if self.mode == self.ADJUDICATE:
             app.config['dragonfly.mode'] = 'adjudicate'

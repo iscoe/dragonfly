@@ -2,6 +2,32 @@
 
 {% import 'macros.html' as macros %}
 
+{% block head %}
+{% if rtl %}
+<style>
+  .df-sentence {
+    white-space: normal;
+    direction: rtl;
+    border-top: 2px solid #e7e7e7;
+  }
+  .df-sentence-id {
+    border-top: none;
+  }
+  .df-section {
+    border-top: none;
+    border-bottom: none;
+  }
+  .df-section:last-of-type {
+    border-right: none;
+  }
+  .df-section > div.df-b-tag {
+    border-right: 5px solid #333;
+    border-left: none;
+  }
+</style>
+{% endif %}
+{% endblock %}
+
 {% block nav %}
   <script>
   var dragonfly_tags = {{ tags|safe }};
