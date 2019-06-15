@@ -6,7 +6,7 @@ import os
 import pickle
 
 
-class InvertedIndex(object):
+class InvertedIndex:
     MAX_ENTRIES = 25
 
     def __init__(self):
@@ -36,7 +36,7 @@ class InvertedIndex(object):
             self.index = pickle.load(fp)
 
 
-class Indexer(object):
+class Indexer:
     STOP_WORDS = "stop_words.pkl"
     INVERTED_INDEX = "inverted_index.pkl"
 

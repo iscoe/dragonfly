@@ -10,7 +10,7 @@ from .data import InputReader, Document, AnnotationLoader, EnglishTranslationLoa
 from .settings import SettingsManager
 
 
-class ModeManager(object):
+class ModeManager:
     ANNOTATE = "annotate"
     ADJUDICATE = "adjudicate"
 

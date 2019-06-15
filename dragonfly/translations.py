@@ -7,7 +7,7 @@ import json
 import csv
 
 
-class TranslationDictManager(object):
+class TranslationDictManager:
     """
     Translation dictionary manager
 

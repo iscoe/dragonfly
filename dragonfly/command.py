@@ -9,7 +9,7 @@ from .data import FileLister
 from .search import Indexer
 
 
-class Runner(object):
+class Runner:
     ANNOTATE = 0
     ADJUDICATE = 1
 

@@ -8,7 +8,7 @@ import glob
 import os
 
 
-class TypeStats(object):
+class TypeStats:
     def __init__(self, entity_type):
         self.type = entity_type
         self.num_entities = 0
@@ -19,7 +19,7 @@ class TypeStats(object):
         self.entities.update({name: 1})
 
 
-class Stats(object):
+class Stats:
     OUTSIDE = 'O'
     TOKEN = 0
     TAG = 1

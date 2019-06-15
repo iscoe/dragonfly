@@ -6,7 +6,7 @@ import os
 import json
 
 
-class SettingsManager(object):
+class SettingsManager:
     # these strings are synced with the javascript
     DEFAULTS = {
         'Column Width': 40,

@@ -8,7 +8,7 @@ import json
 import os
 
 
-class FileLister(object):
+class FileLister:
     """
     Get the name of a file to annotate from a directory
     """
@@ -43,7 +43,7 @@ class FileLister(object):
         return 0 <= key < len(self.filenames)
 
 
-class AnnotationLoader(object):
+class AnnotationLoader:
     def __init__(self, path):
         self.base = path
 
@@ -56,7 +56,7 @@ class AnnotationLoader(object):
         return None
 
 
-class HintLoader(object):
+class HintLoader:
     def __init__(self, path):
         self.hints = []
         with open(path, 'r', encoding='utf8') as fp:
@@ -65,7 +65,7 @@ class HintLoader(object):
                 self.hints.append({'regex': row[0], 'comment': row[1]})
 
 
-class SentenceMarkerManager(object):
+class SentenceMarkerManager:
     """
     Manage sentence markers
 
@@ -106,7 +106,7 @@ class SentenceMarkerManager(object):
             json.dump(markers, fp)
 
 
-class EnglishTranslationLoader(object):
+class EnglishTranslationLoader:
     def __init__(self, path):
         self.base = path
 
@@ -119,7 +119,7 @@ class EnglishTranslationLoader(object):
                 return [x for x in ifp]
 
 
-class Document(object):
+class Document:
     TOKENS = 0
     ANNOTATIONS = 1
 
@@ -186,7 +186,7 @@ class Document(object):
         return "<Document ({}): {}>".format(self.filename, self.sentences)
 
 
-class Sentence(object):
+class Sentence:
     TOKEN = 0
 
     """
@@ -221,7 +221,7 @@ class Sentence(object):
         return "<Sentence {}: {}>".format(self.index, self.rows)
 
 
-class SentenceRow(object):
+class SentenceRow:
     """
     Represents a single row of a sentence: tokens or transliterations or translations or ...
 
@@ -250,7 +250,7 @@ class SentenceRow(object):
         return "<Row {} ({}): {}>".format(self.index, self.label, self.strings)
 
 
-class InputReader(object):
+class InputReader:
     """
     This parses a tsv file into a list of Sentence objects.
     Each Sentence has a list of SentenceRow objects which correspond to the column data for that sentence.
@@ -325,7 +325,7 @@ class InputReader(object):
         return sentence
 
 
-class OutputWriter(object):
+class OutputWriter:
     """
     Write the annotations
     """
