@@ -5,15 +5,18 @@
 from flask import Flask
 import logging
 import logging.handlers
-import sys
 import os
 
 
 app = Flask(__name__)
-try:
-    handler = logging.handlers.RotatingFileHandler('logs/dragonfly.log', 'a', 1 * 1024 * 1024, 5)
-except FileNotFoundError:
-    handler = logging.StreamHandler(sys.stdout)
+
+# log to file in dragonfly/logs directory
+log_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir, 'logs')
+log_dir = os.path.abspath(log_dir)
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+log_filename = os.path.join(log_dir, 'dragonfly.log')
+handler = logging.handlers.RotatingFileHandler(log_filename, 'a', 1 * 1024 * 1024, 5)
 handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
 app.logger.addHandler(handler)
 app.logger.setLevel(logging.getLevelName('INFO'))
