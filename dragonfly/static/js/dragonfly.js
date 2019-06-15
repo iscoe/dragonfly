@@ -519,7 +519,7 @@ dragonfly.Translations = class Translations {
      */
     add(source, info) {
         this.transMap.set(source.toLowerCase(), info);
-        this.addDisplay(source, info.trans, info.type);
+        this.addDisplay(source.toLowerCase(), info.trans, info.type);
     }
 
     /**
