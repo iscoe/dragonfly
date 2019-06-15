@@ -84,6 +84,7 @@ class Runner(object):
 
     def _prepare_app(self, args):
         app.config['dragonfly.lang'] = args.lang.lower()
+        app.config['dragonfly.data_dir'] = args.data
         app.config['dragonfly.input'] = FileLister(args.data, args.ext)
         app.config['dragonfly.output'] = args.output
         app.config['dragonfly.hints'] = args.hints

@@ -3,8 +3,9 @@
 # Distributed under the terms of the Apache 2.0 License.
 
 import csv
-import os
 import glob
+import json
+import os
 
 
 class FileLister(object):
@@ -62,7 +63,48 @@ class HintLoader(object):
                 self.hints.append({'regex': row[0], 'comment': row[1]})
 
 
-class TranslationLoader(object):
+class SentenceMarkerManager(object):
+    """
+    Manage sentence markers
+
+    The markers dictionary is document -> list of sentence ids (0-based index)
+    """
+    def __init__(self, data_dir):
+        self.path = os.path.join(data_dir, '.markers')
+        self.markers = self._load(self.path)
+
+    def toggle(self, document, sentence):
+        sentence = int(sentence)
+        if document not in self.markers:
+            self.markers[document] = []
+            self.markers[document].append(sentence)
+        elif sentence not in self.markers[document]:
+            self.markers[document].append(sentence)
+        else:
+            del self.markers[document]
+        self._save(self.path, self.markers)
+
+    def get(self, document):
+        markers = []
+        if document in self.markers:
+            markers = self.markers[document]
+        return markers
+
+    @staticmethod
+    def _load(path):
+        markers = {}
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf8') as fp:
+                markers = json.load(fp)
+        return markers
+
+    @staticmethod
+    def _save(path, markers):
+        with open(path, 'w', encoding='utf8') as fp:
+            json.dump(markers, fp)
+
+
+class EnglishTranslationLoader(object):
     def __init__(self, path):
         self.base = path
 
@@ -90,6 +132,7 @@ class Document(object):
         self.has_annotations = False
         self.has_translation = False
         self.translation = None
+        self.markers = []
         self.terminal_blank_line = terminal_blank_line
 
     def attach_annotations(self, annotations):
@@ -106,6 +149,9 @@ class Document(object):
     def attach_translation(self, translation):
         self.has_translation = True
         self.translation = translation
+
+    def attach_markers(self, markers):
+        self.markers = markers
 
     def _validate_annotations(self, annotations):
         if len(annotations) != self.num_sentences:

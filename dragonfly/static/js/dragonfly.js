@@ -427,6 +427,26 @@ dragonFly.Hints = class Hints {
     }
 };
 
+dragonFly.Markers = class Markers {
+
+    /**
+     * Toggle the marker.
+     * @param {jQuery} element - Marker being toggled.
+     */
+    toggle(element) {
+        element.toggleClass("df-complete");
+        $.ajax({
+            url: '/marker',
+            type: 'POST',
+            data: {'document': dragonFly.filename, 'sentence': element.html()},
+            dataType: 'json',
+            error: function(xhr) {
+                dragonFly.showStatus('danger', 'Error contacting the server');
+            }
+        });
+    }
+};
+
 dragonFly.Translations = class Translations {
     /**
      * Create a translations manager.
@@ -1276,14 +1296,16 @@ $(document).ready(function() {
     $('body').css('margin-top', $('#df-nav').height() + 10);
 
     dragonFly.lang = $("meta[name=lang]").attr("content");
+    dragonFly.filename = $("#df-filename").html();
     dragonFly.concordance = new dragonFly.Concordance();
     dragonFly.tagTypes = new dragonFly.TagTypes(dragonfly_tags);
     dragonFly.tagTypes.injectButtons();
     dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tagTypes, dragonFly.concordance);
     dragonFly.highlighter.initializeHighlight();
-    dragonFly.annotationSaver = new dragonFly.AnnotationSaver($("#df-filename").html(), dragonfly_terminal_blank_line);
+    dragonFly.annotationSaver = new dragonFly.AnnotationSaver(dragonFly.filename, dragonfly_terminal_blank_line);
     dragonFly.hints = new dragonFly.Hints(1);
     dragonFly.hints.run();
+    dragonFly.markers = new dragonFly.Markers();
     dragonFly.translations = new dragonFly.Translations(dragonFly.lang);
     dragonFly.translations.load();
     dragonFly.settings = new dragonFly.Settings(dragonFly.annotationSaver);
@@ -1336,7 +1358,7 @@ $(document).ready(function() {
 
     // user can indicate which sentences have been reviewed
     $(".df-sentence-badge").on("click", function(event) {
-        $(this).toggleClass("df-complete");
+        dragonFly.markers.toggle($(this));
     });
 
     $("#df-save").on("click", function(event) {

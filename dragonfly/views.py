@@ -5,7 +5,7 @@
 from dragonfly import app
 import flask
 import json
-from .data import OutputWriter, HintLoader
+from .data import OutputWriter, HintLoader, SentenceMarkerManager
 from .mode import ModeManager
 from .settings import SettingsManager
 from .stats import Stats
@@ -46,6 +46,16 @@ def hints():
     else:
         hints = []
     return flask.jsonify(hints)
+
+
+@app.route('/marker', methods=['POST'])
+def marker():
+    manager = SentenceMarkerManager(app.config.get('dragonfly.data_dir'))
+    document = flask.request.form['document']
+    sentence = flask.request.form['sentence']
+    manager.toggle(document, sentence)
+    results = {'success': True, 'message': 'Marker saved.'}
+    return flask.jsonify(results)
 
 
 @app.route('/settings', methods=['GET', 'POST'])

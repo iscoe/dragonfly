@@ -44,8 +44,13 @@
     {% if document.has_translation %}
     <div class="df-translation">{{ document.translation[s] }}</div>
     {% endif %}
+    {% if s in document.markers %}
+    {% set marker_class = 'df-complete' %}
+    {% else %}
+    {% set marker_class = '' %}
+    {% endif %}
     <div class="df-sentence" id="df-sentence-{{ sentence.index }}">
-        <div class="df-sentence-id"><span class="df-sentence-badge badge" id="{{ sentence.index }}">{{ sentence.index }}</span></div>
+        <div class="df-sentence-id"><span class="df-sentence-badge badge {{ marker_class }}" id="{{ sentence.index }}">{{ sentence.index }}</span></div>
         <div class="df-section df-margin-div"></div>
         <div class="df-section df-column-labels">
         {% for row in sentence.rows %}

@@ -5,7 +5,7 @@
 import flask
 import json
 import os
-from .data import InputReader, Document, AnnotationLoader, TranslationLoader
+from .data import InputReader, Document, AnnotationLoader, EnglishTranslationLoader, SentenceMarkerManager
 from .settings import SettingsManager
 
 
@@ -46,10 +46,13 @@ class ModeManager(object):
             annotations_dirs = app.config.get('dragonfly.annotation_dirs')
             self._attach_multiple_annotations(document, output_path, filename, annotations_dirs)
 
-        trans_loader = TranslationLoader(lister.path)
+        trans_loader = EnglishTranslationLoader(lister.path)
         translation = trans_loader.get(filename)
         if translation:
             document.attach_translation(translation)
+
+        marker_manager = SentenceMarkerManager(app.config.get('dragonfly.data_dir'))
+        document.attach_markers(marker_manager.get(title))
 
         return flask.render_template('annotate.html', title=title, document=document,
                                      index=index, next_index=next_index, rtl=rtl,
