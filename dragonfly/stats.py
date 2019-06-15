@@ -29,6 +29,8 @@ class Stats(object):
         self.num_tagged_tokens = 0
         self.entities = {}
         self.num_files = 0
+        self.num_sentences = 0
+        self.num_sentences_with_tags = 0
 
     def collect(self, path):
         filenames = [x for x in glob.glob(os.path.join(path, "*.anno")) if os.path.isfile(x)]
@@ -36,9 +38,12 @@ class Stats(object):
             with open(filename, 'r', encoding='utf8') as ifp:
                 self.num_files += 1
                 in_tag = False
+                sentence_tagged = False
+                new_sentence = False
                 tag_rows = []
                 reader = csv.reader(ifp, delimiter='\t', quoting=csv.QUOTE_NONE)
                 for row in reader:
+                    new_sentence = True
                     if in_tag:
                         # tag end (end of sentence, O, or new B-)
                         if len(row) < 2 or not row[Stats.TOKEN] or row[Stats.TAG][0] != 'I':
@@ -48,12 +53,18 @@ class Stats(object):
 
                     # sentence separator
                     if len(row) < 2 or not row[Stats.TOKEN]:
+                        self.num_sentences += 1
+                        if sentence_tagged:
+                            self.num_sentences_with_tags += 1
+                        sentence_tagged = False
+                        new_sentence = False
                         continue
 
                     self.increment_tokens()
 
                     if row[Stats.TAG][0] == 'B':
                         in_tag = True
+                        sentence_tagged = True
                         tag_rows = [row]
                     elif row[Stats.TAG][0] == 'I':
                         tag_rows.append(row)
@@ -61,6 +72,12 @@ class Stats(object):
                 # catch tag at end of file
                 if in_tag:
                     self.add(tag_rows)
+
+                # catch sentence with no trailing blank line at end of document
+                if new_sentence:
+                    self.num_sentences += 1
+                    if sentence_tagged:
+                        self.num_sentences_with_tags += 1
 
     def add(self, rows):
         self.num_tagged_tokens += len(rows)
