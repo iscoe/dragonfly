@@ -14,6 +14,7 @@ class TranslationDictManager(object):
     Format of dictionary is a dictionary of lists.
     The key of the dictionary is the source string.
     Each list has two entries: translation string and entity type.
+    The entity type may be blank.
     """
 
     def __init__(self, base_dir):
@@ -68,7 +69,17 @@ class TranslationDictManager(object):
                 ofp.write("{}\t{}\t{}\n".format(source, *trans_dict[source]))
         return count
 
-    def import_(self, lang, filename):
+    def import_json(self, lang, data):
+        trans_dict = self.get(lang)
+        count = 0
+        for phrase in data:
+            if phrase not in trans_dict:
+                trans_dict[phrase] = data[phrase]
+                count += 1
+        self.save(lang, trans_dict)
+        return count
+
+    def import_tsv(self, lang, filename):
         PHRASE, TRANS, TYPE = [0, 1, 2]
         trans_dict = self.get(lang)
         count = 0

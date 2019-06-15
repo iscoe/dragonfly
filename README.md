@@ -100,26 +100,19 @@ Clicking the same token twice copies that token.
 
 ### Translation Dictionaries
 The annotation tool supports user-maintained translation dictionaries.
-Language-specific files are used to highlight tokens that belong to a translated phrase.
-The entire phrase is made available as a tooltip when mousing over the outlined token.
+Language-specific files are used to highlight tokens that have been translated.
+Only single tokens may be translated at a time.
 
 #### Adding to the dictionary
- 1. Right click on a token and a form will appear to set the translation
-
- 2. If that token has been tagged and is the first token in the tag, it will apply the translation to the entire phrase. It will also auto-set the entity type.
-
- 3. For non-tagged tokens, you only need to enter the first letter of the entity type. If you want to translate a non-entity token, set the type to 'n' for none. If you want to type out 'PER' or 'per' or 'none', those all work too.
-
+ 1. Right click on a token and a dialog will appear to set the translation.
+ 2. If that token has been tagged, the entity type will already be set.
+ 3. For non-tagged tokens, you will need to enter the entity type or leave it blank for a non-entity.
  4. Submit the form and you should see a success message.
 
-Note that if you translate phrases that include articles or prepositions, those tokens will be highlighted.
-
 #### Importing and Exporting
-A translation dictionary can be exported like so: `./scripts/export.py [lang]` where lang is the three letter ISO code.
-The script will write out a lang.tsv file in the directory where you ran the script.
-
-To import a dictionary, `./scripts/import.py [lang] [dict tsv file]`.
-Importing will not overwrite any phrase that you have already translated.
+The tools window provides the capability to import and export translation dictionaries.
+The json object is a dictionary with tokens as the keys and a list of translation and type as the value.
+Importing a dictionary will not overwrite anything that you have already translated.
 
 ### Hints
 A hints file can be loaded and displayed. It is a two column tsv file with the first column being regular expressions

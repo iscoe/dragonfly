@@ -37,5 +37,5 @@ if not os.path.exists(args.filename):
 args.lang = args.lang.lower()
 home_dir = os.path.join(os.path.expanduser("~"), '.dragonfly')
 tdm = dragonfly.TranslationDictManager(home_dir)
-num_items = tdm.import_(args.lang, args.filename)
+num_items = tdm.import_tsv(args.lang, args.filename)
 print("Imported {} items".format(num_items))

@@ -90,6 +90,30 @@ def translations(lang):
     return flask.jsonify(trans)
 
 
+@app.route('/translations/export/<lang>')
+def export_translations(lang):
+    home_dir = app.config.get('dragonfly.home_dir')
+    manager = TranslationDictManager(home_dir)
+    filename = manager.get_filename(lang)
+    return flask.send_file(filename, as_attachment=True, cache_timeout=0, add_etags=False)
+
+
+@app.route('/translations/import/<lang>', methods=['POST'])
+def import_translations(lang):
+    home_dir = app.config.get('dragonfly.home_dir')
+    manager = TranslationDictManager(home_dir)
+    file = flask.request.files['dict']
+    data = file.read().decode('utf-8')
+    try:
+        trans_dict = json.loads(data)
+        num_new_items = manager.import_json(lang, trans_dict)
+        results = {'success': True, 'message': '{} items added'.format(num_new_items)}
+        app.logger.info('Imported %s for %s', file.filename, lang)
+    except json.JSONDecodeError:
+        results = {'success': False, 'message': 'Unrecognized format'}
+    return flask.jsonify(results)
+
+
 @app.route('/search', methods=['POST'])
 def search():
     term = flask.request.form['term']
@@ -103,3 +127,9 @@ def stats():
     stats = Stats()
     stats.collect(output_dir)
     return flask.render_template('stats.html', stats=stats)
+
+
+@app.route('/tools')
+def tools():
+    lang = app.config.get('dragonfly.lang')
+    return flask.render_template('tools.html', lang=lang)

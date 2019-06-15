@@ -1430,4 +1430,12 @@ $(document).ready(function() {
             $(this).blur();
         });
     });
+
+    $('#df-tools-modal').on('show.bs.modal', function(event) {
+        var body = $(this).find('.modal-body');
+        body.load('/tools');
+        $('#df-tools-button').one('focus', function(event) {
+            $(this).blur();
+        });
+    });
 });
