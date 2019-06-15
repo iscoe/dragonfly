@@ -4,14 +4,14 @@
  * Distributed under the terms of the Apache 2.0 License.
  */
 
-var dragonFly = dragonFly || {};
+var dragonfly = dragonfly || {};
 
 /**
  * Show status message.
  * @param {string} type - 'success' or 'danger'.
  * @param {string} text - The text to display.
  */
-dragonFly.showStatus = function(type, text) {
+dragonfly.showStatus = function(type, text) {
     $(".alerts").append('<div class="alert alert-' + type + ' alert-dismissable">' +
             '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' +
             text + '</div>');
@@ -22,7 +22,7 @@ dragonFly.showStatus = function(type, text) {
     }
 };
 
-dragonFly.Settings = class Settings {
+dragonfly.Settings = class Settings {
     /**
      * Create a Settings object
      * @param {AnnotationSaver} annotationSaver - object for background saving of user annotations
@@ -69,7 +69,7 @@ dragonFly.Settings = class Settings {
                 self.applySettings();
             },
             error: function(xhr) {
-                dragonFly.showStatus('danger', 'Error contacting the server');
+                dragonfly.showStatus('danger', 'Error contacting the server');
             }
         });
     }
@@ -156,14 +156,14 @@ dragonFly.Settings = class Settings {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    dragonFly.showStatus('success', response.message);
+                    dragonfly.showStatus('success', response.message);
                     self.applySettings();
                 } else {
-                    dragonFly.showStatus('danger', response.message);
+                    dragonfly.showStatus('danger', response.message);
                 }
             },
             error: function(xhr) {
-                dragonFly.showStatus('danger', 'Error contacting the server');
+                dragonfly.showStatus('danger', 'Error contacting the server');
             }
         });
     }
@@ -187,7 +187,7 @@ dragonFly.Settings = class Settings {
 
 
 /** context menu used for adding user provided translations */
-dragonFly.ContextMenu = class ContextMenu {
+dragonfly.ContextMenu = class ContextMenu {
     // TODO probably replace with a custom event
     constructor(highlighter, translationManager) {
         this.highlighter = highlighter;
@@ -266,7 +266,7 @@ dragonFly.ContextMenu = class ContextMenu {
             'source': $("#df-trans-source").html(),
             'translation': translation,
             'type': entityType,
-            'lang': dragonFly.lang
+            'lang': dragonfly.lang
         };
         $.ajax({
             url: '/translation',
@@ -275,21 +275,21 @@ dragonFly.ContextMenu = class ContextMenu {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    dragonFly.showStatus('success', response.message);
+                    dragonfly.showStatus('success', response.message);
                     self.hide();
                     self.translationManager.update(data.source, {trans: data.translation, type: data.type});
                 } else {
-                    dragonFly.showStatus('danger', response.message);
+                    dragonfly.showStatus('danger', response.message);
                 }
             },
             error: function(xhr) {
-                dragonFly.showStatus('danger', 'Error contacting the server');
+                dragonfly.showStatus('danger', 'Error contacting the server');
             }
         });
     }
 };
 
-dragonFly.UndoLevel = class UndoLevel {
+dragonfly.UndoLevel = class UndoLevel {
     constructor() {
         this.elements = [];
     }
@@ -331,7 +331,7 @@ dragonFly.UndoLevel = class UndoLevel {
     }
 };
 
-dragonFly.Undo = class Undo {
+dragonfly.Undo = class Undo {
     /**
      * Create an Undo manager.
      * @param {int} capacity - Maximum number of undo levels.
@@ -345,7 +345,7 @@ dragonFly.Undo = class Undo {
      * Start a new undo level.
      */
     start() {
-        this.items.unshift(new dragonFly.UndoLevel());
+        this.items.unshift(new dragonfly.UndoLevel());
         if (this.items.length > this.capacity) {
             this.items.length = this.capacity;
         }
@@ -368,7 +368,7 @@ dragonFly.Undo = class Undo {
     }
 };
 
-dragonFly.Hints = class Hints {
+dragonfly.Hints = class Hints {
     /**
      * Create a hints manager.
      * @param {int} row - Zero-based index of row to apply hints to.
@@ -392,7 +392,7 @@ dragonFly.Hints = class Hints {
                 self.process();
             },
             error: function(xhr) {
-                dragonFly.showStatus('danger', 'Error contacting the server');
+                dragonfly.showStatus('danger', 'Error contacting the server');
             }
         });
 
@@ -408,7 +408,7 @@ dragonFly.Hints = class Hints {
             try {
                 this.hints[i].regex = new RegExp(this.hints[i].regex);
             } catch (e) {
-                dragonFly.showStatus('danger', 'Invalid hint regex: ' + escapeHtml(this.hints[i].regex));
+                dragonfly.showStatus('danger', 'Invalid hint regex: ' + escapeHtml(this.hints[i].regex));
                 this.hints[i].regex = null;
             }
         }
@@ -427,7 +427,7 @@ dragonFly.Hints = class Hints {
     }
 };
 
-dragonFly.Markers = class Markers {
+dragonfly.Markers = class Markers {
 
     /**
      * Toggle the marker.
@@ -438,16 +438,16 @@ dragonFly.Markers = class Markers {
         $.ajax({
             url: '/marker',
             type: 'POST',
-            data: {'document': dragonFly.filename, 'sentence': element.html()},
+            data: {'document': dragonfly.filename, 'sentence': element.html()},
             dataType: 'json',
             error: function(xhr) {
-                dragonFly.showStatus('danger', 'Error contacting the server');
+                dragonfly.showStatus('danger', 'Error contacting the server');
             }
         });
     }
 };
 
-dragonFly.Translations = class Translations {
+dragonfly.Translations = class Translations {
     /**
      * Create a translations manager.
      */
@@ -472,7 +472,7 @@ dragonFly.Translations = class Translations {
                 self.apply();
             },
             error: function(xhr) {
-                dragonFly.showStatus('danger', 'Error contacting the server');
+                dragonfly.showStatus('danger', 'Error contacting the server');
             }
         });
     }
@@ -528,7 +528,7 @@ dragonFly.Translations = class Translations {
 };
 
 /** Class representing a tag type. */
-dragonFly.TagType = class TagType {
+dragonfly.TagType = class TagType {
     /**
      * Create a tag type
      * @param {string} name - The tag type name
@@ -542,7 +542,7 @@ dragonFly.TagType = class TagType {
     }
 };
 
-dragonFly.TagTypes = class TagTypes {
+dragonfly.TagTypes = class TagTypes {
     /**
      * Create all tag types
      * @param {array} tagTypes - Array of tag names
@@ -552,7 +552,7 @@ dragonFly.TagTypes = class TagTypes {
         this.typeList = [];
         for (var i = 0; i < tagTypes.length; i++) {
             var index = '' + (i + 1)
-            var object = new dragonFly.TagType(index, tagTypes[i]);
+            var object = new dragonfly.TagType(index, tagTypes[i]);
             this.typeMap[index] = object;
             this.typeList.push(object);
         }
@@ -633,7 +633,7 @@ dragonFly.TagTypes = class TagTypes {
     }
 };
 
-dragonFly.MultiTokenTag = class MultiTokenTag {
+dragonfly.MultiTokenTag = class MultiTokenTag {
     /**
      * Create a multi-token tag.
      * @param {TagTypes} tagTypes - TagTypes object with all possible tag types.
@@ -680,7 +680,7 @@ dragonFly.MultiTokenTag = class MultiTokenTag {
 };
 
 
-dragonFly.Concordance = class Concordance {
+dragonfly.Concordance = class Concordance {
     /**
      * Create a Concordance object
      */
@@ -711,7 +711,7 @@ dragonFly.Concordance = class Concordance {
                 self.displayResults(word, data);
             },
             error: function(xhr) {
-                dragonFly.showStatus('danger', 'Error contacting the server');
+                dragonfly.showStatus('danger', 'Error contacting the server');
             }
         });
     }
@@ -800,9 +800,9 @@ dragonFly.Concordance = class Concordance {
  * @readonly
  * @enum {number}
  */
-dragonFly.ClickMode = {DEL: 0, TAG: 1, SELECT: 2, CONCORDANCE: 3};
+dragonfly.ClickMode = {DEL: 0, TAG: 1, SELECT: 2, CONCORDANCE: 3};
 
-dragonFly.Highlighter = class Highlighter {
+dragonfly.Highlighter = class Highlighter {
     /**
      * Create the highlighter manager.
      * @param {TagTypes} tagTypes - A representation of the tag types.
@@ -812,14 +812,14 @@ dragonFly.Highlighter = class Highlighter {
         this.tagTypes = tagTypes;
         this.concordance = concordance;
         this.isCascade = true;
-        this.clickMode = dragonFly.ClickMode.TAG;
-        this.prevClickMode = dragonFly.ClickMode.TAG;
+        this.clickMode = dragonfly.ClickMode.TAG;
+        this.prevClickMode = dragonfly.ClickMode.TAG;
         this.currentTagType = this.tagTypes.getStartTagType();
         this.multiTokenTag = null;
         this.multiTokenClickCount = 0;
         this.anyTaggingPerformed = false;
         this.selectStart = null;
-        this.undo = new dragonFly.Undo(10);
+        this.undo = new dragonfly.Undo(10);
         this.undoActive = false;
         this.contextMenuActive = false;
     }
@@ -838,7 +838,7 @@ dragonFly.Highlighter = class Highlighter {
      * @return {boolean}
      */
     isMultiTokenOn(event) {
-        return event[dragonFly.multiTokenEventKey];
+        return event[dragonfly.multiTokenEventKey];
     }
 
     /**
@@ -866,12 +866,12 @@ dragonFly.Highlighter = class Highlighter {
      */
     highlightTypeAndClickMode() {
         $(".df-type").removeClass('df-type-active');
-        if (this.clickMode == dragonFly.ClickMode.TAG) {
+        if (this.clickMode == dragonfly.ClickMode.TAG) {
             var className = ".df-tag-" + this.currentTagType.id;
             $(".df-type" + className).addClass('df-type-active');
-        } else if (this.clickMode == dragonFly.ClickMode.DEL) {
+        } else if (this.clickMode == dragonfly.ClickMode.DEL) {
             $(".df-del").addClass('df-type-active');
-        } else if (this.clickMode == dragonFly.ClickMode.SELECT) {
+        } else if (this.clickMode == dragonfly.ClickMode.SELECT) {
             $(".df-sel").addClass('df-type-active');
         } else {
             $(".df-find").addClass('df-type-active');
@@ -919,7 +919,7 @@ dragonFly.Highlighter = class Highlighter {
 
         if (mismatchedTags.size > 0) {
             var tags = Array.from(mismatchedTags).join(', ');
-            dragonFly.showStatus('danger', 'Incompatiable saved annotations: ' + tags);
+            dragonfly.showStatus('danger', 'Incompatiable saved annotations: ' + tags);
         }
 
         this.initializeAdjudicationHighlight();
@@ -960,19 +960,19 @@ dragonFly.Highlighter = class Highlighter {
             case '0':
             case 'd':
                 // enter into delete mode
-                this.clickMode = dragonFly.ClickMode.DEL;
+                this.clickMode = dragonfly.ClickMode.DEL;
                 this.highlightTypeAndClickMode();
                 break;
             case 's':
                 // enter into select mode
                 this.prevClickMode = this.clickMode;
-                this.clickMode = dragonFly.ClickMode.SELECT;
+                this.clickMode = dragonfly.ClickMode.SELECT;
                 this.highlightTypeAndClickMode();
                 break;
             case 'f':
                 // concordance mode
                 this.prevClickMode = this.clickMode;
-                this.clickMode = dragonFly.ClickMode.CONCORDANCE;
+                this.clickMode = dragonfly.ClickMode.CONCORDANCE;
                 this.highlightTypeAndClickMode();
                 this.concordance.show();
                 break;
@@ -982,7 +982,7 @@ dragonFly.Highlighter = class Highlighter {
             default:
                 if (this.tagTypes.isTagType(letter)) {
                     // change the tag type
-                    this.clickMode = dragonFly.ClickMode.TAG;
+                    this.clickMode = dragonfly.ClickMode.TAG;
                     this.currentTagType = this.tagTypes.getTagType(letter);
                     this.highlightTypeAndClickMode();
                 }
@@ -997,15 +997,15 @@ dragonFly.Highlighter = class Highlighter {
      * @param {Event} event - The click event.
      */
     clickToken(element, event) {
-        if (this.clickMode == dragonFly.ClickMode.DEL) {
+        if (this.clickMode == dragonfly.ClickMode.DEL) {
             // set this so we know whether to prevent user navigating away
             this.anyTaggingPerformed = true;
             this.undo.start();
             this.undo.add(element);
             this.deleteTag(element);
-        } else if (this.clickMode == dragonFly.ClickMode.SELECT) {
+        } else if (this.clickMode == dragonfly.ClickMode.SELECT) {
             this.select(element);
-        } else if (this.clickMode == dragonFly.ClickMode.CONCORDANCE) {
+        } else if (this.clickMode == dragonfly.ClickMode.CONCORDANCE) {
             this.concordance.search(element.html());
         } else {
             // set this so we know whether to prevent user navigating away
@@ -1031,7 +1031,7 @@ dragonFly.Highlighter = class Highlighter {
         if (this.multiTokenClickCount == 1) {
             this.undo.start();
             // first click in multi-token tag
-            this.multiTokenTag = new dragonFly.MultiTokenTag(this.tagTypes, this.currentTagType);
+            this.multiTokenTag = new dragonfly.MultiTokenTag(this.tagTypes, this.currentTagType);
             this.multiTokenTag.update(element);
             this.highlightMultiTokenTag(this.multiTokenTag);
         } else if (this.multiTokenClickCount == 2) {
@@ -1059,7 +1059,7 @@ dragonFly.Highlighter = class Highlighter {
                 }
                 this.multiTokenTag = null;
             } else {
-                dragonFly.showStatus('danger', "Tagging must be left to right on the same line. Invalid tag cleared.");
+                dragonfly.showStatus('danger', "Tagging must be left to right on the same line. Invalid tag cleared.");
             }
         }
     }
@@ -1108,7 +1108,7 @@ dragonFly.Highlighter = class Highlighter {
                     }
                 }
             });
-            dragonFly.showStatus('success', 'Cascade: ' + parseInt(count));
+            dragonfly.showStatus('success', 'Cascade: ' + parseInt(count));
         }
 
         return true;
@@ -1147,7 +1147,7 @@ dragonFly.Highlighter = class Highlighter {
                     return;
                 }
                 // start building the multi-token tag as we match so far
-                var newTag = new dragonFly.MultiTokenTag(self.tagTypes, tag.tagType);
+                var newTag = new dragonfly.MultiTokenTag(self.tagTypes, tag.tagType);
                 newTag.update($(this));
                 // get the next token
                 var idChunks = $(this).attr("id").split("-");
@@ -1173,7 +1173,7 @@ dragonFly.Highlighter = class Highlighter {
                 count += 1;
             }
         });
-        dragonFly.showStatus('success', 'Cascade: ' + parseInt(count));
+        dragonfly.showStatus('success', 'Cascade: ' + parseInt(count));
     }
 
     /**
@@ -1206,12 +1206,12 @@ dragonFly.Highlighter = class Highlighter {
             copyToClipboard(text);
             this.selectStart = null;
             this.revertClickMode();
-            dragonFly.showStatus('success', 'Copied');
+            dragonfly.showStatus('success', 'Copied');
         }
     }
 };
 
-dragonFly.AnnotationSaver = class AnnotationSaver {
+dragonfly.AnnotationSaver = class AnnotationSaver {
     /**
      * Create an annotation saver.
      * @param {string} filename - The filename being edited.
@@ -1240,14 +1240,14 @@ dragonFly.AnnotationSaver = class AnnotationSaver {
             success: function(response) {
                 if (response.success) {
                     if (notify) {
-                        dragonFly.showStatus('success', response.message);
+                        dragonfly.showStatus('success', response.message);
                     }
                 } else {
-                    dragonFly.showStatus('danger', response.message);
+                    dragonfly.showStatus('danger', response.message);
                 }
             },
             error: function(xhr) {
-                dragonFly.showStatus('danger', 'Error contacting the server');
+                dragonfly.showStatus('danger', 'Error contacting the server');
             }
         });
     }
@@ -1282,12 +1282,12 @@ $(document).ready(function() {
     // According to http://unixpapa.com/js/key.html, shift = 16, control = 17, alt = 18, caps lock = 20
     if (/Mac/.test(window.navigator.platform)) {
         // Option key on Macs
-        dragonFly.multiTokenKey = '18';
-        dragonFly.multiTokenEventKey = 'altKey';
+        dragonfly.multiTokenKey = '18';
+        dragonfly.multiTokenEventKey = 'altKey';
     } else {
         // Control key for Windows and Linux
-        dragonFly.multiTokenKey = '17';
-        dragonFly.multiTokenEventKey = 'ctrlKey';
+        dragonfly.multiTokenKey = '17';
+        dragonfly.multiTokenEventKey = 'ctrlKey';
     }
 
     this.multiTokenTagClickCount = 0;
@@ -1295,38 +1295,38 @@ $(document).ready(function() {
     // set the margin to account for varying navbar sizes due to viewport
     $('body').css('margin-top', $('#df-nav').height() + 10);
 
-    dragonFly.lang = $("meta[name=lang]").attr("content");
-    dragonFly.filename = $("#df-filename").html();
-    dragonFly.concordance = new dragonFly.Concordance();
-    dragonFly.tagTypes = new dragonFly.TagTypes(dragonfly_tags);
-    dragonFly.tagTypes.injectButtons();
-    dragonFly.highlighter = new dragonFly.Highlighter(dragonFly.tagTypes, dragonFly.concordance);
-    dragonFly.highlighter.initializeHighlight();
-    dragonFly.annotationSaver = new dragonFly.AnnotationSaver(dragonFly.filename, dragonfly_terminal_blank_line);
-    dragonFly.hints = new dragonFly.Hints(1);
-    dragonFly.hints.run();
-    dragonFly.markers = new dragonFly.Markers();
-    dragonFly.translations = new dragonFly.Translations(dragonFly.lang);
-    dragonFly.translations.load();
-    dragonFly.settings = new dragonFly.Settings(dragonFly.annotationSaver);
-    dragonFly.settings.load();
-    dragonFly.contextMenu = new dragonFly.ContextMenu(dragonFly.highlighter, dragonFly.translations);
+    dragonfly.lang = $("meta[name=lang]").attr("content");
+    dragonfly.filename = $("#df-filename").html();
+    dragonfly.concordance = new dragonfly.Concordance();
+    dragonfly.tagTypes = new dragonfly.TagTypes(dragonfly_tags);
+    dragonfly.tagTypes.injectButtons();
+    dragonfly.highlighter = new dragonfly.Highlighter(dragonfly.tagTypes, dragonfly.concordance);
+    dragonfly.highlighter.initializeHighlight();
+    dragonfly.annotationSaver = new dragonfly.AnnotationSaver(dragonfly.filename, dragonfly_terminal_blank_line);
+    dragonfly.hints = new dragonfly.Hints(1);
+    dragonfly.hints.run();
+    dragonfly.markers = new dragonfly.Markers();
+    dragonfly.translations = new dragonfly.Translations(dragonfly.lang);
+    dragonfly.translations.load();
+    dragonfly.settings = new dragonfly.Settings(dragonfly.annotationSaver);
+    dragonfly.settings.load();
+    dragonfly.contextMenu = new dragonfly.ContextMenu(dragonfly.highlighter, dragonfly.translations);
 
     $("input[id = 'cascade']").on("click", function() {
-        dragonFly.highlighter.toggleCascade();
+        dragonfly.highlighter.toggleCascade();
     });
 
     $(".df-token").on("click", function(event) {
-        dragonFly.highlighter.clickToken($(this), event);
+        dragonfly.highlighter.clickToken($(this), event);
     });
 
     $(document).on("keypress", function(event) {
-        dragonFly.highlighter.pressKey(String.fromCharCode(event.which));
+        dragonfly.highlighter.pressKey(String.fromCharCode(event.which));
     });
 
     $(document).on("keyup", function(event) {
-        if (event.which == dragonFly.multiTokenKey) {
-            dragonFly.highlighter.setControlKeyUp();
+        if (event.which == dragonfly.multiTokenKey) {
+            dragonfly.highlighter.setControlKeyUp();
         }
     });
 
@@ -1335,7 +1335,7 @@ $(document).ready(function() {
         if (event.ctrlKey || event.metaKey) {
             if (String.fromCharCode(event.which).toLowerCase() == 's') {
                 event.preventDefault();
-                dragonFly.annotationSaver.save();
+                dragonfly.annotationSaver.save();
             } else if (event.which == 37) {
                 var url = $('#df-prev-doc').attr('href');
                 if (url) {
@@ -1353,22 +1353,22 @@ $(document).ready(function() {
     // change the click mode or tag type by clicking on navbar
     $(".df-type").on("click", function(event) {
         var letter = $(this).attr("title");
-        dragonFly.highlighter.pressKey(letter);
+        dragonfly.highlighter.pressKey(letter);
     });
 
     // user can indicate which sentences have been reviewed
     $(".df-sentence-badge").on("click", function(event) {
-        dragonFly.markers.toggle($(this));
+        dragonfly.markers.toggle($(this));
     });
 
     $("#df-save").on("click", function(event) {
-        dragonFly.annotationSaver.save();
+        dragonfly.annotationSaver.save();
         $(this).blur();
     });
 
     $("#df-settings-save").on("click", function(event) {
         $('#df-settings-modal').modal('hide');
-        dragonFly.settings.save();
+        dragonfly.settings.save();
     });
 
     // leaving focus on settings button is distracting so we remove it
@@ -1379,18 +1379,18 @@ $(document).ready(function() {
     });
 
     $(".df-token").on("contextmenu", function(event) {
-        dragonFly.contextMenu.show($(this), event);
+        dragonfly.contextMenu.show($(this), event);
     });
 
     $("#df-context-menu-submit").on('click', function(event) {
-        dragonFly.contextMenu.save();
+        dragonfly.contextMenu.save();
         event.preventDefault();
     });
 
     $(window).on("beforeunload", function() {
-        if (dragonFly.highlighter.anyTaggingPerformed && !dragonFly.annotationSaver.saveClicked) {
-            if (dragonFly.settings.isAutoSaveOnNav()) {
-                dragonFly.annotationSaver.save(false);
+        if (dragonfly.highlighter.anyTaggingPerformed && !dragonfly.annotationSaver.saveClicked) {
+            if (dragonfly.settings.isAutoSaveOnNav()) {
+                dragonfly.annotationSaver.save(false);
             } else {
                 // this actual text may not display depending on browser
                 return "Changes have not been saved.";
@@ -1400,7 +1400,7 @@ $(document).ready(function() {
 
     // keep the sentence IDs in same location as user horizontally scrolls if desired
     $(window).scroll(function() {
-        if (dragonFly.settings.isSentenceIdAutoScroll()) {
+        if (dragonfly.settings.isSentenceIdAutoScroll()) {
             $('.df-sentence-id').css({
                 'left': $(this).scrollLeft(),
                 'height': ($(".df-sentence").height() - 5) + 'px'
@@ -1414,13 +1414,13 @@ $(document).ready(function() {
         resizeWidth: false,
         resizeHeightFrom: 'top',
         onDrag: function (event, element, newWidth, newHeight, opt) {
-            dragonFly.concordance.handleResize(element);
+            dragonfly.concordance.handleResize(element);
         }
     });
 
     $('#df-concordance-close').on('click', function() {
-        dragonFly.concordance.hide();
-        dragonFly.highlighter.revertClickMode();
+        dragonfly.concordance.hide();
+        dragonfly.highlighter.revertClickMode();
     });
 
     $('#df-stats-modal').on('show.bs.modal', function(event) {
