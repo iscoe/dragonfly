@@ -4,9 +4,9 @@
 
 import argparse
 import os
-from dragonfly import app
-from dragonfly.data import FileLister
-from dragonfly.indexer import Indexer
+from . import app
+from .data import FileLister
+from .search import Indexer
 
 
 class Runner(object):
