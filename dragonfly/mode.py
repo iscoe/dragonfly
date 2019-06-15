@@ -10,17 +10,6 @@ from .data import InputReader, Document, AnnotationLoader, EnglishTranslationLoa
 from .settings import SettingsManager
 
 
-class Timer:
-    def __init__(self):
-        self.time = 0
-
-    def __enter__(self):
-        self.start = timeit.default_timer()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.time += timeit.default_timer() - self.start
-
-
 class ModeManager(object):
     ANNOTATE = "annotate"
     ADJUDICATE = "adjudicate"
