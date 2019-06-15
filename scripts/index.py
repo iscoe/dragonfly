@@ -20,9 +20,9 @@ import pickle
 import os
 import sys
 
-# don't assume the user has install dragonfly
+# don't assume the user has installed dragonfly
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
-import dragonfly.indexer
+import dragonfly.search as search
 
 MIN_PYTHON = (3, 0)
 if sys.version_info < MIN_PYTHON:
@@ -30,7 +30,7 @@ if sys.version_info < MIN_PYTHON:
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input", help="directory being annotated")
-parser.add_argument("--stop-words", help="number of stop words", default=500, type=int)
+parser.add_argument("--num-stop-words", help="number of stop words", default=500, type=int)
 args = parser.parse_args()
 
 if not os.path.isdir(args.input):
@@ -43,7 +43,7 @@ if not os.path.exists(index_dir):
 TOKEN = 0
 TRANSLIT = 1
 tokens = collections.Counter()
-inverted_index = dragonfly.indexer.InvertedIndex()
+inverted_index = search.InvertedIndex()
 
 filenames = sorted([x for x in glob.glob(os.path.join(args.input, "*")) if os.path.isfile(x)])
 for filename in filenames:
@@ -77,7 +77,7 @@ for filename in filenames:
                 trans.append(row[TRANSLIT])
 
 # save stop words
-stop_words = [word_count_pair[0] for word_count_pair in tokens.most_common(args.stop_words)]
+stop_words = [word_count_pair[0] for word_count_pair in tokens.most_common(args.num_stop_words)]
 stop_words_filename = os.path.join(index_dir, 'stop_words.pkl')
 with open(stop_words_filename, 'wb') as ofp:
     pickle.dump(stop_words, ofp)
