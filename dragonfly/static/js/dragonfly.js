@@ -188,7 +188,7 @@ dragonfly.Settings = class Settings {
 
 /** context menu used for adding user provided translations */
 dragonfly.ContextMenu = class ContextMenu {
-    // TODO probably replace with a custom event
+    // TODO probably replace with a custom event to communicate to highlighter/translations
     constructor(highlighter, translationManager) {
         this.highlighter = highlighter;
         this.translationManager = translationManager;
@@ -212,6 +212,7 @@ dragonfly.ContextMenu = class ContextMenu {
         }
         $("#df-trans-source").html(sourceInfo['text']);
         $("input[name = 'entity-type']").val(sourceInfo['type']);
+        $("input[name = 'translation']").val(sourceInfo['trans']);
         $("#df-context-menu").removeClass('hidden');
         $("input[name = 'translation']").focus();
 
@@ -228,15 +229,24 @@ dragonfly.ContextMenu = class ContextMenu {
     /**
      * Get the information about the tag like type and text
      * @param {jQuery} token - Token element for tag
+     * @return {object} - initial values
      */
     getSource(token) {
-        var result = {'type': null};
+        var result = {'type': null, 'trans': null};
         var tag = token.data('tag');
         if (tag == null || tag == 'O') {
             result['text'] = token.html();
         } else {
             result['text'] = token.html();
             result['type'] = tag.slice(2);
+        }
+        var info = this.translationManager.get(result['text']);
+        if (info) {
+            result['trans'] = info['trans'];
+            // current tag type takes precedence
+            if (!result['type']) {
+                result['type'] = info['type'];
+            }
         }
         return result;
     }
@@ -513,6 +523,19 @@ dragonfly.Translations = class Translations {
     }
 
     /**
+     * Get the info for this source.
+     * @param {string} source - Source language string
+     * @return {object} - trans and type or null
+     */
+    get(source) {
+        if (this.transMap.has(source.toLowerCase())) {
+            return this.transMap.get(source.toLowerCase());
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Add a new translation pair to the translation manager.
      * @param {string} source - Source string.
      * @param {object} info - Object with keys trans and type.
@@ -549,6 +572,7 @@ dragonfly.Translations = class Translations {
                 $(this).attr('data-toggle', 'tooltip');
             }
         });
+        // this does all tooltips including in non-token rows
         $('[data-toggle=tooltip]').tooltip({delay: 200, placement: 'auto left'});
     }
 
@@ -569,8 +593,13 @@ dragonfly.Translations = class Translations {
             if (token == source) {
                 $(this).addClass('df-in-dict');
                 $(this).attr('title', title);
-                $(this).attr('data-toggle', 'tooltip');
-                $(this).tooltip({delay: 200, placement: 'auto left'});
+                if (this.hasAttribute('data-toggle')) {
+                    // bootstrap is a little funky with tooltip updates
+                    $(this).attr('title', title).tooltip('fixTitle');
+                } else {
+                    $(this).attr('data-toggle', 'tooltip');
+                    $(this).tooltip({delay: 200, placement: 'auto left'});
+                }
             }
         });
     }
