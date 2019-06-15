@@ -109,4 +109,7 @@ class Runner(object):
             print(" * Adjudicating {}".format(args.data))
             app.logger.info("Running in adjudicate mode")
         app.logger.info('Loading from %s and saving to %s', args.data, args.output)
+        if args.debug:
+            # working around a bug in flask that prevents template reloading in debug mode
+            app.jinja_env.auto_reload = True
         app.run(debug=args.debug, host='0.0.0.0', port=int(args.port))
