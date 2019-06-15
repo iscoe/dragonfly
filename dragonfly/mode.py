@@ -5,8 +5,20 @@
 import flask
 import json
 import os
+import timeit
 from .data import InputReader, Document, AnnotationLoader, EnglishTranslationLoader, SentenceMarkerManager
 from .settings import SettingsManager
+
+
+class Timer:
+    def __init__(self):
+        self.time = 0
+
+    def __enter__(self):
+        self.start = timeit.default_timer()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.time += timeit.default_timer() - self.start
 
 
 class ModeManager(object):
@@ -20,6 +32,7 @@ class ModeManager(object):
             self.mode = self.ADJUDICATE
 
     def render(self, app, filename, index):
+        start_time = timeit.default_timer()
         lang = app.config.get('dragonfly.lang')
         lister = app.config.get('dragonfly.input')
         tags = app.config.get('dragonfly.tags')
@@ -33,7 +46,6 @@ class ModeManager(object):
         if index is None:
             return None
         filename = lister.get_filename(index)
-        app.logger.info('Serving ' + filename)
         # remove any path information
         title = os.path.basename(filename)
 
@@ -54,9 +66,12 @@ class ModeManager(object):
         marker_manager = SentenceMarkerManager(app.config.get('dragonfly.data_dir'))
         document.attach_markers(marker_manager.get(title))
 
-        return flask.render_template('annotate.html', title=title, document=document,
-                                     index=index, next_index=next_index, rtl=rtl,
-                                     sm=settings_manager, lang=lang, tags=json.dumps(tags))
+        content = flask.render_template('annotate.html', title=title, document=document,
+                                        index=index, next_index=next_index, rtl=rtl,
+                                        sm=settings_manager, lang=lang, tags=json.dumps(tags))
+        total_time = timeit.default_timer() - start_time
+        app.logger.info('Serving %s in %1.2fs', filename, total_time)
+        return content
 
     def _attach_single_annotations(self, document, output_path, filename):
         loader = AnnotationLoader(output_path)
