@@ -23,6 +23,7 @@ class FileLister(object):
     def get_filename(self, index):
         if index < len(self.filenames):
             return self.filenames[index]
+        return None
 
     def get_index_from_filename(self, filename):
         if filename in self.filenames:
@@ -52,6 +53,7 @@ class AnnotationLoader(object):
         path = os.path.join(self.base, annotation_filename)
         if os.path.isfile(path):
             return path
+        return None
 
 
 class HintLoader(object):

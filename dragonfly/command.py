@@ -108,5 +108,5 @@ class Runner(object):
         else:
             print(" * Adjudicating {}".format(args.data))
             app.logger.info("Running in adjudicate mode")
-        app.logger.info('Loading from {} and saving to {}'.format(args.data, args.output))
+        app.logger.info('Loading from %s and saving to %s', args.data, args.output)
         app.run(debug=args.debug, host='0.0.0.0', port=int(args.port))

@@ -33,7 +33,7 @@ def save():
         writer = OutputWriter(app.config.get('dragonfly.output'))
         response = json.loads(data)
         writer.write(response)
-        app.logger.info('Saving annotations for ' + response['filename'])
+        app.logger.info('Saving annotations for %s', response['filename'])
         results = {'success': True, 'message': 'Annotations saved.'}
     return flask.jsonify(results)
 
