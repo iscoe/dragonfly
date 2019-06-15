@@ -15,7 +15,6 @@ class Runner(object):
 
     def __init__(self):
         self.mode = None
-        self.debug = False
 
     def annotate(self):
         self.mode = Runner.ANNOTATE
@@ -46,6 +45,7 @@ class Runner(object):
         parser.add_argument("-e", "--ext", help="optional file extension to match (default is .txt)")
         parser.add_argument("-t", "--tags", help="optional list of tags (default is PER,ORG,GPE,LOC)")
         parser.add_argument("--rtl", action='store_true', help="option to display text RTL")
+        parser.add_argument("--debug", action='store_true', help="option to run in debug mode")
         return parser.parse_args()
 
     def _process_args(self, args):
@@ -110,4 +110,4 @@ class Runner(object):
             print(" * Adjudicating {}".format(args.data))
             app.logger.info("Running in adjudicate mode")
         app.logger.info('Loading from {} and saving to {}'.format(args.data, args.output))
-        app.run(debug=self.debug, host='0.0.0.0', port=int(args.port))
+        app.run(debug=args.debug, host='0.0.0.0', port=int(args.port))
