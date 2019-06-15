@@ -7,6 +7,7 @@ import logging
 import logging.handlers
 import os
 
+__version__ = '1.4.dev'
 
 app = Flask(__name__)
 

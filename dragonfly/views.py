@@ -2,16 +2,26 @@
 # All rights reserved.
 # Distributed under the terms of the Apache 2.0 License.
 
-from dragonfly import app
+from dragonfly import app, __version__
 import flask
 import io
 import json
+import random
+import string
 import os
 from .data import OutputWriter, HintLoader, SentenceMarkerManager
 from .mode import ModeManager
 from .settings import SettingsManager
 from .stats import Stats
 from .translations import TranslationDictManager
+
+
+@app.context_processor
+def inject_version():
+    version = __version__
+    if app.debug:
+        version += '.' + ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
+    return dict(version=version)
 
 
 @app.route('/', defaults={'filename': None})
