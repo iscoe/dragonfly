@@ -27,6 +27,15 @@ class TranslationDictManager(object):
         trans_dict[source] = [translation, type]
         self.save(lang, trans_dict)
 
+    def delete(self, lang, source):
+        source = source.lower()
+        trans_dict = self.get(lang)
+        if source in trans_dict:
+            del trans_dict[source]
+            self.save(lang, trans_dict)
+            return True
+        return False
+
     def merge(self, lang, td):
         trans_dict = self.get(lang)
         for key in td:

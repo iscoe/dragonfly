@@ -277,9 +277,36 @@ dragonfly.ContextMenu = class ContextMenu {
                 if (response.success) {
                     dragonfly.showStatus('success', response.message);
                     self.hide();
-                    self.translationManager.update(data.source, {trans: data.translation, type: data.type});
+                    self.translationManager.add(data.source, {'trans': data.translation, 'type': data.type});
                 } else {
                     dragonfly.showStatus('danger', response.message);
+                }
+            },
+            error: function(xhr) {
+                dragonfly.showStatus('danger', 'Error contacting the server');
+            }
+        });
+    }
+
+    /**
+     * Remove the translation through ajax to server.
+     */
+    remove() {
+        var self = this;
+        var data = {
+            'source': $("#df-trans-source").html(),
+            'lang': dragonfly.lang,
+        };
+        $.ajax({
+            url: '/translation/delete',
+            type: 'POST',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            success: function(response) {
+                self.hide();
+                if (response.success) {
+                    dragonfly.showStatus('success', response.message);
+                    self.translationManager.remove(data.source);
                 }
             },
             error: function(xhr) {
@@ -453,7 +480,6 @@ dragonfly.Translations = class Translations {
      */
     constructor(lang) {
         this.lang = lang;
-        this.translations = [];
         this.transMap = new Map();
     }
 
@@ -467,8 +493,7 @@ dragonfly.Translations = class Translations {
             type: 'GET',
             dataType: 'json',
             success: function(data) {
-                self.translations = data;
-                self.createMap();
+                self.createMap(data);
                 self.apply();
             },
             error: function(xhr) {
@@ -479,20 +504,31 @@ dragonfly.Translations = class Translations {
 
     /**
      * Create a source token -> gloss map
+     * @param {object} translations - JSON object of translations.
      */
-    createMap() {
-        for (var source in this.translations) {
-            this.add(source, {'trans': this.translations[source][0], 'type': this.translations[source][1]})
+    createMap(translations) {
+        for (var source in translations) {
+            this.transMap.set(source.toLowerCase(), {'trans': translations[source][0], 'type': translations[source][1]});
         }
     }
 
     /**
-     * Add a source -> gloss pair to the translation map
+     * Add a new translation pair to the translation manager.
      * @param {string} source - Source string.
-     * @param {string} info - Object with keys trans and type.
+     * @param {object} info - Object with keys trans and type.
      */
     add(source, info) {
-        this.transMap.set(source.toLowerCase(), info)
+        this.transMap.set(source.toLowerCase(), info);
+        this.addDisplay(source, info.trans, info.type);
+    }
+
+    /**
+     * Remove a source from the translation manager.
+     * @param {string} source - Source string.
+     */
+    remove(source) {
+        this.transMap.delete(source.toLowerCase());
+        this.removeDisplay(source.toLowerCase());
     }
 
     /**
@@ -517,13 +553,42 @@ dragonfly.Translations = class Translations {
     }
 
     /**
-     * Update the translation web display with a new translation pair
+     * Add display elements for token in dictionary.
      * @param {string} source - Source string.
-     * @param {string} gloss - A translation for the source string.
+     * @param {string} translation - English translation.
+     * @param {string} type - Entity type.
      */
-    update(source, gloss) {
-        this.add(source, gloss);
-        this.apply();
+    addDisplay(source, translation, type) {
+        if (type) {
+            var title = type + ' : ' + translation;
+        } else {
+            var title = translation;
+        }
+        $(".df-token").each(function() {
+            var token = $(this).html().toLowerCase();
+            if (token == source) {
+                $(this).addClass('df-in-dict');
+                $(this).attr('title', title);
+                $(this).attr('data-toggle', 'tooltip');
+                $(this).tooltip({delay: 200, placement: 'auto left'});
+            }
+        });
+    }
+
+    /**
+     * Remove display elements for token.
+     * @param {string} source - Source string.
+     */
+    removeDisplay(source) {
+        $(".df-token").each(function() {
+            var token = $(this).html().toLowerCase();
+            if (token == source) {
+                $(this).removeClass('df-in-dict');
+                $(this).removeAttr('title');
+                $(this).removeAttr('data-toggle');
+                $(this).tooltip('destroy');
+            }
+        });
     }
 };
 
@@ -1384,6 +1449,11 @@ $(document).ready(function() {
 
     $("#df-context-menu-submit").on('click', function(event) {
         dragonfly.contextMenu.save();
+        event.preventDefault();
+    });
+
+    $("#df-context-menu-delete").on('click', function(event) {
+        dragonfly.contextMenu.remove();
         event.preventDefault();
     });
 

@@ -77,8 +77,20 @@ def translation():
     home_dir = app.config.get('dragonfly.home_dir')
     data = flask.request.get_json('true')
     manager = TranslationDictManager(home_dir)
-    manager.add(**data)
+    manager.add(data['lang'], data['source'], data['translation'], data['type'])
     results = {'success': True, 'message': 'Translation saved.'}
+    return flask.jsonify(results)
+
+
+@app.route('/translation/delete', methods=['POST'])
+def delete_translation():
+    home_dir = app.config.get('dragonfly.home_dir')
+    data = flask.request.get_json('true')
+    manager = TranslationDictManager(home_dir)
+    if manager.delete(data['lang'], data['source']):
+        results = {'success': True, 'message': 'Translation deleted.'}
+    else:
+        results = {'success':  False, 'message': 'Not in dictionary.'}
     return flask.jsonify(results)
 
 
