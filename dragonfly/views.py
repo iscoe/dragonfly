@@ -4,7 +4,9 @@
 
 from dragonfly import app
 import flask
+import io
 import json
+import os
 from .data import OutputWriter, HintLoader, SentenceMarkerManager
 from .mode import ModeManager
 from .settings import SettingsManager
@@ -106,8 +108,11 @@ def translations(lang):
 def export_translations(lang):
     home_dir = app.config.get('dragonfly.home_dir')
     manager = TranslationDictManager(home_dir)
-    filename = manager.get_filename(lang)
-    return flask.send_file(filename, as_attachment=True, cache_timeout=0, add_etags=False)
+    filename = lang + '.json'
+    file = manager.get_filename(lang)
+    if not os.path.exists(file):
+        file = io.BytesIO(b'{}')
+    return flask.send_file(file, as_attachment=True, attachment_filename=filename, cache_timeout=0, add_etags=False)
 
 
 @app.route('/translations/import/<lang>', methods=['POST'])
