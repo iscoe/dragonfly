@@ -46,12 +46,13 @@ class Indexer(object):
         self.inverted_index = InvertedIndex()
         try:
             self.inverted_index.load(self._get_path(self.INVERTED_INDEX))
-        except:
-            pass
-        stop_words_path = self._get_path(self.STOP_WORDS)
-        if os.path.exists(stop_words_path):
+            stop_words_path = self._get_path(self.STOP_WORDS)
             with open(stop_words_path, 'rb') as fp:
                 self.stop_words = pickle.load(fp)
+            self.loaded = True
+        except FileNotFoundError:
+            # index is not created
+            self.loaded = False
 
     def _get_path(self, filename):
         return os.path.join(self.index_dir, filename)

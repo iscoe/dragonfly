@@ -35,8 +35,7 @@ class Runner(object):
         parser.add_argument("lang", help="language code")
         parser.add_argument("data", help="directory of tsv files to annotate")
         if self.mode == self.ANNOTATE:
-            parser.add_argument("-o", "--output",
-                            help="optional output directory for annotations (default is data/annotations")
+            parser.add_argument("-o", "--output", help="optional output directory for annotations (default is data/annotations")
         else:
             parser.add_argument('annotations', nargs='*', help="directories with annotation files")
             parser.add_argument("-o", "--output", help="output directory to store annotations", required=True)
