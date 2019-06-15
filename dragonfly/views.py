@@ -91,6 +91,7 @@ def translation():
     manager = TranslationDictManager(home_dir)
     manager.add(data['lang'], data['source'], data['translation'], data['type'])
     results = {'success': True, 'message': 'Translation saved.'}
+    app.logger.info('Saved %s to the %s translation dictionary', data['source'], data['lang'])
     return flask.jsonify(results)
 
 
@@ -100,6 +101,7 @@ def delete_translation():
     data = flask.request.get_json('true')
     manager = TranslationDictManager(home_dir)
     if manager.delete(data['lang'], data['source']):
+        app.logger.info('Deleted %s from the %s translation dictionary', data['source'], data['lang'])
         results = {'success': True, 'message': 'Translation deleted.'}
     else:
         results = {'success':  False, 'message': 'Not in dictionary.'}
@@ -122,6 +124,7 @@ def export_translations(lang):
     file = manager.get_filename(lang)
     if not os.path.exists(file):
         file = io.BytesIO(b'{}')
+    app.logger.info('Exported %s for %s', filename, lang)
     return flask.send_file(file, as_attachment=True, attachment_filename=filename, cache_timeout=0, add_etags=False)
 
 
@@ -145,6 +148,7 @@ def import_translations(lang):
 def search():
     term = flask.request.form['term']
     results = app.dragonfly_index.lookup(term)
+    app.logger.info('Returned %d results for %s', len(results), term)
     return flask.jsonify(results)
 
 
