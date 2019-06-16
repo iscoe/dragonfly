@@ -3,6 +3,10 @@
 {% import 'macros.html' as macros %}
 
 {% block head %}
+<script>
+var dragonfly_tags = {{ tags|safe }};
+var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
+</script>
 {% if rtl %}
 <style>
   .df-sentence {
@@ -28,16 +32,12 @@
 {% endif %}
 {% endblock %}
 
-{% block nav %}
-  <script>
-  var dragonfly_tags = {{ tags|safe }};
-  var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
-  </script>
+{% block header %}
   {% include 'nav.html' %}
 {% endblock %}
 
-{% block content %}
-<div class="container-fluid df-body">
+{% block main %}
+<div class="df-main">
 {% set max_col_width = sm.get_column_width() %}
 {% for s in range(document.sentences|length) %}
     {% set sentence = document.sentences[s] %}
@@ -51,7 +51,6 @@
     {% endif %}
     <div class="df-sentence" id="df-sentence-{{ sentence.index }}">
         <div class="df-sentence-id"><span class="df-sentence-badge badge {{ marker_class }}" id="{{ sentence.index }}">{{ sentence.index }}</span></div>
-        <div class="df-section df-margin-div"></div>
         <div class="df-section df-column-labels">
         {% for row in sentence.rows %}
             <div>{{ row.label }}</div>
@@ -65,7 +64,10 @@
 </div>
 {% endblock %}
 
-{% block extras %}
+{% block footer %}
   {% include 'find.html' %}
+{% endblock %}
+
+{% block extras %}
   {% include 'dialogs.html' %}
 {% endblock %}

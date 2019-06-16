@@ -1,5 +1,28 @@
+html, body {
+  height: 100%;
+}
 body {
-    overflow-y: scroll;
+  display: flex;
+  overflow: hidden;
+}
+.df-body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.alerts {
+    position: fixed;
+    top: 70px;
+    right: 15px;
+    min-width: 400px;
+    z-index: 2000;
+}
+/* header */
+.navbar {
+    /* reset bootstrap defaults for navbar */
+    margin-bottom: 0;
+    min-height: auto;
 }
 .df-header-metadata > span {
     margin-left: 5px;
@@ -58,17 +81,16 @@ body {
 .df-del, .df-sel, .df-find {
     background-color: rgba(33, 33, 33, 0.5);
 }
+/* footer */
 .df-concordance {
     background-color: white;
     width: 100%;
-    position: fixed;
-    bottom: 0;
-    height: 6px;
+    height: 5px;
     z-index: 100;
-}
-#df-concordance-close {
-    float: left;
-    margin-top: 8px;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 .df-resize-bar {
     border-top: 1px solid #cccccc;
@@ -89,9 +111,6 @@ body {
 .df-nav-slim .btn {
     padding: 1px 4px;
 }
-.df-nav-slim {
-    min-height: 0;
-}
 df-nav-slim .navbar-form {
     margin: 2px 0;
 }
@@ -99,15 +118,18 @@ df-nav-slim .navbar-form {
     margin: 0;
     margin-top: 8px;
 }
-.df-results {
-    position: relative;
-    padding: 5px;
-    overflow-y: scroll;
-    overflow-x: scroll;
+#df-concordance-close {
+    float: left;
+    margin-top: 8px;
 }
-.df-result {
+.df-results {
+    flex-grow: 1;
+    overflow: auto;
+}
+.df-results {
     margin-top: 5px;
     position: relative;
+    padding: 5px;
     white-space: nowrap;
 }
 .df-open {
@@ -129,31 +151,27 @@ df-nav-slim .navbar-form {
 .df-result-highlight {
     color: red;
 }
-.alerts {
-    position: fixed;
-    top: 70px;
-    right: 15px;
-    min-width: 400px;
-    z-index: 2000;
-}
-.df-body {
-    margin-top: 70px;
-    margin-bottom: 20px;
+/* main */
+.df-main {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-top: 20px;
 }
 .df-sentence {
     margin-bottom: 15px;
     padding: 2px;
+    padding-left: 50px;
     white-space: nowrap;
     position: relative;
 }
 .df-sentence-id {
     display: inline-block;
+    vertical-align: top;
     position: absolute;
-    width: 60px;
-    border-top: 1px solid #e7e7e7;
     background-color: white;
     z-index: 10;
-    margin-left: -15px;
+    width: 50px;
+    left: 0;
 }
 .df-sentence-id > .badge {
     margin: 5px;
@@ -172,10 +190,6 @@ df-nav-slim .navbar-form {
 .df-section > div {
     margin: 2px 0;
     padding: 2px;
-}
-.df-margin-div {
-    margin-left: 45px;
-    padding: 0;
 }
 .df-token, .df-type, .df-sentence-badge {
     cursor: pointer;

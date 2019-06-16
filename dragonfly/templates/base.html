@@ -14,10 +14,12 @@
     {% block head %}{% endblock %}
   </head>
   <body>
-    {% block nav %}{% endblock %}
+    <div class="df-body">
+      {% block header %}{% endblock %}
+      {% block main %}{% endblock %}
+      {% block footer %}{% endblock %}
+    </div>
     <div class="alerts"></div>
-    {% block content %}{% endblock %}
-    {% block footer %}{% endblock %}
     {% block extras %}{% endblock %}
   </body>
 </html>

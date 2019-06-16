@@ -583,7 +583,7 @@ dragonfly.Translations = class Translations {
             }
         });
         // this does all tooltips including in non-token rows
-        $('[data-toggle=tooltip]').tooltip({delay: 200, placement: 'auto left'});
+        $('[data-toggle=tooltip]').tooltip({delay: 200, placement: 'auto left', container: 'body'});
     }
 
     /**
@@ -608,7 +608,7 @@ dragonfly.Translations = class Translations {
                     $(this).attr('title', title).tooltip('fixTitle');
                 } else {
                     $(this).attr('data-toggle', 'tooltip');
-                    $(this).tooltip({delay: 200, placement: 'auto left'});
+                    $(this).tooltip({delay: 200, placement: 'auto left', container: 'body'});
                 }
             }
         });
@@ -873,7 +873,6 @@ dragonfly.Concordance = class Concordance {
         if (cw.height() < 100) {
             cw.height(200);
         }
-        this.handleResize(cw);
     }
 
     /**
@@ -881,17 +880,6 @@ dragonfly.Concordance = class Concordance {
      */
     hide() {
         $('.df-concordance').height(this.minimizedHeight);
-        $('.df-body').css('margin-bottom', 0);
-    }
-
-    /**
-     * Update size of results div as the concordance is resized
-     * @param {jQuery} element - Concordance window div.
-     */
-    handleResize(element) {
-        $('.df-results').height(element.height() - 45);
-        // resize margin of main window so user can scroll to last sentence
-        $('.df-body').css('margin-bottom', $('.df-concordance').height());
     }
 };
 
@@ -1392,9 +1380,6 @@ $(document).ready(function() {
 
     this.multiTokenTagClickCount = 0;
 
-    // set the margin to account for varying navbar sizes due to viewport
-    $('body').css('margin-top', $('#df-nav').height() + 10);
-
     dragonfly.lang = $("meta[name=lang]").attr("content");
     dragonfly.filename = $("#df-filename").html();
     dragonfly.concordance = new dragonfly.Concordance();
@@ -1511,11 +1496,11 @@ $(document).ready(function() {
     });
 
     // keep the sentence IDs in same location as user horizontally scrolls if desired
-    $(window).scroll(function() {
+    $('.df-main').scroll(function() {
         if (dragonfly.settings.isSentenceIdAutoScroll()) {
             $('.df-sentence-id').css({
                 'left': $(this).scrollLeft(),
-                'height': ($(".df-sentence").height() - 5) + 'px'
+                'height': ($(".df-sentence").height()) + 'px'
             });
         }
     });
