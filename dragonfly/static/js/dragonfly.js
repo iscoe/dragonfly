@@ -482,6 +482,16 @@ dragonfly.Markers = class Markers {
             }
         });
     }
+
+    /**
+     * Clear all markers
+     */
+    clear() {
+        var self = this;
+        $(".df-complete").each(function() {
+            self.toggle($(this));
+        });
+    }
 };
 
 dragonfly.Translations = class Translations {
@@ -1427,15 +1437,22 @@ $(document).ready(function() {
                 event.preventDefault();
                 dragonfly.annotationSaver.save();
             } else if (event.which == 37) {
+                // left arrow
                 var url = $('#df-prev-doc').attr('href');
                 if (url) {
                     window.location.href = url;
                 }
             } else if (event.which == 39) {
+                // right arrow
                 var url = $('#df-next-doc').attr('href');
                 if (url) {
                     window.location.href = url;
                 }
+            }
+        } else {
+            if (event.which == 46) {
+                // delete key
+                dragonfly.markers.clear();
             }
         }
     });
