@@ -784,24 +784,24 @@ dragonfly.MultiTokenTag = class MultiTokenTag {
 };
 
 
-dragonfly.Concordance = class Concordance {
+dragonfly.Finder = class Finder {
     /**
-     * Create a Concordance object
+     * Create a Finder object
      */
     constructor() {
-        this.minimizedHeight = $('.df-concordance').height();
+        this.minimizedHeight = $('.df-finder').height();
     }
 
     /**
-     * Search the concordance
+     * Search the local index
      */
     search(word) {
-        $('.df-search').val(word);
+        $('input[name=df-finder-term]').val(word);
         this.postSearch(word);
     }
 
     /**
-     * Submit a concordance search to the server
+     * Submit a search to the server
      * @param {string} word - Search term.
      */
     postSearch(word) {
@@ -823,7 +823,7 @@ dragonfly.Concordance = class Concordance {
     /**
      * Update the results display box
      * @param {string} word - The search term.
-     * @param {array} data - Data object from concordance search server.
+     * @param {array} data - Data object from the local search server.
      */
     displayResults(word, data) {
         word = word.toLowerCase();
@@ -849,7 +849,7 @@ dragonfly.Concordance = class Concordance {
             html += '<div class="df-result-doc">';
             html += '</div>';
         }
-        $('.df-results').html(html);
+        $('.df-results-local').html(html);
     }
 
     /**
@@ -866,21 +866,35 @@ dragonfly.Concordance = class Concordance {
     }
 
     /**
-     * Show the concordance window
+     * Show the finder window
      */
     show() {
-        var cw = $('.df-concordance');
+        var cw = $('.df-finder');
         if (cw.height() < 100) {
             cw.height(200);
         }
     }
 
     /**
-     * Hide the concordance window
+     * Hide the finder window
      */
     hide() {
-        $('.df-concordance').height(this.minimizedHeight);
+        $('.df-finder').height(this.minimizedHeight);
     }
+
+    /**
+     * Toggle between search modes
+     */
+     toggle() {
+        $('.df-finder-local').toggleClass('hide');
+        $('.df-results-local').toggleClass('hide');
+        $('.df-finder-google').toggleClass('hide');
+        $('.df-results-google').toggleClass('hide');
+        $('.df-finder-local').toggleClass('inline-block');
+        $('.df-results-local').toggleClass('show');
+        $('.df-finder-google').toggleClass('inline-block');
+        $('.df-results-google').toggleClass('show');
+     }
 };
 
 /**
@@ -888,17 +902,17 @@ dragonfly.Concordance = class Concordance {
  * @readonly
  * @enum {number}
  */
-dragonfly.ClickMode = {DEL: 0, TAG: 1, SELECT: 2, CONCORDANCE: 3};
+dragonfly.ClickMode = {DEL: 0, TAG: 1, SELECT: 2, FINDER: 3};
 
 dragonfly.Highlighter = class Highlighter {
     /**
      * Create the highlighter manager.
      * @param {TagTypes} tagTypes - A representation of the tag types.
-     * @param {Concordance} concordance - Object that manages the concordance search.
+     * @param {Finder} finder - Object that manages search.
      */
-    constructor(tagTypes, concordance) {
+    constructor(tagTypes, finder) {
         this.tagTypes = tagTypes;
-        this.concordance = concordance;
+        this.finder = finder;
         this.isCascade = true;
         this.clickMode = dragonfly.ClickMode.TAG;
         this.prevClickMode = dragonfly.ClickMode.TAG;
@@ -1058,11 +1072,11 @@ dragonfly.Highlighter = class Highlighter {
                 this.highlightTypeAndClickMode();
                 break;
             case 'f':
-                // concordance mode
+                // finder mode
                 this.prevClickMode = this.clickMode;
-                this.clickMode = dragonfly.ClickMode.CONCORDANCE;
+                this.clickMode = dragonfly.ClickMode.FINDER;
                 this.highlightTypeAndClickMode();
-                this.concordance.show();
+                this.finder.show();
                 break;
             case 'u':
                 this.processUndo();
@@ -1093,8 +1107,8 @@ dragonfly.Highlighter = class Highlighter {
             this.deleteTag(element);
         } else if (this.clickMode == dragonfly.ClickMode.SELECT) {
             this.select(element);
-        } else if (this.clickMode == dragonfly.ClickMode.CONCORDANCE) {
-            this.concordance.search(element.html());
+        } else if (this.clickMode == dragonfly.ClickMode.FINDER) {
+            this.finder.search(element.html());
         } else {
             // set this so we know whether to prevent user navigating away
             this.anyTaggingPerformed = true;
@@ -1382,10 +1396,10 @@ $(document).ready(function() {
 
     dragonfly.lang = $("meta[name=lang]").attr("content");
     dragonfly.filename = $("#df-filename").html();
-    dragonfly.concordance = new dragonfly.Concordance();
+    dragonfly.finder = new dragonfly.Finder();
     dragonfly.tagTypes = new dragonfly.TagTypes(dragonfly_tags);
     dragonfly.tagTypes.injectButtons();
-    dragonfly.highlighter = new dragonfly.Highlighter(dragonfly.tagTypes, dragonfly.concordance);
+    dragonfly.highlighter = new dragonfly.Highlighter(dragonfly.tagTypes, dragonfly.finder);
     dragonfly.highlighter.initializeHighlight();
     dragonfly.annotationSaver = new dragonfly.AnnotationSaver(dragonfly.filename, dragonfly_terminal_blank_line);
     dragonfly.hints = new dragonfly.Hints(1);
@@ -1505,21 +1519,25 @@ $(document).ready(function() {
         }
     });
 
-    // support resizing the concordance window with the mouse
-    $('.df-concordance').resizable({
+    // support resizing the finder window with the mouse
+    $('.df-finder').resizable({
         handleSelector: '.df-resize-bar',
         resizeWidth: false,
         resizeHeightFrom: 'top',
     });
 
-    $('#df-concordance-close').on('click', function() {
-        dragonfly.concordance.hide();
+    $('#df-finder-close').on('click', function() {
+        dragonfly.finder.hide();
         dragonfly.highlighter.revertClickMode();
     });
 
-    $('#df-concordance-search').on('submit', function(event) {
+    $('#df-finder-toggle').on('click', function() {
+        dragonfly.finder.toggle();
+    });
+
+    $('#df-finder-local-form').on('submit', function(event) {
         event.preventDefault();
-        dragonfly.concordance.search($('input[name=term]').val());
+        dragonfly.finder.search($('input[name=df-finder-term]').val());
     });
 
     $('#df-stats-modal').on('show.bs.modal', function(event) {
@@ -1537,4 +1555,12 @@ $(document).ready(function() {
             $(this).blur();
         });
     });
+
+    var cx = '003899999982319279749:whnyex5nm1c';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
 });

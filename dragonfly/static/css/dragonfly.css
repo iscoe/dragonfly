@@ -82,7 +82,7 @@ body {
     background-color: rgba(33, 33, 33, 0.5);
 }
 /* footer */
-.df-concordance {
+.df-finder {
     background-color: white;
     width: 100%;
     height: 5px;
@@ -119,18 +119,25 @@ df-nav-slim .navbar-form {
     margin: 0;
     margin-top: 8px;
 }
-#df-concordance-close {
-    float: left;
-    margin-top: 8px;
+.df-nav-slim .btn-group {
+    vertical-align: top;
 }
-.df-results {
+.inline-block {
+    display: inline-block;
+}
+.df-finder-google {
+    width: 500px;
+    margin-left: 20px;
+    margin-top: 4px;
+}
+.df-results-local, .df-results-google {
     flex-grow: 1;
     overflow: auto;
-}
-.df-results {
     margin-top: 5px;
     position: relative;
     padding: 5px;
+}
+.df-results-local {
     white-space: nowrap;
 }
 .df-open {
