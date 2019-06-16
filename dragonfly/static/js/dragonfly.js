@@ -822,7 +822,7 @@ dragonfly.Concordance = class Concordance {
         var refs = data.refs;
         for (var i=0; i<refs.length; i++) {
             html += '<div class="df-result">';
-            html += this.getCopyButton(refs[i].doc);
+            html += this.getOpenButton(refs[i].doc);
             for (var j=0; j<refs[i].text.length; j++){
                 html += '<div class="df-section df-row">';
                 if (word == refs[i].text[j]) {
@@ -847,15 +847,15 @@ dragonfly.Concordance = class Concordance {
     }
 
     /**
-     * Create a copy button
+     * Create an open button
      * @param {string} doc - Document name.
      * @return html string
      */
-    getCopyButton(doc) {
-        var html = '<div class="df-copy">';
-        html += '<button type="button" class="btn btn-default" title="Copy doc name" data-doc-name="'+ doc + '">';
-        html += '<span class="glyphicon glyphicon-copy" aria-hidden="true" />';
-        html += '</button></div>';
+    getOpenButton(doc) {
+        var html = '<div class="df-open">';
+        html += '<a class="btn btn-default" title="open in new tab" href="/' + doc + '" target="_blank">';
+        html += '<span class="glyphicon glyphicon-new-window" aria-hidden="true" />';
+        html += '</a></div>';
         return html;
     }
 

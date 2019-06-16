@@ -110,11 +110,11 @@ df-nav-slim .navbar-form {
     position: relative;
     white-space: nowrap;
 }
-.df-copy {
+.df-open {
     display: inline-block;
     vertical-align: top;
 }
-.df-copy > .btn {
+.df-open > .btn {
     padding: 8px 10px;
 }
 .df-result > .df-section:nth-of-type(2) {
