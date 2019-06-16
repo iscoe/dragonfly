@@ -840,10 +840,6 @@ dragonfly.Concordance = class Concordance {
             html += '</div>';
         }
         $('.df-results').html(html);
-        $('.df-copy > button').on('click', function() {
-            copyToClipboard($(this).data('doc-name'));
-            return false;
-        });
     }
 
     /**
