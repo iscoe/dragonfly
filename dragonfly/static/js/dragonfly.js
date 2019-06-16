@@ -1510,9 +1510,6 @@ $(document).ready(function() {
         handleSelector: '.df-resize-bar',
         resizeWidth: false,
         resizeHeightFrom: 'top',
-        onDrag: function (event, element, newWidth, newHeight, opt) {
-            dragonfly.concordance.handleResize(element);
-        }
     });
 
     $('#df-concordance-close').on('click', function() {

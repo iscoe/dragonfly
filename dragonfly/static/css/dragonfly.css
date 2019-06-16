@@ -96,6 +96,7 @@ body {
     border-top: 1px solid #cccccc;
     background-color: #e7e7e7;
     height: 4px;
+    flex: none;
 }
 .df-resize-bar:hover {
     background-color: #bbbbbb;
