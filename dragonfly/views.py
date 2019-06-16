@@ -148,7 +148,14 @@ def import_translations(lang):
 def search():
     term = flask.request.form['term']
     results = app.dragonfly_index.lookup(term)
-    app.logger.info('Returned %d results for %s', len(results), term)
+    app.logger.info('Returned %d results for %s', len(results['refs']), term)
+    return flask.jsonify(results)
+
+
+@app.route('/search/build', methods=['POST'])
+def build_index():
+    app.dragonfly_bg.build_index()
+    results = {'success': True, 'message': 'Command queued'}
     return flask.jsonify(results)
 
 

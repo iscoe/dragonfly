@@ -1,13 +1,13 @@
 <div class="panel-group" id="tools-accordion" role="tablist" aria-multiselectable="true">
   <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="trans-tools">
+    <div class="panel-heading" role="tab" id="gen-tools">
       <h4 class="panel-title">
-        <a role="button" data-toggle="collapse" data-parent="#tools-accordion" href="#trans-tools-collapse" aria-expanded="true" aria-controls="trans-tools-collapse">
-          Translation Tools
+        <a role="button" data-toggle="collapse" data-parent="#tools-accordion" href="#gen-tools-collapse" aria-expanded="true" aria-controls="gen-tools-collapse">
+          General Tools
         </a>
       </h4>
     </div>
-    <div id="trans-tools-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="trans-tools">
+    <div id="gen-tools-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="gen-tools">
       <div class="panel-body">
         <div class="form-group">
           <a class="btn btn-default" href="/translations/export/{{ lang }}" role="button">Export Dictionary</a>
@@ -18,7 +18,7 @@
           <div class="form-group">
             <input type="file" name="dict" required>
           </div>
-          <p class="help-block">{{ lang }} json file</p>
+          <p class="help-block">json file for {{ lang }}</p>
         </form>
         <script>
           $("#df-trans-dict-import").on('submit', function(event) {
@@ -32,6 +32,28 @@
               success: function(response) {
                 if (response.success) {
                     self.reset();
+                    dragonfly.showStatus('success', response.message);
+                } else {
+                    dragonfly.showStatus('danger', response.message);
+                }
+              },
+              error: function(xhr) {
+                dragonfly.showStatus('danger', 'Error contacting the server');
+              }
+            });
+            event.preventDefault();
+          });
+        </script>
+        <div class="form-group">
+          <a id="df-build-index" class="btn btn-default" href="/search/build" role="button">Build Search Index</a>
+        </div>
+        <script>
+          $("#df-build-index").on('click', function(event) {
+            $.ajax({
+              url: $(this).attr('href'),
+              type: 'POST',
+              success: function(response) {
+                if (response.success) {
                     dragonfly.showStatus('success', response.message);
                 } else {
                     dragonfly.showStatus('danger', response.message);
