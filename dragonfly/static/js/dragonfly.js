@@ -1520,6 +1520,11 @@ $(document).ready(function() {
         dragonfly.highlighter.revertClickMode();
     });
 
+    $('#df-concordance-search').on('submit', function(event) {
+        event.preventDefault();
+        dragonfly.concordance.search($('input[name=term]').val());
+    });
+
     $('#df-stats-modal').on('show.bs.modal', function(event) {
         var body = $(this).find('.modal-body');
         body.load('/stats');
