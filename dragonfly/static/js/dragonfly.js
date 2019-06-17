@@ -800,8 +800,9 @@ dragonfly.Finder = class Finder {
         // this casues jQuery to cache inline-block as the default show state
         $('.df-finder-google').hide();
         $('.df-finder-gmaps').hide();
+
+        this.googleInitialized = false
         this.initializeHandlers();
-        this.initializeGoogle();
     }
 
     /**
@@ -1020,6 +1021,10 @@ dragonfly.Finder = class Finder {
             $('.df-finder-gmaps').hide();
             $('.df-results-gmaps').hide();
         } else if (mode == this.Mode.GOOGLE) {
+            if (!this.googleInitialized) {
+                this.googleInitialized = true;
+                this.initializeGoogle();
+            }
             $('.df-finder-local').hide();
             $('.df-results-local').hide();
             $('.df-finder-google').show();
