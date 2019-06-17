@@ -38,27 +38,27 @@ var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
 
 {% block main %}
 <div class="df-main">
-{% set max_col_width = sm.get_column_width() %}
-{% for s in range(document.sentences|length) %}
-    {% set sentence = document.sentences[s] %}
-    {% if document.has_translation %}
+{%- set max_col_width = sm.get_column_width() -%}
+{%- for s in range(document.sentences|length) -%}
+    {%- set sentence = document.sentences[s] -%}
+    {%- if document.has_translation -%}
     <div class="df-translation">{{ document.translation[s] }}</div>
-    {% endif %}
-    {% if s in document.markers %}
-    {% set marker_class = 'df-complete' %}
-    {% else %}
-    {% set marker_class = '' %}
-    {% endif %}
+    {%- endif -%}
+    {%- if s in document.markers -%}
+    {%- set marker_class = 'df-complete' -%}
+    {%- else -%}
+    {%- set marker_class = '' -%}
+    {%- endif -%}
     <div class="df-sentence" id="df-sentence-{{ sentence.index }}">
         <div class="df-sentence-id"><span class="df-sentence-badge badge {{ marker_class }}" id="{{ sentence.index }}">{{ sentence.index }}</span></div>
         <div class="df-section df-column-labels">
-        {% for row in sentence.rows %}
+        {%- for row in sentence.rows -%}
             <div>{{ row.label }}</div>
-        {% endfor %}
+        {%- endfor -%}
         </div>
-        {% for tok in range(sentence.length) %}
+        {%- for tok in range(sentence.length) -%}
             {{ macros.render_token(sentence, tok, max_col_width, document.has_annotations) }}
-        {% endfor %}
+        {%- endfor -%}
     </div>
 {% endfor %}
 </div>
