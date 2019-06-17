@@ -53,6 +53,10 @@ dragonfly.Settings = class Settings {
         return this.settings['Cascade By Default'];
     }
 
+    getFinderHeight() {
+        return this.settings['Finder Height'];
+    }
+
     /**
      * Load settings from server.
      * This uses ajax to load the settings object.
@@ -787,10 +791,12 @@ dragonfly.MultiTokenTag = class MultiTokenTag {
 dragonfly.Finder = class Finder {
     /**
      * Create a Finder object
+     * @param {Settings} settings - Settings manager
      */
-    constructor() {
+    constructor(settings) {
         this.Mode = {LOCAL: 0, GOOGLE: 1, GMAPS: 2}
         this.minimizedHeight = $('.df-finder').height();
+        this.settings = settings;
         // this casues jQuery to cache inline-block as the default show state
         $('.df-finder-google').hide();
         $('.df-finder-gmaps').hide();
@@ -990,7 +996,7 @@ dragonfly.Finder = class Finder {
     show() {
         var cw = $('.df-finder');
         if (cw.height() < 100) {
-            cw.height(200);
+            cw.height(this.settings.getFinderHeight());
         }
     }
 
@@ -1529,19 +1535,19 @@ $(document).ready(function() {
 
     dragonfly.lang = $("meta[name=lang]").attr("content");
     dragonfly.filename = $("#df-filename").html();
-    dragonfly.finder = new dragonfly.Finder();
     dragonfly.tagTypes = new dragonfly.TagTypes(dragonfly_tags);
     dragonfly.tagTypes.injectButtons();
+    dragonfly.annotationSaver = new dragonfly.AnnotationSaver(dragonfly.filename, dragonfly_terminal_blank_line);
+    dragonfly.settings = new dragonfly.Settings(dragonfly.annotationSaver);
+    dragonfly.settings.load();
+    dragonfly.finder = new dragonfly.Finder(dragonfly.settings);
     dragonfly.highlighter = new dragonfly.Highlighter(dragonfly.tagTypes, dragonfly.finder);
     dragonfly.highlighter.initializeHighlight();
-    dragonfly.annotationSaver = new dragonfly.AnnotationSaver(dragonfly.filename, dragonfly_terminal_blank_line);
     dragonfly.hints = new dragonfly.Hints(1);
     dragonfly.hints.run();
     dragonfly.markers = new dragonfly.Markers();
     dragonfly.translations = new dragonfly.Translations(dragonfly.lang);
     dragonfly.translations.load();
-    dragonfly.settings = new dragonfly.Settings(dragonfly.annotationSaver);
-    dragonfly.settings.load();
     dragonfly.contextMenu = new dragonfly.ContextMenu(dragonfly.highlighter, dragonfly.translations);
 
     $("input[id = 'cascade']").on("click", function() {
