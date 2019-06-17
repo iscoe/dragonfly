@@ -789,7 +789,11 @@ dragonfly.Finder = class Finder {
      * Create a Finder object
      */
     constructor() {
+        this.Mode = {LOCAL: 0, GOOGLE: 1}
         this.minimizedHeight = $('.df-finder').height();
+        // this casues jQuery to cache inline-block as the default show state
+        $('.df-finder-google').hide();
+        this.initializeHandlers();
         this.initializeGoogle();
     }
 
@@ -818,6 +822,34 @@ dragonfly.Finder = class Finder {
             error: function(xhr) {
                 dragonfly.showStatus('danger', 'Error contacting the server');
             }
+        });
+    }
+
+    initializeHandlers() {
+        var self = this;
+        // support resizing the finder window with the mouse
+        $('.df-finder').resizable({
+            handleSelector: '.df-resize-bar',
+            resizeWidth: false,
+            resizeHeightFrom: 'top',
+        });
+
+        $('#df-finder-local-form').on('submit', function(event) {
+            event.preventDefault();
+            self.search($('input[name=df-finder-term]').val());
+        });
+
+        $('#df-finder-close').on('click', function() {
+            self.hide();
+            dragonfly.highlighter.revertClickMode();
+        });
+
+        $('#df-finder-use-local').on('click', function() {
+            self.use(self.Mode.LOCAL);
+        });
+
+        $('#df-finder-use-google').on('click', function() {
+            self.use(self.Mode.GOOGLE);
         });
     }
 
@@ -898,16 +930,20 @@ dragonfly.Finder = class Finder {
 
     /**
      * Toggle between search modes
+     * @param {Mode} mode - Search mode
      */
-     toggle() {
-        $('.df-finder-local').toggleClass('hide');
-        $('.df-results-local').toggleClass('hide');
-        $('.df-finder-google').toggleClass('hide');
-        $('.df-results-google').toggleClass('hide');
-        $('.df-finder-local').toggleClass('inline-block');
-        $('.df-results-local').toggleClass('show');
-        $('.df-finder-google').toggleClass('inline-block');
-        $('.df-results-google').toggleClass('show');
+    use(mode) {
+        if (mode == this.Mode.LOCAL) {
+            $('.df-finder-local').show();
+            $('.df-results-local').show();
+            $('.df-finder-google').hide();
+            $('.df-results-google').hide();
+        } else if (mode == this.Mode.GOOGLE) {
+            $('.df-finder-local').hide();
+            $('.df-results-local').hide();
+            $('.df-finder-google').show();
+            $('.df-results-google').show();
+        }
      }
 };
 
@@ -1531,27 +1567,6 @@ $(document).ready(function() {
                 'height': ($(".df-sentence").height()) + 'px'
             });
         }
-    });
-
-    // support resizing the finder window with the mouse
-    $('.df-finder').resizable({
-        handleSelector: '.df-resize-bar',
-        resizeWidth: false,
-        resizeHeightFrom: 'top',
-    });
-
-    $('#df-finder-close').on('click', function() {
-        dragonfly.finder.hide();
-        dragonfly.highlighter.revertClickMode();
-    });
-
-    $('#df-finder-toggle').on('click', function() {
-        dragonfly.finder.toggle();
-    });
-
-    $('#df-finder-local-form').on('submit', function(event) {
-        event.preventDefault();
-        dragonfly.finder.search($('input[name=df-finder-term]').val());
     });
 
     $('#df-stats-modal').on('show.bs.modal', function(event) {

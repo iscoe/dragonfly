@@ -107,28 +107,28 @@ body {
 }
 .df-nav-slim .form-control {
     padding: 3px 6px;
-    height: 20px;
+    height: 28px;
 }
 .df-nav-slim .btn {
-    padding: 1px 4px;
+    margin-top: 6px;
 }
-df-nav-slim .navbar-form {
-    margin: 2px 0;
+.df-nav-slim .navbar-form {
+    margin: 6px 0 4px;
 }
 .df-nav-slim .navbar-text {
     margin: 0;
-    margin-top: 8px;
+    margin-top: 10px;
 }
 .df-nav-slim .btn-group {
     vertical-align: top;
 }
-.inline-block {
+.df-finder-local, .df-finder-google {
     display: inline-block;
 }
 .df-finder-google {
-    width: 500px;
+    width: 400px;
     margin-left: 20px;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 .df-results-local, .df-results-google {
     flex-grow: 1;

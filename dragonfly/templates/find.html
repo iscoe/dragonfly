@@ -6,11 +6,14 @@
         <button type="button" id="df-finder-close" class="btn btn-default df-navbar-button" title="Close" aria-label="Close">
           <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
         </button>
-        <button type="button" id="df-finder-toggle" class="btn btn-default df-navbar-button" title="Toggle" aria-label="Toggle">
+        <button type="button" id="df-finder-use-local" class="btn btn-default df-navbar-button" title="Local" aria-label="Local">
+          <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+        </button>
+        <button type="button" id="df-finder-use-google" class="btn btn-default df-navbar-button" title="Google" aria-label="Google">
           <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
         </button>
       </div>
-      <div class="df-finder-local inline-block">
+      <div class="df-finder-local">
         <form id="df-finder-local-form" class="navbar-form navbar-left" role="search">
           <div class="form-group">
             <input type="text" name="df-finder-term" class="form-control" placeholder="Search">
@@ -18,9 +21,9 @@
         </form>
         <p class="navbar-text df-term-count"></p>
       </div>
-      <div class="df-finder-google hide"><gcse:searchbox></gcse:searchbox></div>
+      <div class="df-finder-google"><gcse:searchbox></gcse:searchbox></div>
     </div>
   </div>
-  <div class="df-results-local show"></div>
-  <div class="df-results-google hide"><gcse:searchresults></gcse:searchresults></div>
+  <div class="df-results-local"></div>
+  <div class="df-results-google"><gcse:searchresults></gcse:searchresults></div>
 </div>
