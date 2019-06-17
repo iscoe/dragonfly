@@ -25,11 +25,8 @@ class ModeManager:
         lang = app.config.get('dragonfly.lang')
         lister = app.config.get('dragonfly.input')
         tags = app.config.get('dragonfly.tags')
-        home_dir = app.config.get('dragonfly.home_dir')
         output_path = app.config.get('dragonfly.output')
         rtl = app.config.get('dragonfly.rtl')
-        settings_manager = SettingsManager(home_dir)
-        settings_manager.load()
 
         index, next_index = self._get_file_indexes(index, lister, filename)
         if index is None:
@@ -57,7 +54,7 @@ class ModeManager:
 
         content = flask.render_template('annotate.html', title=title, document=document,
                                         index=index, next_index=next_index, rtl=rtl,
-                                        sm=settings_manager, lang=lang, tags=json.dumps(tags))
+                                        lang=lang, tags=json.dumps(tags))
         total_time = timeit.default_timer() - start_time
         app.logger.info('Serving %s in %1.2fs', filename, total_time)
         return content

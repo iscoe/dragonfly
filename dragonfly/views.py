@@ -17,11 +17,15 @@ from .translations import TranslationDictManager
 
 
 @app.context_processor
-def inject_version():
+def inject_dragonfly_context():
     version = __version__
     if app.debug:
         version += '.' + ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
-    return dict(version=version)
+    home_dir = app.config.get('dragonfly.home_dir')
+    manager = SettingsManager(home_dir)
+    manager.load()
+    data = dict(version=version, sm=manager)
+    return data
 
 
 @app.route('/', defaults={'filename': None})

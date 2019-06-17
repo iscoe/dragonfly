@@ -789,10 +789,11 @@ dragonfly.Finder = class Finder {
      * Create a Finder object
      */
     constructor() {
-        this.Mode = {LOCAL: 0, GOOGLE: 1}
+        this.Mode = {LOCAL: 0, GOOGLE: 1, GMAPS: 2}
         this.minimizedHeight = $('.df-finder').height();
         // this casues jQuery to cache inline-block as the default show state
         $('.df-finder-google').hide();
+        $('.df-finder-gmaps').hide();
         this.initializeHandlers();
         this.initializeGoogle();
     }
@@ -851,6 +852,10 @@ dragonfly.Finder = class Finder {
         $('#df-finder-use-google').on('click', function() {
             self.use(self.Mode.GOOGLE);
         });
+
+        $('#df-finder-use-gmaps').on('click', function() {
+            self.use(self.Mode.GMAPS);
+        });
     }
 
     /**
@@ -864,6 +869,74 @@ dragonfly.Finder = class Finder {
         gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(gcse, s);
+    }
+
+    /**
+     * Callback when initializing GMaps
+     */
+    initializeGMapsCallback() {
+      self = this;
+
+      var map = new google.maps.Map(document.getElementById('gmaps'), {
+        center: {lat: 8.8688, lng: 80.1195},
+        zoom: 8,
+        mapTypeId: 'roadmap',
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+      });
+      var input = document.getElementById('gmaps-input');
+      var searchBox = new google.maps.places.SearchBox(input);
+
+      // bias search results
+      map.addListener('bounds_changed', function() {
+        searchBox.setBounds(map.getBounds());
+      });
+
+      var markers = [];
+      searchBox.addListener('places_changed', function() {
+        self.updateGMaps(map, searchBox, markers);
+      });
+    }
+
+    /**
+     * Update the map based on search
+     * @param {Map} map
+     * @param {SearchBox} searchBox
+     * @param {array} markers
+     */
+    updateGMaps(map, searchBox, markers) {
+        var places = searchBox.getPlaces();
+        if (places.length == 0) {
+          return;
+        }
+
+        // Clear out the old markers.
+        markers.forEach(function(marker) {
+          marker.setMap(null);
+        });
+        markers = [];
+
+        // Draw new marker and zoom the map
+        var bounds = new google.maps.LatLngBounds();
+        places.forEach(function(place) {
+          if (!place.geometry) {
+            return;
+          }
+
+          markers.push(new google.maps.Marker({
+            map: map,
+            title: place.name,
+            position: place.geometry.location
+          }));
+
+          if (place.geometry.viewport) {
+            bounds.union(place.geometry.viewport);
+          } else {
+            bounds.extend(place.geometry.location);
+          }
+        });
+        map.fitBounds(bounds);
     }
 
     /**
@@ -938,11 +1011,22 @@ dragonfly.Finder = class Finder {
             $('.df-results-local').show();
             $('.df-finder-google').hide();
             $('.df-results-google').hide();
+            $('.df-finder-gmaps').hide();
+            $('.df-results-gmaps').hide();
         } else if (mode == this.Mode.GOOGLE) {
             $('.df-finder-local').hide();
             $('.df-results-local').hide();
             $('.df-finder-google').show();
             $('.df-results-google').show();
+            $('.df-finder-gmaps').hide();
+            $('.df-results-gmaps').hide();
+        } else if (mode == this.Mode.GMAPS) {
+            $('.df-finder-local').hide();
+            $('.df-results-local').hide();
+            $('.df-finder-google').hide();
+            $('.df-results-google').hide();
+            $('.df-finder-gmaps').show();
+            $('.df-results-gmaps').show();
         }
      }
 };

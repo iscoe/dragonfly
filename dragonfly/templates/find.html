@@ -12,6 +12,9 @@
         <button type="button" id="df-finder-use-google" class="btn btn-default df-navbar-button" title="Google" aria-label="Google">
           <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
         </button>
+        <button type="button" id="df-finder-use-gmaps" class="btn btn-default df-navbar-button" title="Maps" aria-label="Maps">
+          <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
+        </button>
       </div>
       <div class="df-finder-local">
         <form id="df-finder-local-form" class="navbar-form navbar-left" role="search">
@@ -22,8 +25,15 @@
         <p class="navbar-text df-term-count"></p>
       </div>
       <div class="df-finder-google"><gcse:searchbox></gcse:searchbox></div>
+      <div class="df-finder-gmaps">
+        <input id="gmaps-input" class="form-control" type="text" placeholder="Search">
+      </div>
     </div>
   </div>
   <div class="df-results-local"></div>
   <div class="df-results-google"><gcse:searchresults></gcse:searchresults></div>
+  <div class="df-results-gmaps" id="gmaps">
+    {% set key = sm.get_gmaps_key() %}
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ key }}&libraries=places&callback=dragonfly.finder.initializeGMapsCallback" async defer></script>
+  </div>
 </div>

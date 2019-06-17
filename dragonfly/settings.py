@@ -10,6 +10,7 @@ class SettingsManager:
     # these strings are synced with the javascript
     DEFAULTS = {
         'Column Width': 40,
+        'GMaps Key': '',
         'Auto Scrolling Sentence IDs': True,
         'Display Row Labels': True,
         'Auto Save': False,
@@ -39,3 +40,6 @@ class SettingsManager:
 
     def get_column_width(self):
         return int(self.settings['Column Width'])
+
+    def get_gmaps_key(self):
+        return self.settings['GMaps Key']
