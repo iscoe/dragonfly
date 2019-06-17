@@ -11,7 +11,6 @@ import string
 import os
 from .data import OutputWriter, HintLoader, SentenceMarkerManager
 from .mode import ModeManager
-from .settings import SettingsManager
 from .stats import Stats
 from .translations import TranslationDictManager
 
@@ -21,10 +20,7 @@ def inject_dragonfly_context():
     version = __version__
     if app.debug:
         version += '.' + ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
-    home_dir = app.config.get('dragonfly.home_dir')
-    manager = SettingsManager(home_dir)
-    manager.load()
-    data = dict(version=version, sm=manager)
+    data = dict(version=version, sm=app.config.get('dragonfly.settings'))
     return data
 
 
@@ -76,14 +72,12 @@ def marker():
 
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
-    home_dir = app.config.get('dragonfly.home_dir')
-    manager = SettingsManager(home_dir)
-    manager.load()
+    settings_manager = app.config.get('dragonfly.settings')
     if flask.request.method == 'GET':
-        return flask.jsonify(manager.settings)
+        return flask.jsonify(settings_manager.settings)
     else:
         settings = json.loads(flask.request.form['json'])
-        manager.save(settings)
+        settings_manager.save(settings)
         results = {'success': True, 'message': 'Settings saved.'}
         return flask.jsonify(results)
 
