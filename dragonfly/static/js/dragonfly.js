@@ -790,6 +790,7 @@ dragonfly.Finder = class Finder {
      */
     constructor() {
         this.minimizedHeight = $('.df-finder').height();
+        this.initializeGoogle();
     }
 
     /**
@@ -818,6 +819,19 @@ dragonfly.Finder = class Finder {
                 dragonfly.showStatus('danger', 'Error contacting the server');
             }
         });
+    }
+
+    /**
+     * Load the custom Google search engine
+     */
+    initializeGoogle() {
+        var cx = '003899999982319279749:whnyex5nm1c';
+        var gcse = document.createElement('script');
+        gcse.type = 'text/javascript';
+        gcse.async = true;
+        gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(gcse, s);
     }
 
     /**
@@ -1555,12 +1569,4 @@ $(document).ready(function() {
             $(this).blur();
         });
     });
-
-    var cx = '003899999982319279749:whnyex5nm1c';
-    var gcse = document.createElement('script');
-    gcse.type = 'text/javascript';
-    gcse.async = true;
-    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(gcse, s);
 });
