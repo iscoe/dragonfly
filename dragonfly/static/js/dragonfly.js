@@ -57,6 +57,10 @@ dragonfly.Settings = class Settings {
         return this.settings['Finder Height'];
     }
 
+    getGMapsKey() {
+        return this.settings['GMaps Key'];
+    }
+
     /**
      * Load settings from server.
      * This uses ajax to load the settings object.
@@ -801,7 +805,8 @@ dragonfly.Finder = class Finder {
         $('.df-finder-google').hide();
         $('.df-finder-gmaps').hide();
 
-        this.googleInitialized = false
+        this.googleInitialized = false;
+        this.gmapsInitialized = false;
         this.initializeHandlers();
     }
 
@@ -876,6 +881,21 @@ dragonfly.Finder = class Finder {
         gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(gcse, s);
+    }
+
+    /**
+     * Load the Google Maps places engine
+     */
+    initializeGMaps() {
+        var key = this.settings.getGMapsKey();
+        var src = "https://maps.googleapis.com/maps/api/js?key=" + key;
+        src += "&libraries=places&callback=dragonfly.finder.initializeGMapsCallback";
+        var gmse = document.createElement('script');
+        gmse.type = 'text/javascript';
+        gmse.async = true;
+        gmse.src = src;
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(gmse, s);
     }
 
     /**
@@ -1032,6 +1052,10 @@ dragonfly.Finder = class Finder {
             $('.df-finder-gmaps').hide();
             $('.df-results-gmaps').hide();
         } else if (mode == this.Mode.GMAPS) {
+            if (!this.gmapsInitialized) {
+                this.gmapsInitialized = true;
+                this.initializeGMaps();
+            }
             $('.df-finder-local').hide();
             $('.df-results-local').hide();
             $('.df-finder-google').hide();

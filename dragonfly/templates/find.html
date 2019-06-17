@@ -32,8 +32,5 @@
   </div>
   <div class="df-results-local"></div>
   <div class="df-results-google"><gcse:searchresults></gcse:searchresults></div>
-  <div class="df-results-gmaps" id="gmaps">
-    {% set key = sm.get_gmaps_key() %}
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ key }}&libraries=places&callback=dragonfly.finder.initializeGMapsCallback" async defer></script>
-  </div>
+  <div class="df-results-gmaps" id="gmaps"></div>
 </div>
