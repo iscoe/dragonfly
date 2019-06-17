@@ -146,6 +146,9 @@ body {
 .df-results-google, .df-results-gmaps {
     display: none;
 }
+.gsc-adBlock {
+    display: none !important;
+}
 .df-results-gmaps {
     margin: 0;
     padding: 0;
