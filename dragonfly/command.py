@@ -98,12 +98,6 @@ class Runner:
         else:
             app.config['dragonfly.mode'] = 'annotate'
 
-        # home_dir set in __init__
-        home_dir = app.config.get('dragonfly.home_dir')
-        settings_manager = SettingsManager(home_dir)
-        settings_manager.load()
-        app.config['dragonfly.settings'] = settings_manager
-
         app.dragonfly_index = Indexer(args.data)
         app.dragonfly_bg = BackgroundProcess(app.dragonfly_index, app.logger)
         app.dragonfly_bg.load_index()
