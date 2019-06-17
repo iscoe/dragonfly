@@ -1192,7 +1192,6 @@ dragonfly.Highlighter = class Highlighter {
                 // toggle cascade
                 this.toggleCascade();
                 break;
-            case 'n':
             case '0':
             case 'd':
                 // enter into delete mode
@@ -1554,7 +1553,9 @@ $(document).ready(function() {
     });
 
     $(document).on("keypress", function(event) {
-        dragonfly.highlighter.pressKey(String.fromCharCode(event.which));
+        if (!$(event.target).is("input")) {
+            dragonfly.highlighter.pressKey(String.fromCharCode(event.which));
+        }
     });
 
     $(document).on("keyup", function(event) {
