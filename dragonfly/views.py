@@ -80,7 +80,9 @@ def settings():
     settings_manager = SettingsManager(home_dir)
     if flask.request.method == 'GET':
         settings_manager.load()
-        return flask.jsonify(settings_manager.settings)
+        text_settings = {k: v for k, v in settings_manager.settings.items() if type(v) != bool}
+        bool_settings = {k: v for k, v in settings_manager.settings.items() if type(v) == bool}
+        return flask.render_template('modals/settings.html', text_settings=text_settings, bool_settings=bool_settings)
     else:
         new_settings = json.loads(flask.request.form['json'])
         settings_manager.save(new_settings)
@@ -167,9 +169,9 @@ def build_index():
 @app.route('/stats')
 def stats():
     output_dir = app.config.get('dragonfly.output')
-    stats = Stats()
+    stats_data = Stats()
     stats.collect(output_dir)
-    return flask.render_template('stats.html', stats=stats)
+    return flask.render_template('stats.html', stats=stats_data)
 
 
 @app.route('/tools')

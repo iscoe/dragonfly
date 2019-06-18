@@ -25,12 +25,38 @@ dragonfly.showStatus = function(type, text) {
 dragonfly.Settings = class Settings {
     /**
      * Create a Settings object
+     * @param {object} settings - Settings object
      * @param {AnnotationSaver} annotationSaver - object for background saving of user annotations
      */
-    constructor(annotationSaver) {
-        this.settings = {};
+    constructor(settings, annotationSaver) {
+        this.settings = settings;
         this.timerId = null;
         this.annotationSaver = annotationSaver;
+        this._initializeHandlers();
+    }
+
+    _initializeHandlers() {
+        var self = this;
+
+        $('#df-settings-modal').on('show.bs.modal', function(event) {
+            var body = $(this).find('.modal-body');
+            body.load('/settings');
+            $('#df-settings-button').one('focus', function(event) {
+                $(this).blur();
+            });
+        });
+
+        $("#df-settings-save").on("click", function(event) {
+            $('#df-settings-modal').modal('hide');
+            self._save();
+        });
+
+        // leaving focus on settings button is distracting so we remove it
+        $('#df-settings-modal').on('shown.bs.modal', function(event) {
+            $('#df-settings-button').one('focus', function(event) {
+                $(this).blur();
+            });
+        });
     }
 
     isSentenceIdAutoScroll() {
@@ -57,6 +83,10 @@ dragonfly.Settings = class Settings {
         return this.settings['Finder Height'];
     }
 
+    isFinderOpenDefault() {
+        return this.settings['Finder Starts Open'];
+    }
+
     getGMapsKey() {
         return this.settings['GMaps Key'];
     }
@@ -71,73 +101,10 @@ dragonfly.Settings = class Settings {
     }
 
     /**
-     * Load settings from server.
-     * This uses ajax to load the settings object.
-     */
-    load() {
-        var self = this;
-        $.ajax({
-            url: '/settings',
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                self.settings = data;
-                self.generateHtml();
-                self.applySettings();
-            },
-            error: function(xhr) {
-                dragonfly.showStatus('danger', 'Error contacting the server');
-            }
-        });
-    }
-
-    /**
-     * Generate the html for the settings form.
-     */
-    generateHtml() {
-        var textParent = $("#df-settings-section-text");
-        var textTemplate = textParent.children().first();
-        textTemplate.remove();
-
-        var checkboxParent = $("#df-settings-section-checkbox");
-        var checkboxTemplate = checkboxParent.children().first();
-        checkboxTemplate.remove();
-
-        var textSettings = [];
-        var boolSettings = [];
-        for (var prop in this.settings) {
-            if (typeof this.settings[prop] === 'boolean') {
-                boolSettings.push({label: prop, value: this.settings[prop]});
-            } else {
-                textSettings.push({label: prop, value: this.settings[prop]});
-            }
-        }
-
-        for (var i = 0; i < textSettings.length; i++) {
-            var setting = textSettings[i];
-            var item = textTemplate.clone();
-            item.find("label").text(setting.label);
-            item.find("input").attr("name", setting.label);
-            item.find("input").val(setting.value);
-            textParent.append(item);
-        }
-
-        for (var i = 0; i < boolSettings.length; i++) {
-            var setting = boolSettings[i];
-            var item = checkboxTemplate.clone();
-            item.find("span").html(setting.label);
-            item.find("input").attr("name", setting.label);
-            if (setting.value) {
-                item.find("input:checkbox").prop('checked', true);
-            }
-            checkboxParent.append(item);
-        }
-    }
-
-    /**
      * Apply the current settings to the page
+     * @param {boolean} first - Is this the first run of apply
      */
-    applySettings() {
+    apply(first) {
         if (!this.isDisplayRowLabels()) {
             $(".df-column-labels").hide();
         } else {
@@ -158,14 +125,18 @@ dragonfly.Settings = class Settings {
         if (this.isCascadeOn() != $("#cascade").prop("checked")) {
             $(document).trigger({type: 'keypress', which: 'c'.charCodeAt(0), ctrlKey: false});
         }
+
+        if (first && this.isFinderOpenDefault()) {
+            $(window).trigger('df.finder.show');
+        }
     }
 
     /**
      * Save the settings object through ajax to server.
      */
-    save() {
+    _save() {
         var self = this;
-        this.settings = this.convertToObject($("#df-settings-form").serializeArray());
+        this.settings = this._convertToObject($("#df-settings-form").serializeArray());
         $.ajax({
             url: '/settings',
             type: 'POST',
@@ -174,7 +145,7 @@ dragonfly.Settings = class Settings {
             success: function(response) {
                 if (response.success) {
                     dragonfly.showStatus('success', response.message);
-                    self.applySettings();
+                    self.apply(false);
                 } else {
                     dragonfly.showStatus('danger', response.message);
                 }
@@ -190,7 +161,7 @@ dragonfly.Settings = class Settings {
      * @param {array} array - Array from serializeArray().
      * @return {object}
      */
-    convertToObject(array) {
+    _convertToObject(array) {
         var obj = {};
         $.each(array, function() {
             if (this.value === "true" || this.value === "false") {
@@ -816,7 +787,7 @@ dragonfly.Finder = class Finder {
 
         this.googleInitialized = false;
         this.gmapsInitialized = false;
-        this.initializeHandlers();
+        this._initializeHandlers();
     }
 
     /**
@@ -847,13 +818,17 @@ dragonfly.Finder = class Finder {
         });
     }
 
-    initializeHandlers() {
+    _initializeHandlers() {
         var self = this;
         // support resizing the finder window with the mouse
         $('.df-finder').resizable({
             handleSelector: '.df-resize-bar',
             resizeWidth: false,
             resizeHeightFrom: 'top',
+        });
+
+        $(window).on('df.finder.show', function(event) {
+            self.show();
         });
 
         $('#df-finder-local-form').on('submit', function(event) {
@@ -1573,12 +1548,11 @@ $(document).ready(function() {
     this.multiTokenTagClickCount = 0;
 
     dragonfly.lang = $("meta[name=lang]").attr("content");
-    dragonfly.filename = $("#df-filename").html();
+    dragonfly.filename = dragonfly_filename;
     dragonfly.tagTypes = new dragonfly.TagTypes(dragonfly_tags);
     dragonfly.tagTypes.injectButtons();
     dragonfly.annotationSaver = new dragonfly.AnnotationSaver(dragonfly.filename, dragonfly_terminal_blank_line);
-    dragonfly.settings = new dragonfly.Settings(dragonfly.annotationSaver);
-    dragonfly.settings.load();
+    dragonfly.settings = new dragonfly.Settings(dragonfly_settings, dragonfly.annotationSaver);
     dragonfly.finder = new dragonfly.Finder(dragonfly.settings);
     dragonfly.highlighter = new dragonfly.Highlighter(dragonfly.tagTypes, dragonfly.finder);
     dragonfly.highlighter.initializeHighlight();
@@ -1588,6 +1562,7 @@ $(document).ready(function() {
     dragonfly.translations = new dragonfly.Translations(dragonfly.lang);
     dragonfly.translations.load();
     dragonfly.contextMenu = new dragonfly.ContextMenu(dragonfly.highlighter, dragonfly.translations);
+    dragonfly.settings.apply(true);
 
     $("input[id = 'cascade']").on("click", function() {
         dragonfly.highlighter.toggleCascade();
@@ -1650,18 +1625,6 @@ $(document).ready(function() {
     $("#df-save").on("click", function(event) {
         dragonfly.annotationSaver.save();
         $(this).blur();
-    });
-
-    $("#df-settings-save").on("click", function(event) {
-        $('#df-settings-modal').modal('hide');
-        dragonfly.settings.save();
-    });
-
-    // leaving focus on settings button is distracting so we remove it
-    $('#df-settings-modal').on('shown.bs.modal', function(event) {
-        $('#df-settings-button').one('focus', function(event) {
-            $(this).blur();
-        });
     });
 
     $(".df-token").on("contextmenu", function(event) {

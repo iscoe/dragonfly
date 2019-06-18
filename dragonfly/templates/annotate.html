@@ -4,10 +4,12 @@
 
 {% block head %}
 <script>
+var dragonfly_filename = "{{ title }}";
+var dragonfly_settings = {{ sm.settings|convert_to_json|safe }};
 var dragonfly_tags = {{ tags|safe }};
 var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
 </script>
-{% if rtl %}
+{%- if rtl -%}
 <style>
   .df-sentence {
     white-space: normal;
@@ -29,7 +31,7 @@ var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
     border-left: none;
   }
 </style>
-{% endif %}
+{%- endif -%}
 {% endblock %}
 
 {% block header %}

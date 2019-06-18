@@ -1,0 +1,22 @@
+<form id="df-settings-form" class="form-horizontal">
+  <div id="df-settings-section-text">
+    {% for label, value in text_settings.items() %}
+    <div class="container-fluid form-group">
+      <label class="control-label">{{ label }}</label>
+      <div class="">
+        <input type="text" class="form-control" name="{{ label }}" value="{{ value }}">
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div id="df-settings-section-checkbox" class="form-group">
+    {% for label, value in bool_settings.items() %}
+    <div class="checkbox">
+      <label>
+        <input type="hidden" name="{{ label }}" value="false">
+        <input type="checkbox" name="{{ label }}" value="true" {% if value %}checked{% endif %}><span>{{ label }}</span>
+      </label>
+    </div>
+    {% endfor %}
+  </div>
+</form>

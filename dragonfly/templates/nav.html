@@ -11,7 +11,7 @@
     <div class="navbar-header navbar-buttons navbar-right">
       <div class="btn-group">
         {% if index > 0 %}
-        <a class="btn btn-default df-navbar-button" id="df-prev-doc" title="Previous" aria-label="Previous" href="\?index={{ index - 1 }}">
+        <a class="btn btn-default df-navbar-button" id="df-prev-doc" title="Previous" aria-label="Previous" href="/?index={{ index - 1 }}">
           <span class="glyphicon glyphicon-triangle-left"></span>
         </a>
         {% else %}
@@ -20,7 +20,7 @@
         </span>
         {% endif %}
         {% if next_index %}
-        <a class="btn btn-default df-navbar-button" id="df-next-doc" title="Next" aria-label="Next" href="\?index={{ next_index }}">
+        <a class="btn btn-default df-navbar-button" id="df-next-doc" title="Next" aria-label="Next" href="/?index={{ next_index }}">
           <span class="glyphicon glyphicon-triangle-right"></span>
         </a>
         {% else %}

@@ -3,11 +3,11 @@
 # Distributed under the terms of the Apache 2.0 License.
 
 import argparse
+import json
 import os
 from . import app
 from .data import FileLister
 from .search import BackgroundProcess, Indexer
-from .settings import SettingsManager
 
 
 class Runner:
@@ -101,6 +101,12 @@ class Runner:
         app.dragonfly_index = Indexer(args.data)
         app.dragonfly_bg = BackgroundProcess(app.dragonfly_index, app.logger)
         app.dragonfly_bg.load_index()
+
+        app.jinja_env.filters['convert_to_json'] = self._convert_to_json
+
+    @staticmethod
+    def _convert_to_json(value):
+        return json.dumps(value)
 
     def _run(self, args):
         if self.mode == self.ANNOTATE:

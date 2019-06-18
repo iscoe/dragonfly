@@ -13,6 +13,7 @@ class SettingsManager:
         'GMaps Key': '',
         'GMaps Params': '8.6, 80.1, 8',
         'Finder Height': 200,
+        'Finder Starts Open': False,
         'Auto Scrolling Sentence IDs': True,
         'Display Row Labels': True,
         'Auto Save': False,
