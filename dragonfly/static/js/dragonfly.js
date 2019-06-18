@@ -711,18 +711,6 @@ dragonfly.TagTypes = class TagTypes {
         }
         return map;
     }
-
-    /**
-     * Add tag type buttons to DOM
-     */
-    injectButtons() {
-        for (var i = this.typeList.length - 1; i >= 0; i--) {
-            var id = this.typeList[i].id;
-            var label = this.typeList[i].name;
-            $('.navbar-labels').prepend('<span class="navbar-text label df-type df-tag-' + id + '" title="' + id + '">' + label + '</span>');
-        }
-        $('.navbar-labels span:first-child').addClass('df-type-active');
-    }
 };
 
 dragonfly.MultiTokenTag = class MultiTokenTag {
@@ -1550,7 +1538,6 @@ $(document).ready(function() {
     dragonfly.lang = $("meta[name=lang]").attr("content");
     dragonfly.filename = dragonfly_filename;
     dragonfly.tagTypes = new dragonfly.TagTypes(dragonfly_tags);
-    dragonfly.tagTypes.injectButtons();
     dragonfly.annotationSaver = new dragonfly.AnnotationSaver(dragonfly.filename, dragonfly_terminal_blank_line);
     dragonfly.settings = new dragonfly.Settings(dragonfly_settings, dragonfly.annotationSaver);
     dragonfly.finder = new dragonfly.Finder(dragonfly.settings);

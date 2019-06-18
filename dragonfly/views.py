@@ -21,10 +21,11 @@ def inject_dragonfly_context():
     version = __version__
     if app.debug:
         version += '.' + ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
+    tags = app.config.get('dragonfly.tags')
     home_dir = app.config.get('dragonfly.home_dir')
     settings_manager = SettingsManager(home_dir)
     settings_manager.load()
-    data = dict(version=version, sm=settings_manager)
+    data = dict(version=version, sm=settings_manager, tags=tags)
     return data
 
 

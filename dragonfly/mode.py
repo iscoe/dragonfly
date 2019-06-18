@@ -24,7 +24,6 @@ class ModeManager:
         start_time = timeit.default_timer()
         lang = app.config.get('dragonfly.lang')
         lister = app.config.get('dragonfly.input')
-        tags = app.config.get('dragonfly.tags')
         output_path = app.config.get('dragonfly.output')
         rtl = app.config.get('dragonfly.rtl')
 
@@ -53,8 +52,7 @@ class ModeManager:
         document.attach_markers(marker_manager.get(title))
 
         content = flask.render_template('annotate.html', title=title, document=document,
-                                        index=index, next_index=next_index, rtl=rtl,
-                                        lang=lang, tags=json.dumps(tags))
+                                        index=index, next_index=next_index, rtl=rtl, lang=lang)
         total_time = timeit.default_timer() - start_time
         app.logger.info('Serving %s in %1.2fs', filename, total_time)
         return content
