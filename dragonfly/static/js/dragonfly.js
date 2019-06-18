@@ -769,7 +769,7 @@ dragonfly.Finder = class Finder {
         this.Mode = {LOCAL: 0, GOOGLE: 1, GMAPS: 2}
         this.minimizedHeight = $('.df-finder').height();
         this.settings = settings;
-        // this casues jQuery to cache inline-block as the default show state
+        // this causes jQuery to cache inline-block as the default show state
         $('.df-finder-google').hide();
         $('.df-finder-gmaps').hide();
 
@@ -1163,7 +1163,7 @@ dragonfly.Highlighter = class Highlighter {
 
         if (mismatchedTags.size > 0) {
             var tags = Array.from(mismatchedTags).join(', ');
-            dragonfly.showStatus('danger', 'Incompatiable saved annotations: ' + tags);
+            dragonfly.showStatus('danger', 'Incompatible saved annotations: ' + tags);
         }
 
         this.initializeAdjudicationHighlight();
