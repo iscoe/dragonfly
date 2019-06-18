@@ -35,7 +35,7 @@ var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
 {% endblock %}
 
 {% block header %}
-  {% include 'nav.html' %}
+  {% include 'header.html' %}
 {% endblock %}
 
 {% block main %}
@@ -67,9 +67,9 @@ var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
 {% endblock %}
 
 {% block footer %}
-  {% include 'find.html' %}
+  {% include 'finder.html' %}
 {% endblock %}
 
 {% block extras %}
-  {% include 'dialogs.html' %}
+  {% include 'extras.html' %}
 {% endblock %}

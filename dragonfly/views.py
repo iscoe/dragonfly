@@ -170,11 +170,11 @@ def build_index():
 def stats():
     output_dir = app.config.get('dragonfly.output')
     stats_data = Stats()
-    stats.collect(output_dir)
-    return flask.render_template('stats.html', stats=stats_data)
+    stats_data.collect(output_dir)
+    return flask.render_template('modals/stats.html', stats=stats_data)
 
 
 @app.route('/tools')
 def tools():
     lang = app.config.get('dragonfly.lang')
-    return flask.render_template('tools.html', lang=lang)
+    return flask.render_template('modals/tools.html', lang=lang)
