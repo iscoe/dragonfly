@@ -61,6 +61,15 @@ dragonfly.Settings = class Settings {
         return this.settings['GMaps Key'];
     }
 
+    getGMapsParams() {
+        var values = this.settings['GMaps Params'].split(',');
+        values = values.map(s => parseFloat(s.trim()));
+        if (values.length != 3) {
+            values = [0, 0, 1];
+        }
+        return values;
+    }
+
     /**
      * Load settings from server.
      * This uses ajax to load the settings object.
@@ -904,9 +913,10 @@ dragonfly.Finder = class Finder {
     initializeGMapsCallback() {
       self = this;
 
+      var params = this.settings.getGMapsParams();
       var map = new google.maps.Map(document.getElementById('gmaps'), {
-        center: {lat: 8.8688, lng: 80.1195},
-        zoom: 8,
+        center: {lat: params[0], lng: params[1]},
+        zoom: Math.round(params[2]),
         mapTypeId: 'roadmap',
         mapTypeControl: false,
         streetViewControl: false,

@@ -11,6 +11,7 @@ class SettingsManager:
     DEFAULTS = {
         'Column Width': 40,
         'GMaps Key': '',
+        'GMaps Params': '8.6, 80.1, 8',
         'Finder Height': 200,
         'Auto Scrolling Sentence IDs': True,
         'Display Row Labels': True,
