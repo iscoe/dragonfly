@@ -781,14 +781,15 @@ dragonfly.Finder = class Finder {
     /**
      * Search the local index
      * @param {string} word - Search term.
+     * @param {bool} manual - Whether the user manually typed the term.
      */
-    search(word) {
+    search(word, manual) {
         var self = this;
         $('input[name=df-finder-term]').val(word);
         $.ajax({
             url: '/search',
             type: 'POST',
-            data: {'term': word},
+            data: {'term': word, 'manual': manual},
             dataType: 'html',
             success: function(html) {
                 $('.df-results-local').html(html);
@@ -812,9 +813,10 @@ dragonfly.Finder = class Finder {
             self.show();
         });
 
+        // manual editing of search form and submission
         $('#df-finder-local-form').on('submit', function(event) {
             event.preventDefault();
-            self.search($('input[name=df-finder-term]').val());
+            self.search($('input[name=df-finder-term]').val(), true);
         });
 
         $('#df-finder-close').on('click', function() {
@@ -1197,7 +1199,7 @@ dragonfly.Highlighter = class Highlighter {
         } else if (this.clickMode == dragonfly.ClickMode.SELECT) {
             this.select(element);
         } else if (this.clickMode == dragonfly.ClickMode.FINDER) {
-            this.finder.search(element.html());
+            this.finder.search(element.html(), false);
         } else {
             // set this so we know whether to prevent user navigating away
             this.anyTaggingPerformed = true;

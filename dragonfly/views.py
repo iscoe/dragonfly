@@ -155,9 +155,12 @@ def import_translations(lang):
 @app.route('/search', methods=['POST'])
 def search():
     term = flask.request.form['term']
-    results = app.dragonfly_index.lookup(term)
+    use_wildcards = False
+    if flask.request.form['manual'] == 'true':
+        use_wildcards = any(ch in term for ch in ['*', '?', '[', ']'])
+    results = app.dragonfly_index.retrieve(term, use_wildcards)
     app.logger.info('Returned %d results for %s', len(results['refs']), term)
-    return flask.render_template('search/inverse.html', term=term.lower(), results=results)
+    return flask.render_template('search/inverse.html', results=results)
 
 
 @app.route('/search/build', methods=['POST'])

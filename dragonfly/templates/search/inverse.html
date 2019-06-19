@@ -8,7 +8,7 @@
     </div>
     {%- for i in range(result['text']|length) -%}
     <div class="df-section df-row">
-        {%- if term == result['text'][i] %}
+        {%- if result['text'][i] in results['terms'] -%}
         <div class="df-result-highlight">{{ result['text'][i] }}</div>
         {%- else -%}
         <div>{{ result['text'][i] }}</div>

@@ -3,7 +3,9 @@
 # Distributed under the terms of the Apache 2.0 License.
 
 import concurrent.futures
+import copy
 import csv
+import fnmatch
 import glob
 import os
 import pickle
@@ -18,17 +20,32 @@ class InvertedIndex:
     def add(self, doc, sent, trans):
         doc = os.path.basename(doc)
         for word in sent:
+            word = word.lower()
             if word not in self.index:
                 self.index[word] = {'count': 0, 'refs': []}
             self.index[word]['count'] += 1
             if self.index[word]['count'] < self.MAX_ENTRIES:
                 self.index[word]['refs'].append({'doc': doc, 'text': sent, 'trans': trans})
 
-    def retrieve(self, term):
+    def retrieve(self, term, wildcards=False):
         term = term.lower()
-        if term in self.index:
-            return self.index[term]
-        return {'count': 0, 'refs': []}
+        results = {'terms': set(), 'count': 0, 'refs': []}
+        if wildcards:
+            results = self._retrieve_with_wildcards(term)
+        elif term in self.index:
+            results['terms'].add(term)
+            results['count'] = self.index[term]['count']
+            results['refs'] = self.index[term]['refs']
+        return results
+
+    def _retrieve_with_wildcards(self, term):
+        results = {'terms': set(), 'count': 0, 'refs': []}
+        matches = fnmatch.filter(self.index.keys(), term)
+        for match in matches:
+            results['terms'].add(match)
+            results['count'] += self.index[match]['count']
+            results['refs'].extend(self.index[match]['refs'])
+        return results
 
     def save(self, filename):
         with open(filename, 'wb') as fp:
@@ -95,8 +112,8 @@ class Indexer:
                 if translit_avail:
                     trans.append(row[self.TRANSLIT])
 
-    def lookup(self, term):
-        return self.index.retrieve(term.lower())
+    def retrieve(self, term, wildcards=False):
+        return self.index.retrieve(term.lower(), wildcards)
 
     def _get_path(self, filename):
         return os.path.join(self.index_dir, filename)
