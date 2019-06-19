@@ -821,7 +821,7 @@ dragonfly.Finder = class Finder {
 
         $('#df-finder-close').on('click', function() {
             self.hide();
-            dragonfly.highlighter.revertClickMode();
+            dragonfly.highlighter.revertClickMode(dragonfly.ClickMode.Finder);
         });
 
         $('#df-finder-use-local').on('click', function() {
@@ -1074,10 +1074,13 @@ dragonfly.Highlighter = class Highlighter {
 
     /**
      * Revert to the previous click mode
+     * @param {ClickMode} currentMode - only revert if the current click mode is this
      */
-    revertClickMode() {
-        this.clickMode = this.prevClickMode;
-        this.highlightTypeAndClickMode();
+    revertClickMode(currentMode) {
+        if (this.clickMode == currentMode) {
+            this.clickMode = this.prevClickMode;
+            this.highlightTypeAndClickMode();
+        }
     }
 
     /**
@@ -1398,7 +1401,7 @@ dragonfly.Highlighter = class Highlighter {
             }
             copyToClipboard(text);
             this.selectStart = null;
-            this.revertClickMode();
+            this.revertClickMode(dragonfly.ClickMode.SELECT);
             dragonfly.showStatus('success', 'Copied');
         }
     }
