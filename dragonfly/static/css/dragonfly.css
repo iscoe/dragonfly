@@ -157,6 +157,11 @@ body {
 .df-results-local {
     white-space: nowrap;
 }
+.df-results-count {
+    color: #777;
+    margin-left: 40px;
+    margin-bottom: 5px;
+}
 .df-open {
     display: inline-block;
     vertical-align: top;
@@ -164,14 +169,13 @@ body {
 .df-open > .btn {
     padding: 8px 10px;
 }
+.df-result {
+    margin-bottom: 10px;
+}
 .df-result > .df-section:nth-of-type(2) {
     border-left: 1px solid #e7e7e7;
     padding-left: 15px;
     margin-left: 5px;
-}
-.df-result-doc {
-    margin: 3px;
-    margin-bottom: 8px;
 }
 .df-result-highlight {
     color: red;

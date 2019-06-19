@@ -1,0 +1,22 @@
+<div class="df-results-count">Total instances: {{ results['count'] }}</div>
+{% for result in results['refs'] %}
+  <div class="df-result">
+    <div class="df-open">
+      <a class="btn btn-default" title="open in new tab" href="/{{ result['doc'] }}" target="_blank">
+        <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>
+      </a>
+    </div>
+    {%- for i in range(result['text']|length) -%}
+    <div class="df-section df-row">
+        {%- if term == result['text'][i] %}
+        <div class="df-result-highlight">{{ result['text'][i] }}</div>
+        {%- else -%}
+        <div>{{ result['text'][i] }}</div>
+        {%- endif -%}
+        {%- if result['trans'] -%}
+        <div>{{ result['trans'][i] }}</div>
+        {%- endif -%}
+    </div>
+    {%- endfor -%}
+  </div>
+{% endfor %}

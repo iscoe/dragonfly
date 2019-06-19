@@ -157,7 +157,7 @@ def search():
     term = flask.request.form['term']
     results = app.dragonfly_index.lookup(term)
     app.logger.info('Returned %d results for %s', len(results['refs']), term)
-    return flask.jsonify(results)
+    return flask.render_template('search/inverse.html', term=term.lower(), results=results)
 
 
 @app.route('/search/build', methods=['POST'])

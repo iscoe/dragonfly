@@ -780,25 +780,18 @@ dragonfly.Finder = class Finder {
 
     /**
      * Search the local index
-     */
-    search(word) {
-        $('input[name=df-finder-term]').val(word);
-        this.postSearch(word);
-    }
-
-    /**
-     * Submit a search to the server
      * @param {string} word - Search term.
      */
-    postSearch(word) {
+    search(word) {
         var self = this;
+        $('input[name=df-finder-term]').val(word);
         $.ajax({
             url: '/search',
             type: 'POST',
             data: {'term': word},
-            dataType: 'json',
-            success: function(data) {
-                self.displayResults(word, data);
+            dataType: 'html',
+            success: function(html) {
+                $('.df-results-local').html(html);
             },
             error: function(xhr) {
                 dragonfly.showStatus('danger', 'Error contacting the server');
@@ -937,51 +930,6 @@ dragonfly.Finder = class Finder {
           }
         });
         map.fitBounds(bounds);
-    }
-
-    /**
-     * Update the results display box
-     * @param {string} word - The search term.
-     * @param {array} data - Data object from the local search server.
-     */
-    displayResults(word, data) {
-        word = word.toLowerCase();
-        var html = '';
-        $('.df-term-count').html("Count: " + data.count);
-        var refs = data.refs;
-        for (var i=0; i<refs.length; i++) {
-            html += '<div class="df-result">';
-            html += this.getOpenButton(refs[i].doc);
-            for (var j=0; j<refs[i].text.length; j++){
-                html += '<div class="df-section df-row">';
-                if (word == refs[i].text[j]) {
-                    html += '<div class="df-result-highlight">' + refs[i].text[j] + '</div>';
-                } else {
-                    html += '<div>' + refs[i].text[j] + '</div>';
-                }
-                if (refs[i].trans != null) {
-                    html += '<div>' + refs[i].trans[j] + '</div>';
-                }
-                html += "</div>";
-            }
-            html += "</div>";
-            html += '<div class="df-result-doc">';
-            html += '</div>';
-        }
-        $('.df-results-local').html(html);
-    }
-
-    /**
-     * Create an open button
-     * @param {string} doc - Document name.
-     * @return html string
-     */
-    getOpenButton(doc) {
-        var html = '<div class="df-open">';
-        html += '<a class="btn btn-default" title="open in new tab" href="/' + doc + '" target="_blank">';
-        html += '<span class="glyphicon glyphicon-new-window" aria-hidden="true" />';
-        html += '</a></div>';
-        return html;
     }
 
     /**
