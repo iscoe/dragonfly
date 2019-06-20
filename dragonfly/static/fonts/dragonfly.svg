@@ -1,0 +1,12 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg">
+<metadata>Copyright (C) 2019 by original authors @ fontello.com</metadata>
+<defs>
+<font id="dragonfly" horiz-adv-x="1000" >
+<font-face font-family="dragonfly" font-weight="400" font-stretch="normal" units-per-em="1000" ascent="850" descent="-150" />
+<missing-glyph horiz-adv-x="1000" />
+<glyph glyph-name="wikipedia-w" unicode="&#xf266;" d="M834-65l-165 388q-14-27-88-170t-111-218q-1 0-15 0t-15 1q-46 108-143 328t-145 332q-11 28-37 60t-57 56-57 24q0 3-1 14t0 15h325v-28q-21-1-44-9t-37-24-6-36q15-33 121-278t132-302q17 34 78 149t73 138q-11 22-71 157t-75 165q-22 38-113 39v28l287 0v-27q-34-1-52-14t-7-38q18-39 48-106t48-105q61 120 97 203 13 31-6 44t-72 15q1 4 1 14v14q35 0 95 0t100 0 52 1v-28q-35-1-67-18t-50-45l-119-247q8-18 71-162t68-153l246 568q-7 21-27 35t-37 17-30 5v28l256-3 1-1-1-24q-77-2-112-81-293-679-312-721h-27z" horiz-adv-x="1285.7" />
+</font>
+</defs>
+</svg>
