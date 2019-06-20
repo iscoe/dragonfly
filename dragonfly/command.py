@@ -4,6 +4,7 @@
 
 import argparse
 import json
+import logging
 import os
 from . import app
 from .data import FileLister
@@ -99,10 +100,20 @@ class Runner:
             app.config['dragonfly.mode'] = 'annotate'
 
         app.dragonfly_index = Indexer(args.data)
-        app.dragonfly_bg = BackgroundProcess(app.dragonfly_index, app.logger)
+        app.dragonfly_bg = BackgroundProcess(app.dragonfly_index)
         app.dragonfly_bg.load_index()
 
         app.jinja_env.filters['convert_to_json'] = self._convert_to_json
+
+    @staticmethod
+    def _config_debug_logging():
+        # this matches the werkzeug format
+        handler = logging.StreamHandler()
+        f = logging.Formatter('127.0.0.1 - - [%(asctime)s] %(levelname)s: %(message)s', datefmt='%d/%b/%Y %H:%M:%S')
+        handler.setFormatter(f)
+        handler.setLevel(logging.INFO)
+        for logger in [logging.getLogger('flask.app'), logging.getLogger('dragonfly')]:
+            logger.addHandler(handler)
 
     @staticmethod
     def _convert_to_json(value):
@@ -117,6 +128,7 @@ class Runner:
             app.logger.info("Running in adjudicate mode")
         app.logger.info('Loading from %s and saving to %s', args.data, args.output)
         if args.debug:
+            self._config_debug_logging()
             # working around a bug in flask that prevents template reloading in debug mode
             app.jinja_env.auto_reload = True
         app.run(debug=args.debug, host='0.0.0.0', port=int(args.port))
