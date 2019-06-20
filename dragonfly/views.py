@@ -3,6 +3,7 @@
 # Distributed under the terms of the Apache 2.0 License.
 
 from dragonfly import app, __version__
+import collections
 import flask
 import io
 import json
@@ -82,8 +83,9 @@ def settings():
     settings_manager = SettingsManager(home_dir)
     if flask.request.method == 'GET':
         settings_manager.load()
-        text_settings = {k: v for k, v in settings_manager.settings.items() if type(v) != bool}
-        bool_settings = {k: v for k, v in settings_manager.settings.items() if type(v) == bool}
+        all_settings = settings_manager.settings
+        text_settings = collections.OrderedDict([(k, v) for k, v in all_settings.items() if type(v) != bool])
+        bool_settings = collections.OrderedDict([(k, v) for k, v in all_settings.items() if type(v) == bool])
         return flask.render_template('modals/settings.html', text_settings=text_settings, bool_settings=bool_settings)
     else:
         new_settings = json.loads(flask.request.form['json'])

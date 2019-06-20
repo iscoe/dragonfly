@@ -2,25 +2,26 @@
 # All rights reserved.
 # Distributed under the terms of the Apache 2.0 License.
 
+import collections
 import os
 import json
 
 
 class SettingsManager:
     # these strings are synced with the javascript
-    DEFAULTS = {
-        'Column Width': 40,
-        'GMaps Key': '',
-        'GMaps Params': '8.6, 80.1, 8',
-        'Geonames Username': '',
-        'Finder Height': 200,
-        'Finder Starts Open': False,
-        'Auto Scrolling Sentence IDs': True,
-        'Display Row Labels': True,
-        'Auto Save': False,
-        'Auto Save On Nav': False,
-        'Cascade By Default': True
-    }
+    DEFAULTS = [
+        ('GMaps Key', ''),
+        ('GMaps Params', '8.6, 80.1, 8'),
+        ('Geonames Username', ''),
+        ('Column Width', 40),
+        ('Finder Height', 200),
+        ('Finder Starts Open', False),
+        ('Auto Save', False),
+        ('Auto Save On Nav', False),
+        ('Auto Scrolling Sentence IDs', True),
+        ('Display Row Labels', True),
+        ('Cascade By Default', True),
+    ]
 
     SETTINGS_FILENAME = 'settings.json'
 
@@ -31,11 +32,12 @@ class SettingsManager:
         self.settings = {}
 
     def load(self):
+        self.settings = collections.OrderedDict([(item[0], item[1]) for item in self.DEFAULTS])
         with open(self.filename, 'r') as fp:
-            self.settings = json.load(fp)
-            for key in self.DEFAULTS.keys():
-                if key not in self.settings:
-                    self.settings[key] = self.DEFAULTS[key]
+            local_settings = json.load(fp)
+            for key in self.settings.keys():
+                if key in local_settings:
+                    self.settings[key] = local_settings[key]
 
     def save(self, settings):
         with open(self.filename, 'w') as fp:
