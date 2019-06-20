@@ -840,9 +840,9 @@ dragonfly.Finder = class Finder {
             });
         });
 
-        $('#df-finder-close').on('click', function() {
+        $('#df-finder-minimize').on('click', function() {
             self.hide();
-            dragonfly.highlighter.revertClickMode(dragonfly.ClickMode.Finder);
+            dragonfly.highlighter.revertClickMode(dragonfly.ClickMode.FINDER);
         });
 
         $('#df-finder-use-local').on('click', function() {
