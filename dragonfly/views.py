@@ -12,6 +12,7 @@ import os
 from .data import OutputWriter, HintLoader, SentenceMarkerManager
 from .mode import ModeManager
 from .settings import SettingsManager
+from .search import Geonames
 from .stats import Stats
 from .translations import TranslationDictManager
 
@@ -159,8 +160,23 @@ def search():
     if flask.request.form['manual'] == 'true':
         use_wildcards = any(ch in term for ch in ['*', '?', '[', ']'])
     results = app.dragonfly_index.retrieve(term, use_wildcards)
-    app.logger.info('Returned %d results for %s', len(results['refs']), term)
+    app.logger.info('Returned %d results from local search for %s', len(results['refs']), term)
     return flask.render_template('search/inverse.html', results=results)
+
+
+@app.route('/search/geonames', methods=['POST'])
+def search_geonames():
+    term = flask.request.form['term']
+    home_dir = app.config.get('dragonfly.home_dir')
+    settings_manager = SettingsManager(home_dir)
+    settings_manager.load()
+    geonames = Geonames(settings_manager.get_geonames_username())
+    results = geonames.retrieve(term)
+    if results is None:
+        return '<p class="text-danger">Error getting response from geonames</p>'
+    app.logger.info('Returned %d results from geonames for %s', len(results['geonames']), term)
+    print(app.logger.name)
+    return flask.render_template('search/geonames.html', results=results)
 
 
 @app.route('/search/build', methods=['POST'])

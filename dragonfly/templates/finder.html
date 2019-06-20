@@ -15,6 +15,9 @@
         <button type="button" id="df-finder-use-gmaps" class="btn btn-default df-navbar-button" title="Google Maps" aria-label="Maps">
           <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
         </button>
+        <button type="button" id="df-finder-use-geonames" class="btn btn-default df-navbar-button" title="Geonames" aria-label="Geonames">
+          <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+        </button>
       </div>
       <div class="df-finder-local">
         <form id="df-finder-local-form" class="navbar-form navbar-left" role="search">
@@ -27,9 +30,17 @@
       <div class="df-finder-gmaps">
         <input id="gmaps-input" class="form-control" type="text" placeholder="Search">
       </div>
+      <div class="df-finder-geonames">
+        <form id="df-finder-geonames-form" class="navbar-form navbar-left" role="search">
+          <div class="form-group">
+            <input type="text" name="df-geonames-term" class="form-control" placeholder="Search" autocomplete="off">
+          </div>
+        </form>
+      </div>
     </div>
   </div>
   <div class="df-results-local"></div>
   <div class="df-results-google"><gcse:searchresults></gcse:searchresults></div>
   <div class="df-results-gmaps" id="gmaps"></div>
+  <div class="df-results-geonames"></div>
 </div>

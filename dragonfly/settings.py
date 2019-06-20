@@ -12,6 +12,7 @@ class SettingsManager:
         'Column Width': 40,
         'GMaps Key': '',
         'GMaps Params': '8.6, 80.1, 8',
+        'Geonames Username': '',
         'Finder Height': 200,
         'Finder Starts Open': False,
         'Auto Scrolling Sentence IDs': True,
@@ -46,3 +47,6 @@ class SettingsManager:
 
     def get_gmaps_key(self):
         return self.settings['GMaps Key']
+
+    def get_geonames_username(self):
+        return self.settings['Geonames Username']

@@ -124,7 +124,7 @@ body {
 .df-nav-slim .btn-group {
     vertical-align: top;
 }
-.df-finder-local, .df-finder-google, .df-finder-gmaps {
+.df-finder-local, .df-finder-google, .df-finder-gmaps, .df-finder-geonames {
     display: inline-block;
 }
 .df-finder-google {
@@ -137,14 +137,14 @@ body {
     margin-left: 15px;
     margin-top: 6px;
 }
-.df-results-local, .df-results-google, .df-results-gmaps {
+.df-results-local, .df-results-google, .df-results-gmaps, .df-results-geonames {
     flex-grow: 1;
     overflow: auto;
     margin-top: 5px;
     position: relative;
     padding: 5px;
 }
-.df-results-google, .df-results-gmaps {
+.df-results-google, .df-results-gmaps, .df-geonames {
     display: none;
 }
 .gsc-adBlock {

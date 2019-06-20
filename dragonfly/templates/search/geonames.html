@@ -1,0 +1,21 @@
+<div class="df-results-count">Total instances: {{ results['totalResultsCount'] }}</div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Country</th>
+      <th>Division</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+{% for result in results['geonames'] %}
+    <tr>
+      <td>{{ result['name'] }}</td>
+      <td>{{ result['countryName'] }}</td>
+      <td>{{ result['adminName1'] }}</td>
+      <td>{{ result['fclName'] }}</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>

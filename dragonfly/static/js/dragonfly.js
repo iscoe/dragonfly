@@ -766,16 +766,20 @@ dragonfly.Finder = class Finder {
      * @param {Settings} settings - Settings manager
      */
     constructor(settings) {
-        this.Mode = {LOCAL: 0, GOOGLE: 1, GMAPS: 2}
+        this.Mode = {LOCAL: 0, GOOGLE: 1, GMAPS: 2, GEONAMES: 3}
         this.minimizedHeight = $('.df-finder').height();
         this.settings = settings;
         // this causes jQuery to cache inline-block as the default show state
         $('.df-finder-google').hide();
         $('.df-finder-gmaps').hide();
+        $('.df-finder-geonames').hide();
 
         this.googleInitialized = false;
         this.gmapsInitialized = false;
         this._initializeHandlers();
+
+        // we load javascript libraries on demand and want to cache them
+        $.ajaxSetup({cache: true});
     }
 
     /**
@@ -783,7 +787,7 @@ dragonfly.Finder = class Finder {
      * @param {string} word - Search term.
      * @param {bool} manual - Whether the user manually typed the term.
      */
-    search(word, manual) {
+    searchFiles(word, manual) {
         var self = this;
         $('input[name=df-finder-term]').val(word);
         $.ajax({
@@ -816,7 +820,24 @@ dragonfly.Finder = class Finder {
         // manual editing of search form and submission
         $('#df-finder-local-form').on('submit', function(event) {
             event.preventDefault();
-            self.search($('input[name=df-finder-term]').val(), true);
+            self.searchFiles($('input[name=df-finder-term]').val(), true);
+        });
+
+        $('#df-finder-geonames-form').on('submit', function(event) {
+            event.preventDefault();
+            var self = this;
+            $.ajax({
+                url: '/search/geonames',
+                type: 'POST',
+                data: {'term': $('input[name=df-geonames-term]').val()},
+                dataType: 'html',
+                success: function(html) {
+                    $('.df-results-geonames').html(html);
+                },
+                error: function(xhr) {
+                    dragonfly.showStatus('danger', 'Error contacting the server');
+                }
+            });
         });
 
         $('#df-finder-close').on('click', function() {
@@ -835,6 +856,10 @@ dragonfly.Finder = class Finder {
         $('#df-finder-use-gmaps').on('click', function() {
             self.use(self.Mode.GMAPS);
         });
+
+        $('#df-finder-use-geonames').on('click', function() {
+            self.use(self.Mode.GEONAMES);
+        });
     }
 
     /**
@@ -842,12 +867,11 @@ dragonfly.Finder = class Finder {
      */
     initializeGoogle() {
         var cx = '003899999982319279749:whnyex5nm1c';
-        var gcse = document.createElement('script');
-        gcse.type = 'text/javascript';
-        gcse.async = true;
-        gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(gcse, s);
+        var src = 'https://cse.google.com/cse.js?cx=' + cx;
+        $.getScript(src)
+            .fail(function(jqxhr, settings, exception) {
+                dragonfly.showStatus('danger', 'Unable to contact Google Search');
+        });
     }
 
     /**
@@ -855,43 +879,41 @@ dragonfly.Finder = class Finder {
      */
     initializeGMaps() {
         var key = this.settings.getGMapsKey();
-        var src = "https://maps.googleapis.com/maps/api/js?key=" + key;
-        src += "&libraries=places&callback=dragonfly.finder.initializeGMapsCallback";
-        var gmse = document.createElement('script');
-        gmse.type = 'text/javascript';
-        gmse.async = true;
-        gmse.src = src;
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(gmse, s);
+        var src = 'https://maps.googleapis.com/maps/api/js?key=' + key;
+        src += '&libraries=places&callback=dragonfly.finder.initializeGMapsCallback';
+        $.getScript(src)
+            .fail(function(jqxhr, settings, exception) {
+                dragonfly.showStatus('danger', 'Unable to contact Google Maps');
+        });
     }
 
     /**
      * Callback when initializing GMaps
      */
     initializeGMapsCallback() {
-      self = this;
+        self = this;
 
-      var params = this.settings.getGMapsParams();
-      var map = new google.maps.Map(document.getElementById('gmaps'), {
-        center: {lat: params[0], lng: params[1]},
-        zoom: Math.round(params[2]),
-        mapTypeId: 'roadmap',
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false,
-      });
-      var input = document.getElementById('gmaps-input');
-      var searchBox = new google.maps.places.SearchBox(input);
+        var params = this.settings.getGMapsParams();
+        var map = new google.maps.Map(document.getElementById('gmaps'), {
+            center: {lat: params[0], lng: params[1]},
+            zoom: Math.round(params[2]),
+            mapTypeId: 'roadmap',
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false,
+        });
+        var input = document.getElementById('gmaps-input');
+        var searchBox = new google.maps.places.SearchBox(input);
 
-      // bias search results
-      map.addListener('bounds_changed', function() {
-        searchBox.setBounds(map.getBounds());
-      });
+        // bias search results
+        map.addListener('bounds_changed', function() {
+          searchBox.setBounds(map.getBounds());
+        });
 
-      var markers = [];
-      searchBox.addListener('places_changed', function() {
-        self.updateGMaps(map, searchBox, markers);
-      });
+        var markers = [];
+        searchBox.addListener('places_changed', function() {
+          self.updateGMaps(map, searchBox, markers);
+        });
     }
 
     /**
@@ -963,6 +985,8 @@ dragonfly.Finder = class Finder {
             $('.df-results-google').hide();
             $('.df-finder-gmaps').hide();
             $('.df-results-gmaps').hide();
+            $('.df-finder-geonames').hide();
+            $('.df-results-geonames').hide();
         } else if (mode == this.Mode.GOOGLE) {
             if (!this.googleInitialized) {
                 this.googleInitialized = true;
@@ -974,6 +998,8 @@ dragonfly.Finder = class Finder {
             $('.df-results-google').show();
             $('.df-finder-gmaps').hide();
             $('.df-results-gmaps').hide();
+            $('.df-finder-geonames').hide();
+            $('.df-results-geonames').hide();
         } else if (mode == this.Mode.GMAPS) {
             if (!this.gmapsInitialized) {
                 this.gmapsInitialized = true;
@@ -985,6 +1011,17 @@ dragonfly.Finder = class Finder {
             $('.df-results-google').hide();
             $('.df-finder-gmaps').show();
             $('.df-results-gmaps').show();
+            $('.df-finder-geonames').hide();
+            $('.df-results-geonames').hide();
+        } else if (mode == this.Mode.GEONAMES) {
+            $('.df-finder-local').hide();
+            $('.df-results-local').hide();
+            $('.df-finder-google').hide();
+            $('.df-results-google').hide();
+            $('.df-finder-gmaps').hide();
+            $('.df-results-gmaps').hide();
+            $('.df-finder-geonames').show();
+            $('.df-results-geonames').show();
         }
      }
 };
@@ -1202,7 +1239,7 @@ dragonfly.Highlighter = class Highlighter {
         } else if (this.clickMode == dragonfly.ClickMode.SELECT) {
             this.select(element);
         } else if (this.clickMode == dragonfly.ClickMode.FINDER) {
-            this.finder.search(element.html(), false);
+            this.finder.searchFiles(element.html(), false);
         } else {
             // set this so we know whether to prevent user navigating away
             this.anyTaggingPerformed = true;

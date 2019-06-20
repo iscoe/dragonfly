@@ -3,12 +3,15 @@
 # Distributed under the terms of the Apache 2.0 License.
 
 import concurrent.futures
-import copy
 import csv
 import fnmatch
 import glob
+import logging
 import os
 import pickle
+import requests
+
+logger = logging.getLogger(__name__)
 
 
 class InvertedIndex:
@@ -120,10 +123,9 @@ class Indexer:
 
 
 class BackgroundProcess:
-    def __init__(self, indexer, logger):
+    def __init__(self, indexer):
         self.executor = concurrent.futures.ThreadPoolExecutor(1)
         self.indexer = indexer
-        self.logger = logger
 
     def load_index(self):
         self.executor.submit(self._load_index)
@@ -136,8 +138,32 @@ class BackgroundProcess:
         self.indexer.load()
 
     def _build_index(self):
-        self.logger.info('Building the search index for %s', self.indexer.data_dir)
+        logger.info('Building the search index for %s', self.indexer.data_dir)
         self.indexer.build()
         self.indexer.save()
         self.indexer.load()
-        self.logger.info('Completed the search index for %s', self.indexer.data_dir)
+        logger.info('Completed the search index for %s', self.indexer.data_dir)
+
+
+class Geonames:
+    def __init__(self, username, fuzzy=0.8, countries=None):
+        """
+        :param username: Geonames username
+        :param fuzzy: Fuzzy threshold between 0 and 1 (exact match)
+        :param countries: list of country codes
+        """
+        self.username = username
+        self.fuzzy = fuzzy
+        self.url = 'http://api.geonames.org/search?q={}&fuzzy={}&username={}&maxRows=20&type=json'
+        if countries:
+            for country in countries:
+                self.url += '&country=' + country
+
+    def retrieve(self, term):
+        try:
+            response = requests.get(self.url.format(term, self.fuzzy, self.username))
+            response.raise_for_status()
+            return response.json()
+        except Exception as err:
+            logger.warn('Error occurred: {}'.format(err))
+            return None
