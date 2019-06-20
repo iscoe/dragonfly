@@ -19,11 +19,12 @@ class SettingsTest(unittest.TestCase):
 
     def test_defaults_get_added(self):
         manager = SettingsManager(self.test_dir)
-        SettingsManager.DEFAULTS['test'] = True
+        original_default = copy.copy(SettingsManager.DEFAULTS)
+        SettingsManager.DEFAULTS.append(('test', True))
         manager.load()
         self.assertIn('test', manager.settings)
         self.assertTrue(manager.settings['test'])
-        del SettingsManager.DEFAULTS['test']
+        SettingsManager.DEFAULTS = original_default
 
     def test_save(self):
         manager = SettingsManager(self.test_dir)
@@ -32,6 +33,7 @@ class SettingsTest(unittest.TestCase):
         settings['Column Width'] = 20
 
         manager.save(settings)
+        manager.settings = None
 
         manager.load()
         self.assertDictEqual(settings, manager.settings)
