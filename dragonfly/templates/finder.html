@@ -20,17 +20,22 @@
         </button>
       </div>
       <div class="df-finder-local">
+        <p class="df-search-label">Local Search</p>
         <form id="df-finder-local-form" class="navbar-form navbar-left" role="search">
           <div class="form-group">
             <input type="text" name="df-finder-term" class="form-control" placeholder="Search" autocomplete="off">
           </div>
         </form>
       </div>
-      <div class="df-finder-google"><gcse:searchbox></gcse:searchbox></div>
+      <div class="df-finder-google"><p class="df-search-label">Wikipedia</p><gcse:searchbox></gcse:searchbox></div>
       <div class="df-finder-gmaps">
+        <p class="df-search-label">Google Maps</p>
+        <form class="navbar-form navbar-left" role="search">
         <input id="gmaps-input" class="form-control" type="text" placeholder="Search">
+        </form>
       </div>
       <div class="df-finder-geonames">
+        <p class="df-search-label">Geonames</p>
         <form id="df-finder-geonames-form" class="navbar-form navbar-left" role="search">
           <div class="form-group">
             <input type="text" name="df-geonames-term" class="form-control" placeholder="Search" autocomplete="off">
