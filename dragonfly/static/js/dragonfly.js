@@ -204,11 +204,13 @@ dragonfly.ContextMenu = class ContextMenu {
         $("#df-context-menu").removeClass('hidden');
         $("input[name = 'translation']").focus();
 
-        $(document).one("click", function() {
-            self.hide();
-        });
         $("#df-context-menu").on('click', function(event) {
             event.stopPropagation();
+        });
+        // documentElement to work around bug in firefox
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=184051
+        $(document.documentElement).one("click", function(event) {
+            self.hide();
         });
 
         this.highlighter.contextMenuActive = true;
