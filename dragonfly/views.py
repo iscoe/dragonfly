@@ -169,9 +169,10 @@ def hints():
 def marker():
     manager = SentenceMarkerManager(app.config.get('dragonfly.local_md_dir'))
     document = flask.request.form['document']
-    sentence = flask.request.form['sentence']
-    manager.toggle(document, sentence)
-    results = {'success': True, 'message': 'Marker saved.'}
+    sentences = flask.request.form.getlist('sentence[]')
+    for sentence in sentences:
+        manager.toggle(document, sentence)
+    results = {'success': True, 'message': 'Marker changed.'}
     return flask.jsonify(results)
 
 

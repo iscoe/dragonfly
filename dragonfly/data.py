@@ -83,7 +83,7 @@ class SentenceMarkerManager:
         elif sentence not in self.markers[document]:
             self.markers[document].append(sentence)
         else:
-            del self.markers[document]
+            self.markers[document].remove(sentence)
         self._save(self.path, self.markers)
 
     def get(self, document):

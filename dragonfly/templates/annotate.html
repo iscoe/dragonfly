@@ -47,7 +47,7 @@ var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
     <div class="df-translation">{{ document.translation[s] }}</div>
     {%- endif -%}
     {%- if s in document.markers -%}
-    {%- set marker_class = 'df-complete' -%}
+    {%- set marker_class = 'df-marked' -%}
     {%- else -%}
     {%- set marker_class = '' -%}
     {%- endif -%}

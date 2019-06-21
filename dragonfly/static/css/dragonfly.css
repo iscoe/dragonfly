@@ -238,7 +238,7 @@ body {
 .df-section > div.df-b-tag {
     border-left: 5px solid #333;
 }
-.df-complete {
+.df-marked {
    background-color: #2e6da4;
 }
 .df-hint {

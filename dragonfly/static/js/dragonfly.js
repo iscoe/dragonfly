@@ -457,29 +457,43 @@ dragonfly.Hints = class Hints {
 dragonfly.Markers = class Markers {
 
     /**
-     * Toggle the marker.
-     * @param {jQuery} element - Marker being toggled.
+     * User clicks the sentence badge to toggle or presses delete key to clear
      */
-    toggle(element) {
-        element.toggleClass("df-complete");
-        $.ajax({
-            url: '/marker',
-            type: 'POST',
-            data: {'document': dragonfly.filename, 'sentence': element.html()},
-            dataType: 'json',
-            error: function(xhr) {
-                dragonfly.showStatus('danger', 'Error contacting the server');
+    constructor() {
+        var self = this;
+
+        // user can indicate which sentences have been reviewed
+        $(".df-sentence-badge").on("click", function(event) {
+            self.toggle([this]);
+        });
+
+        $(document).on("keydown", function(event) {
+            if (event.which == 46) {
+                // delete key
+                self.toggle($(".df-marked").toArray());
             }
         });
     }
 
     /**
-     * Clear all markers
+     * Toggle the marker.
+     * @param {array} elements - Marker DOM elements to being toggled.
      */
-    clear() {
-        var self = this;
-        $(".df-complete").each(function() {
-            self.toggle($(this));
+    toggle(elements) {
+        var ids = [];
+        elements.forEach(function(element) {
+            $(element).toggleClass("df-marked");
+            ids.push($(element).html());
+        });
+
+        $.ajax({
+            url: '/marker',
+            type: 'POST',
+            data: {'document': dragonfly.filename, 'sentence': ids},
+            dataType: 'json',
+            error: function(xhr) {
+                dragonfly.showStatus('danger', 'Error contacting the server');
+            }
         });
     }
 };
@@ -1582,11 +1596,6 @@ $(document).ready(function() {
                     window.location.href = url;
                 }
             }
-        } else {
-            if (event.which == 46) {
-                // delete key
-                dragonfly.markers.clear();
-            }
         }
     });
 
@@ -1594,11 +1603,6 @@ $(document).ready(function() {
     $(".df-type").on("click", function(event) {
         var letter = $(this).attr("title");
         dragonfly.highlighter.pressKey(letter);
-    });
-
-    // user can indicate which sentences have been reviewed
-    $(".df-sentence-badge").on("click", function(event) {
-        dragonfly.markers.toggle($(this));
     });
 
     $("#df-save").on("click", function(event) {
