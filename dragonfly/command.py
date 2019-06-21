@@ -93,13 +93,25 @@ class Runner:
         # for rtl, manually turn off settings for Auto Scrolling Sentence IDs and probably Display Row Labels
         app.config['dragonfly.rtl'] = args.rtl
 
+        # make a global .dragonfly metadata directory for storing settings and dictionaries
+        global_md_dir = os.path.join(os.path.expanduser("~"), '.dragonfly')
+        if not os.path.exists(global_md_dir):
+            os.makedirs(global_md_dir)
+        app.config['dragonfly.global_md_dir'] = global_md_dir
+
+        # make a local .dragonfly metadata directory for storing search index, settings, and other dataset items
+        local_md_dir = os.path.join(os.path.expanduser(app.config['dragonfly.data_dir']), '.dragonfly')
+        if not os.path.exists(local_md_dir):
+            os.makedirs(local_md_dir)
+        app.config['dragonfly.local_md_dir'] = local_md_dir
+
         if self.mode == self.ADJUDICATE:
             app.config['dragonfly.mode'] = 'adjudicate'
             app.config['dragonfly.annotation_dirs'] = args.annotations
         else:
             app.config['dragonfly.mode'] = 'annotate'
 
-        app.dragonfly_index = Indexer(args.data)
+        app.dragonfly_index = Indexer(args.data, local_md_dir)
         app.dragonfly_bg = BackgroundProcess(app.dragonfly_index)
         app.dragonfly_bg.load_index()
 

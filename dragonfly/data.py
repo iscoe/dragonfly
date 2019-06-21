@@ -71,8 +71,8 @@ class SentenceMarkerManager:
 
     The markers dictionary is document -> list of sentence ids (0-based index)
     """
-    def __init__(self, data_dir):
-        self.path = os.path.join(data_dir, '.markers')
+    def __init__(self, metadata_dir):
+        self.path = os.path.join(metadata_dir, 'markers')
         self.markers = self._load(self.path)
 
     def toggle(self, document, sentence):

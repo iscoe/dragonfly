@@ -59,10 +59,4 @@ logging.config.dictConfig({
 
 app = Flask(__name__)
 
-# make a .dragonfly directory for storing settings, dictionaries, and indexes
-home_dir = os.path.join(os.path.expanduser("~"), '.dragonfly')
-if not os.path.exists(home_dir):
-    os.makedirs(home_dir)
-app.config['dragonfly.home_dir'] = home_dir
-
 from .views import *

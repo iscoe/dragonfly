@@ -64,10 +64,10 @@ class Indexer:
     TOKEN = 0
     TRANSLIT = 1
 
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, metadata_dir):
         self.loaded = False
         self.data_dir = data_dir
-        self.index_dir = os.path.join(data_dir, '.index')
+        self.index_dir = metadata_dir
         self.index = InvertedIndex()
 
     def load(self):
@@ -76,11 +76,10 @@ class Indexer:
             self.loaded = True
         except FileNotFoundError:
             # index is not created
+            logger.info('No search index created yet')
             self.loaded = False
 
     def build(self):
-        if not os.path.exists(self.index_dir):
-            os.makedirs(self.index_dir)
         filenames = sorted([x for x in glob.glob(os.path.join(self.data_dir, "*.*")) if os.path.isfile(x)])
         for filename in filenames:
             self._add_doc_to_index(filename)

@@ -3,11 +3,9 @@
 # Distributed under the terms of the Apache 2.0 License.
 
 import flask
-import json
 import os
 import timeit
 from .data import InputReader, Document, AnnotationLoader, EnglishTranslationLoader, SentenceMarkerManager
-from .settings import SettingsManager
 
 
 class ModeManager:
@@ -48,7 +46,7 @@ class ModeManager:
         if translation:
             document.attach_translation(translation)
 
-        marker_manager = SentenceMarkerManager(app.config.get('dragonfly.data_dir'))
+        marker_manager = SentenceMarkerManager(app.config.get('dragonfly.local_md_dir'))
         document.attach_markers(marker_manager.get(title))
 
         content = flask.render_template('annotate.html', title=title, document=document,

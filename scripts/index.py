@@ -31,6 +31,10 @@ args = parser.parse_args()
 if not os.path.isdir(args.input):
     sys.exit("Not a directory")
 
-indexer = search.Indexer(args.input)
+metadata_dir = os.path.join(args.input, '.dragonfly')
+if not os.path.exists(metadata_dir):
+    os.mkdir(metadata_dir)
+
+indexer = search.Indexer(args.input, metadata_dir)
 indexer.build()
 indexer.save()

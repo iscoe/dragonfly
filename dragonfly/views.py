@@ -24,11 +24,11 @@ def inject_dragonfly_context():
     if app.debug:
         version += '.' + ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
     tags = app.config.get('dragonfly.tags')
-    home_dir = app.config.get('dragonfly.home_dir')
-    data_dir = app.config.get('dragonfly.data_dir')
-    gsm = GlobalSettingsManager(home_dir)
+    global_md_dir = app.config.get('dragonfly.global_md_dir')
+    gsm = GlobalSettingsManager(global_md_dir)
     gsm.load()
-    lsm = LocalSettingsManager(data_dir)
+    local_md_dir = app.config.get('dragonfly.local_md_dir')
+    lsm = LocalSettingsManager(local_md_dir)
     lsm.load()
     all_settings = copy.copy(gsm.settings)
     all_settings.update(lsm.settings)
@@ -64,9 +64,9 @@ def save():
 
 @app.route('/translation', methods=['POST'])
 def translation():
-    home_dir = app.config.get('dragonfly.home_dir')
+    global_md_dir = app.config.get('dragonfly.global_md_dir')
     data = flask.request.get_json('true')
-    manager = TranslationDictManager(home_dir)
+    manager = TranslationDictManager(global_md_dir)
     manager.add(data['lang'], data['source'], data['translation'], data['type'])
     results = {'success': True, 'message': 'Translation saved.'}
     app.logger.info('Saved %s to the %s translation dictionary', data['source'], data['lang'])
@@ -75,9 +75,9 @@ def translation():
 
 @app.route('/translation/delete', methods=['POST'])
 def delete_translation():
-    home_dir = app.config.get('dragonfly.home_dir')
+    global_md_dir = app.config.get('dragonfly.global_md_dir')
     data = flask.request.get_json('true')
-    manager = TranslationDictManager(home_dir)
+    manager = TranslationDictManager(global_md_dir)
     if manager.delete(data['lang'], data['source']):
         app.logger.info('Deleted %s from the %s translation dictionary', data['source'], data['lang'])
         results = {'success': True, 'message': 'Translation deleted.'}
@@ -88,16 +88,16 @@ def delete_translation():
 
 @app.route('/translations/<lang>')
 def translations(lang):
-    home_dir = app.config.get('dragonfly.home_dir')
-    manager = TranslationDictManager(home_dir)
+    global_md_dir = app.config.get('dragonfly.global_md_dir')
+    manager = TranslationDictManager(global_md_dir)
     trans = manager.get(lang)
     return flask.jsonify(trans)
 
 
 @app.route('/translations/export/<lang>')
 def export_translations(lang):
-    home_dir = app.config.get('dragonfly.home_dir')
-    manager = TranslationDictManager(home_dir)
+    global_md_dir = app.config.get('dragonfly.global_md_dir')
+    manager = TranslationDictManager(global_md_dir)
     filename = lang + '.json'
     file = manager.get_filename(lang)
     if not os.path.exists(file):
@@ -108,8 +108,8 @@ def export_translations(lang):
 
 @app.route('/translations/import/<lang>', methods=['POST'])
 def import_translations(lang):
-    home_dir = app.config.get('dragonfly.home_dir')
-    manager = TranslationDictManager(home_dir)
+    global_md_dir = app.config.get('dragonfly.global_md_dir')
+    manager = TranslationDictManager(global_md_dir)
     file = flask.request.files['dict']
     data = file.read().decode('utf-8')
     try:
@@ -123,7 +123,7 @@ def import_translations(lang):
 
 
 @app.route('/search', methods=['POST'])
-def search():
+def search_local():
     term = flask.request.form['term']
     use_wildcards = False
     if flask.request.form['manual'] == 'true':
@@ -136,8 +136,8 @@ def search():
 @app.route('/search/geonames', methods=['POST'])
 def search_geonames():
     term = flask.request.form['term']
-    home_dir = app.config.get('dragonfly.home_dir')
-    settings_manager = GlobalSettingsManager(home_dir)
+    global_md_dir = app.config.get('dragonfly.global_md_dir')
+    settings_manager = GlobalSettingsManager(global_md_dir)
     settings_manager.load()
     geonames = Geonames(settings_manager.get_geonames_username())
     results = geonames.retrieve(term)
@@ -167,7 +167,7 @@ def hints():
 
 @app.route('/marker', methods=['POST'])
 def marker():
-    manager = SentenceMarkerManager(app.config.get('dragonfly.data_dir'))
+    manager = SentenceMarkerManager(app.config.get('dragonfly.local_md_dir'))
     document = flask.request.form['document']
     sentence = flask.request.form['sentence']
     manager.toggle(document, sentence)
@@ -177,10 +177,10 @@ def marker():
 
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
-    home_dir = app.config.get('dragonfly.home_dir')
-    data_dir = app.config.get('dragonfly.data_dir')
-    gsm = GlobalSettingsManager(home_dir)
-    lsm = LocalSettingsManager(data_dir)
+    global_md_dir = app.config.get('dragonfly.global_md_dir')
+    local_md_dir = app.config.get('dragonfly.local_md_dir')
+    gsm = GlobalSettingsManager(global_md_dir)
+    lsm = LocalSettingsManager(local_md_dir)
     if flask.request.method == 'GET':
         gsm.load()
         lsm.load()
