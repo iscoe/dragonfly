@@ -27,6 +27,7 @@ class Stats:
     def __init__(self):
         self.num_tokens = 0
         self.num_tagged_tokens = 0
+        self.num_tokens_in_tagged_sentences = 0
         self.entities = {}
         self.num_files = 0
         self.num_sentences = 0
@@ -40,6 +41,7 @@ class Stats:
                 in_tag = False
                 sentence_tagged = False
                 new_sentence = False
+                sentence_length = 0
                 tag_rows = []
                 reader = csv.reader(ifp, delimiter='\t', quoting=csv.QUOTE_NONE)
                 for row in reader:
@@ -56,11 +58,14 @@ class Stats:
                         self.num_sentences += 1
                         if sentence_tagged:
                             self.num_sentences_with_tags += 1
+                            self.num_tokens_in_tagged_sentences += sentence_length
                         sentence_tagged = False
                         new_sentence = False
+                        sentence_length = 0
                         continue
 
                     self.increment_tokens()
+                    sentence_length += 1
 
                     if row[Stats.TAG][0] == 'B':
                         in_tag = True
@@ -78,6 +83,7 @@ class Stats:
                     self.num_sentences += 1
                     if sentence_tagged:
                         self.num_sentences_with_tags += 1
+                        self.num_tokens_in_tagged_sentences += sentence_length
 
     def add(self, rows):
         self.num_tagged_tokens += len(rows)
@@ -95,6 +101,13 @@ class Stats:
         if self.num_tokens == 0:
             return 0
         return 100 * self.num_tagged_tokens / self.num_tokens
+
+    @property
+    def percentage_of_tokens_in_tagged_sentences(self):
+        # for the sentences that are tagged, what percentage of tokens are tagged
+        if self.num_tokens == 0:
+            return 0
+        return 100 * self.num_tagged_tokens / self.num_tokens_in_tagged_sentences
 
     @property
     def num_entities(self):
