@@ -3,15 +3,20 @@
 # Distributed under the terms of the Apache 2.0 License.
 
 import collections
+import copy
 import os
 import json
 
+"""
+Settings Manager
 
-class SettingsManager:
-    # these strings are synced with the javascript
-    DEFAULTS = [
+The settings strings mush be synchronized with the javascript library
+"""
+
+
+class SettingsDefaults:
+    GLOBAL = [
         ('GMaps Key', ''),
-        ('GMaps Params', '8.6, 80.1, 8'),
         ('Geonames Username', ''),
         ('Column Width', 40),
         ('Finder Height', 200),
@@ -23,32 +28,52 @@ class SettingsManager:
         ('Cascade By Default', True),
     ]
 
+    LOCAL = [
+        ('GMaps Params', '0, 0, 2'),
+    ]
+
+
+class SettingsManager:
     SETTINGS_FILENAME = 'settings.json'
 
-    def __init__(self, base_dir):
+    def __init__(self, base_dir, defaults):
         self.filename = os.path.join(base_dir, self.SETTINGS_FILENAME)
+        self.defaults = collections.OrderedDict([(item[0], item[1]) for item in defaults])
         if not os.path.exists(self.filename):
-            self.save(self.DEFAULTS)
-        self.settings = {}
+            self.save(self.defaults)
+        self.settings = collections.OrderedDict()
 
     def load(self):
-        self.settings = collections.OrderedDict([(item[0], item[1]) for item in self.DEFAULTS])
+        self.settings = copy.copy(self.defaults)
         with open(self.filename, 'r') as fp:
-            local_settings = json.load(fp)
+            loaded_settings = json.load(fp)
             for key in self.settings.keys():
-                if key in local_settings:
-                    self.settings[key] = local_settings[key]
+                if key in loaded_settings:
+                    self.settings[key] = loaded_settings[key]
 
     def save(self, settings):
+        save_settings = {k: settings[k] for k in self.defaults.keys()}
         with open(self.filename, 'w') as fp:
-            string = json.dumps(settings, sort_keys=True, indent=4, separators=(',', ': '))
+            string = json.dumps(save_settings, sort_keys=True, indent=4, separators=(',', ': '))
             fp.write(string)
 
-    def get_column_width(self):
-        return int(self.settings['Column Width'])
+    @property
+    def text_settings(self):
+        return collections.OrderedDict([(k, v) for k, v in self.settings.items() if type(v) != bool])
 
-    def get_gmaps_key(self):
-        return self.settings['GMaps Key']
+    @property
+    def bool_settings(self):
+        return collections.OrderedDict([(k, v) for k, v in self.settings.items() if type(v) == bool])
+
+
+class GlobalSettingsManager(SettingsManager):
+    def __init__(self, base_dir):
+        super().__init__(base_dir, SettingsDefaults.GLOBAL)
 
     def get_geonames_username(self):
         return self.settings['Geonames Username']
+
+
+class LocalSettingsManager(SettingsManager):
+    def __init__(self, base_dir):
+        super().__init__(base_dir, SettingsDefaults.LOCAL)

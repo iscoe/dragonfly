@@ -5,8 +5,8 @@
 {% block head %}
 <script>
 var dragonfly_filename = "{{ title }}";
-var dragonfly_settings = {{ sm.settings|convert_to_json|safe }};
-var dragonfly_tags = {{ tags|convert_to_json|safe }};
+var dragonfly_settings = {{ df_settings|convert_to_json|safe }};
+var dragonfly_tags = {{ df_tags|convert_to_json|safe }};
 var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
 </script>
 {%- if rtl -%}
@@ -40,7 +40,7 @@ var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
 
 {% block main %}
 <div class="df-main">
-{%- set max_col_width = sm.get_column_width() -%}
+{%- set max_col_width = df_settings['Column Width']|int -%}
 {%- for s in range(document.sentences|length) -%}
     {%- set sentence = document.sentences[s] -%}
     {%- if document.has_translation -%}

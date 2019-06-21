@@ -1,6 +1,6 @@
-<form id="df-settings-form" class="form-horizontal">
-  <div id="df-settings-section-text">
-    {% for label, value in text_settings.items() %}
+{%- macro render_settings(sm) -%}
+  <div class="df-settings-section-text">
+    {% for label, value in sm.text_settings.items() %}
     <div class="container-fluid form-group">
       <label class="control-label">{{ label }}</label>
       <div class="">
@@ -9,8 +9,8 @@
     </div>
     {% endfor %}
   </div>
-  <div id="df-settings-section-checkbox" class="form-group">
-    {% for label, value in bool_settings.items() %}
+  <div class="df-settings-section-checkbox" class="form-group">
+    {% for label, value in sm.bool_settings.items() %}
     <div class="checkbox">
       <label>
         <input type="hidden" name="{{ label }}" value="false">
@@ -19,4 +19,10 @@
     </div>
     {% endfor %}
   </div>
+{%- endmacro -%}
+<form id="df-settings-form" class="form-horizontal">
+  <h3>Global Settings</h3>
+  {{ render_settings(gsm) }}
+  <h3>Local Settings</h3>
+  {{ render_settings(lsm) }}
 </form>

@@ -4,9 +4,9 @@
       <span id="df-filename" class="navbar-text">{{ title }}</span>
     </div>
     <div class="navbar-header navbar-labels">
-      {%- for tag_index in range(tags|length) -%}
+      {%- for tag_index in range(df_tags|length) -%}
       {%- set code = tag_index + 1 -%}
-        <span class="navbar-text label df-type df-tag-{{ code }}{% if code == 1 %} df-type-active{% endif %}" title="{{ code }}">{{ tags[tag_index] }}</span>
+        <span class="navbar-text label df-type df-tag-{{ code }}{% if code == 1 %} df-type-active{% endif %}" title="{{ code }}">{{ df_tags[tag_index] }}</span>
       {%- endfor -%}
       <span class="navbar-text label df-type df-del" title="d">DEL</span>
       <span class="navbar-text label df-type df-sel" title="s">SEL</span>

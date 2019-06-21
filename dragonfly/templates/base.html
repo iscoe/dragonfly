@@ -3,13 +3,13 @@
   <head>
     <title>Dragonfly : {{ title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" media="screen">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dragonfly.css') }}?v={{ version }}" media="screen">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dragonfly.css') }}?v={{ df_version }}" media="screen">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery-resizable.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/utilities.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/dragonfly.js') }}?v={{ version }}"></script>
+    <script src="{{ url_for('static', filename='js/dragonfly.js') }}?v={{ df_version }}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="lang" content="{{ lang }}">
     {% block head %}{% endblock %}
