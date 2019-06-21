@@ -30,6 +30,7 @@ class SettingsDefaults:
 
     LOCAL = [
         ('GMaps Params', '0, 0, 2'),
+        ('Geonames County Codes', ''),
     ]
 
 
@@ -77,3 +78,6 @@ class GlobalSettingsManager(SettingsManager):
 class LocalSettingsManager(SettingsManager):
     def __init__(self, base_dir):
         super().__init__(base_dir, SettingsDefaults.LOCAL)
+
+    def get_geonames_country_codes(self):
+        return self.settings['Geonames County Codes']
