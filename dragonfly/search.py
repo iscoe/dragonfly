@@ -30,6 +30,9 @@ class InvertedIndex:
             if self.index[word]['count'] < self.MAX_ENTRIES:
                 self.index[word]['refs'].append({'doc': doc, 'text': sent, 'trans': trans})
 
+    def clear(self):
+        self.index = {}
+
     def retrieve(self, term, wildcards=False):
         term = term.lower()
         results = {'terms': set(), 'count': 0, 'refs': []}
@@ -80,6 +83,7 @@ class Indexer:
             self.loaded = False
 
     def build(self):
+        self.index.clear()
         filenames = sorted([x for x in glob.glob(os.path.join(self.data_dir, "*.*")) if os.path.isfile(x)])
         for filename in filenames:
             self._add_doc_to_index(filename)
