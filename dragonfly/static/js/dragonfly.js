@@ -820,6 +820,27 @@ dragonfly.Finder = class Finder {
         });
     }
 
+    /**
+     * Search Geonames
+     * @param {string} word - Search term.
+     * @param {float} fuzzy - Fuzziness on scale of 0 to 1.
+     */
+    searchGeonames(word, fuzzy) {
+        var self = this;
+        $.ajax({
+            url: '/search/geonames',
+            type: 'POST',
+            data: {'term': word, 'fuzzy': fuzzy},
+            dataType: 'html',
+            success: function(html) {
+                $('.df-results-geonames').html(html);
+            },
+            error: function(xhr) {
+                dragonfly.showStatus('danger', 'Error contacting the server');
+            }
+        });
+    }
+
     _initializeHandlers() {
         var self = this;
         // support resizing the finder window with the mouse
@@ -841,19 +862,9 @@ dragonfly.Finder = class Finder {
 
         $('#df-finder-geonames-form').on('submit', function(event) {
             event.preventDefault();
-            var self = this;
-            $.ajax({
-                url: '/search/geonames',
-                type: 'POST',
-                data: {'term': $('input[name=df-geonames-term]').val()},
-                dataType: 'html',
-                success: function(html) {
-                    $('.df-results-geonames').html(html);
-                },
-                error: function(xhr) {
-                    dragonfly.showStatus('danger', 'Error contacting the server');
-                }
-            });
+            var term = $('input[name=df-geonames-term]').val();
+            var fuzzy = parseFloat($('input[name=df-geonames-fuzzy]').val());
+            self.searchGeonames(term, fuzzy / 10.0);
         });
 
         $('#df-finder-minimize').on('click', function() {

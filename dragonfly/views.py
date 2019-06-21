@@ -136,6 +136,7 @@ def search_local():
 @app.route('/search/geonames', methods=['POST'])
 def search_geonames():
     term = flask.request.form['term']
+    fuzzy = flask.request.form['fuzzy']
     global_md_dir = app.config.get('dragonfly.global_md_dir')
     gsm = GlobalSettingsManager(global_md_dir)
     gsm.load()
@@ -145,7 +146,7 @@ def search_geonames():
     countries = []
     if lsm.get_geonames_country_codes():
         countries = [code.strip().upper() for code in lsm.get_geonames_country_codes().split(',')]
-    geonames = Geonames(gsm.get_geonames_username(), countries=countries)
+    geonames = Geonames(gsm.get_geonames_username(), countries=countries, fuzzy=fuzzy)
     results = geonames.retrieve(term)
     if results is None:
         return '<p class="text-danger">Error getting response from geonames</p>'
