@@ -166,6 +166,18 @@ def search_dict():
     return flask.render_template('search/dictionary.html', results=results)
 
 
+@app.route('/search/dict/import', methods=['POST'])
+def import_combodict():
+    local_md_dir = app.config.get('dragonfly.local_md_dir')
+    engine = DictionarySearch(local_md_dir)
+    file = flask.request.files['combodict']
+    data = file.read().decode('utf-8')
+    engine.copy(data)
+    results = {'success': True, 'message': 'Loaded the bilingual dictionary for search'}
+    app.logger.info('Imported combodict %s', file.filename)
+    return flask.jsonify(results)
+
+
 @app.route('/search/build', methods=['POST'])
 def build_index():
     app.dragonfly_bg.build_index()

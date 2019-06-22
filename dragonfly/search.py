@@ -198,10 +198,10 @@ class DictionarySearch:
     def retrieve(self, term, column):
         if not self.loaded:
             self._load()
+        term = term.lower()
         if column == self.IL:
             return self.il_index[term]
         elif column == self.ENG:
-            print('here')
             return self.english_index[term]
         elif column == self.TRANS:
             return self.trans_index[term]
@@ -214,7 +214,12 @@ class DictionarySearch:
                 if self.trans_available is None:
                     self.trans_available = len(row) == 3
                 self.data.append(row)
-                self.il_index[row[self.IL]].append(self.data[-1])
-                self.english_index[row[self.ENG]].append(self.data[-1])
+                self.il_index[row[self.IL].lower()].append(self.data[-1])
+                self.english_index[row[self.ENG].lower()].append(self.data[-1])
                 if self.trans_available:
-                    self.trans_index[row[self.TRANS]].append(self.data[-1])
+                    self.trans_index[row[self.TRANS].lower()].append(self.data[-1])
+
+    def copy(self, data):
+        with open(self.filename, 'w') as fp:
+            fp.write(data)
+            self.loaded = False
