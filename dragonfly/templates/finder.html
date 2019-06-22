@@ -18,6 +18,11 @@
         <button type="button" id="df-finder-use-geonames" class="btn btn-default df-navbar-button" title="Geonames" aria-label="Geonames">
           <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
         </button>
+        {% if df_dict_avail %}
+        <button type="button" id="df-finder-use-dict" class="btn btn-default df-navbar-button" title="Dictionary" aria-label="Dictionary">
+          <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+        </button>
+        {% endif %}
       </div>
       <div class="df-finder-searchbox df-finder-local">
         <p class="df-search-label">Local Search</p>
@@ -48,10 +53,33 @@
           </div>
         </form>
       </div>
+      <div class="df-finder-searchbox df-finder-dict">
+        <p class="df-search-label">Dictionary</p>
+        <form id="df-finder-dict-form" class="navbar-form" role="search">
+          <div class="form-group">
+            <input type="text" name="df-dict-term" class="form-control df-search-control" placeholder="Search" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <div class="radio">
+              <label><input type="radio" name="dict-column" value="1" checked>English</label>
+            </div>
+            <div class="radio">
+              <label><input type="radio" name="dict-column" value="0">IL</label>
+            </div>
+            <div class="radio">
+              <label><input type="radio" name="dict-column" value="2">Transliteration</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-default">Search</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
   <div class="df-results-local"></div>
   <div class="df-results-wikipedia"><gcse:searchresults></gcse:searchresults></div>
   <div class="df-results-gmaps" id="gmaps"></div>
   <div class="df-results-geonames"></div>
+  <div class="df-results-dict"></div>
 </div>

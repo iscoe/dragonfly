@@ -142,14 +142,14 @@ body {
 .df-finder-gmaps {
     vertical-align: top;
 }
-.df-results-local, .df-results-wikipedia, .df-results-gmaps, .df-results-geonames {
+.df-results-local, .df-results-wikipedia, .df-results-gmaps, .df-results-geonames, .df-results-dict {
     flex-grow: 1;
     overflow: auto;
     margin-top: 5px;
     position: relative;
     padding: 5px;
 }
-.df-results-wikipedia, .df-results-gmaps, .df-geonames {
+.df-results-wikipedia, .df-results-gmaps, .df-geonames, .df-results-dict {
     display: none;
 }
 .gsc-adBlock {

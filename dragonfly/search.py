@@ -2,6 +2,7 @@
 # All rights reserved.
 # Distributed under the terms of the Apache 2.0 License.
 
+import collections
 import concurrent.futures
 import csv
 import fnmatch
@@ -148,7 +149,7 @@ class BackgroundProcess:
         logger.info('Completed the search index for %s', self.indexer.data_dir)
 
 
-class Geonames:
+class GeonamesSearch:
     def __init__(self, username, fuzzy=0.8, countries=None):
         """
         :param username: Geonames username
@@ -170,3 +171,50 @@ class Geonames:
         except Exception as err:
             logger.warn('Error occurred: {}'.format(err))
             return None
+
+
+class DictionarySearch:
+    """
+    Search over a bilingual dictionary with optional transliteration column
+    """
+    FILENAME = 'combodict.txt'
+    IL = 0
+    ENG = 1
+    TRANS = 2
+
+    def __init__(self, metadata_dir):
+        self.filename = os.path.join(metadata_dir, self.FILENAME)
+        self.loaded = False
+        self.data = []
+        self.il_index = collections.defaultdict(list)
+        self.english_index = collections.defaultdict(list)
+        self.trans_index = collections.defaultdict(list)
+        self.trans_available = None
+
+    @property
+    def available(self):
+        return os.path.exists(self.filename)
+
+    def retrieve(self, term, column):
+        if not self.loaded:
+            self._load()
+        if column == self.IL:
+            return self.il_index[term]
+        elif column == self.ENG:
+            print('here')
+            return self.english_index[term]
+        elif column == self.TRANS:
+            return self.trans_index[term]
+
+    def _load(self):
+        self.loaded = True
+        with open(self.filename, 'r', encoding='utf8') as fp:
+            reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
+            for row in reader:
+                if self.trans_available is None:
+                    self.trans_available = len(row) == 3
+                self.data.append(row)
+                self.il_index[row[self.IL]].append(self.data[-1])
+                self.english_index[row[self.ENG]].append(self.data[-1])
+                if self.trans_available:
+                    self.trans_index[row[self.TRANS]].append(self.data[-1])

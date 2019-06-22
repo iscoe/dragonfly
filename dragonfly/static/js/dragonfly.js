@@ -173,7 +173,6 @@ dragonfly.Settings = class Settings {
     }
 };
 
-
 /** context menu used for adding user provided translations */
 dragonfly.ContextMenu = class ContextMenu {
     // TODO probably replace with a custom event to communicate to highlighter/translations
@@ -808,6 +807,7 @@ dragonfly.Finder = class Finder {
             'wikipedia': new dragonfly.FinderMode('wikipedia', false, function() {self.initializeWikipedia();}),
             'gmaps': new dragonfly.FinderMode('gmaps', false, function() {self.initializeGMaps();}),
             'geonames': new dragonfly.FinderMode('geonames'),
+            'dict': new dragonfly.FinderMode('dict'),
         };
         Object.values(this.modes).forEach(mode => {
             if (!mode.initialDisplay) {
@@ -846,6 +846,14 @@ dragonfly.Finder = class Finder {
             var fuzzy = parseFloat($('input[name=df-geonames-fuzzy]').val());
             // geonames wants 0 as very fuzzy and 1 as not fuzzy so we swap and normalize
             self.searchGeonames(term, (10.0 - fuzzy) / 10.0);
+        });
+
+        $('#df-finder-dict-form').on('submit', function(event) {
+            event.preventDefault();
+            $(this).find('button').blur();
+            var term = $('input[name=df-dict-term]').val();
+            var column = parseInt($('input[name=dict-column]:checked').val());
+            self.searchDictionary(term, column);
         });
 
         $('#df-finder-minimize').on('click', function() {
@@ -898,7 +906,6 @@ dragonfly.Finder = class Finder {
             }
             $(mode.button).on('click', function() {
                 $(this).blur();
-                self.use(mode);
             });
         });
      }
@@ -939,6 +946,27 @@ dragonfly.Finder = class Finder {
             dataType: 'html',
             success: function(html) {
                 $('.df-results-geonames').html(html);
+            },
+            error: function(xhr) {
+                dragonfly.showStatus('danger', 'Error contacting the server');
+            }
+        });
+    }
+
+    /**
+     * Search a bilingual dictionary
+     * @param {string} word - Search term
+     * @param {int} - Column of dictionary to search
+     */
+    searchDictionary(word, column) {
+        var self = this;
+        $.ajax({
+            url: '/search/dict',
+            type: 'POST',
+            data: {'term': word, 'column': column},
+            dataType: 'html',
+            success: function(html) {
+                $('.df-results-dict').html(html);
             },
             error: function(xhr) {
                 dragonfly.showStatus('danger', 'Error contacting the server');

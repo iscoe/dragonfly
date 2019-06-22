@@ -13,7 +13,7 @@ import os
 from .data import OutputWriter, HintLoader, SentenceMarkerManager
 from .mode import ModeManager
 from .settings import GlobalSettingsManager, LocalSettingsManager
-from .search import Geonames
+from .search import DictionarySearch, GeonamesSearch
 from .stats import Stats
 from .translations import TranslationDictManager
 
@@ -32,7 +32,8 @@ def inject_dragonfly_context():
     lsm.load()
     all_settings = copy.copy(gsm.settings)
     all_settings.update(lsm.settings)
-    data = dict(df_version=version, df_settings=all_settings, df_tags=tags)
+    dict_available = DictionarySearch(local_md_dir).available
+    data = dict(df_version=version, df_settings=all_settings, df_tags=tags, df_dict_avail=dict_available)
     return data
 
 
@@ -146,12 +147,23 @@ def search_geonames():
     countries = []
     if lsm.get_geonames_country_codes():
         countries = [code.strip().upper() for code in lsm.get_geonames_country_codes().split(',')]
-    geonames = Geonames(gsm.get_geonames_username(), countries=countries, fuzzy=fuzzy)
+    geonames = GeonamesSearch(gsm.get_geonames_username(), countries=countries, fuzzy=fuzzy)
     results = geonames.retrieve(term)
     if results is None:
         return '<p class="text-danger">Error getting response from geonames</p>'
     app.logger.info('Returned %d results from geonames for %s', len(results['geonames']), term)
     return flask.render_template('search/geonames.html', results=results)
+
+
+@app.route('/search/dict', methods=['POST'])
+def search_dict():
+    term = flask.request.form['term']
+    column = flask.request.form['column']
+    local_md_dir = app.config.get('dragonfly.local_md_dir')
+    engine = DictionarySearch(local_md_dir)
+    results = engine.retrieve(term, int(column))
+    app.logger.info('Returned %d results from dictionary search for %s', len(results), term)
+    return flask.render_template('search/dictionary.html', results=results)
 
 
 @app.route('/search/build', methods=['POST'])
