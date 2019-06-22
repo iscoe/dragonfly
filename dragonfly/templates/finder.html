@@ -1,6 +1,6 @@
 <div class="df-finder">
   <div class="df-resize-bar"></div>
-  <div class="navbar navbar-default df-nav-slim">
+  <div class="navbar navbar-default df-finder-nav">
     <div class="container-fluid">
       <div class="btn-group">
         <button type="button" id="df-finder-minimize" class="btn btn-default df-navbar-button" title="Minimize" aria-label="Minimize">
@@ -19,29 +19,32 @@
           <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
         </button>
       </div>
-      <div class="df-finder-local">
+      <div class="df-finder-searchbox df-finder-local">
         <p class="df-search-label">Local Search</p>
-        <form id="df-finder-local-form" class="navbar-form navbar-left" role="search">
+        <form id="df-finder-local-form" class="navbar-form" role="search">
           <div class="form-group">
             <input type="text" name="df-finder-term" class="form-control" placeholder="Search" autocomplete="off">
           </div>
         </form>
       </div>
-      <div class="df-finder-google"><p class="df-search-label">Wikipedia</p><gcse:searchbox></gcse:searchbox></div>
-      <div class="df-finder-gmaps">
+      <div class="df-finder-searchbox df-finder-google"><p class="df-search-label">Wikipedia</p><gcse:searchbox></gcse:searchbox></div>
+      <div class="df-finder-searchbox df-finder-gmaps">
         <p class="df-search-label">Google Maps</p>
-        <form class="navbar-form navbar-left" role="search">
+        <form class="navbar-form" role="search">
         <input id="gmaps-input" class="form-control" type="text" placeholder="Search">
         </form>
       </div>
-      <div class="df-finder-geonames">
+      <div class="df-finder-searchbox df-finder-geonames">
         <p class="df-search-label">Geonames</p>
-        <form id="df-finder-geonames-form" class="navbar-form navbar-left" role="search">
+        <form id="df-finder-geonames-form" class="navbar-form" role="search">
           <div class="form-group">
             <input type="text" name="df-geonames-term" class="form-control" placeholder="Search" autocomplete="off">
           </div>
           <div class="form-group">
-            <input type="range" class="form-control-range" name="df-geonames-fuzzy" title="Fuzziness" min="0" max="10" value="8">
+            <input type="range" class="form-control-range" name="df-geonames-fuzzy" title="Fuzziness" min="0" max="10" value="2">
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-default">Search</button>
           </div>
         </form>
       </div>

@@ -864,7 +864,8 @@ dragonfly.Finder = class Finder {
             event.preventDefault();
             var term = $('input[name=df-geonames-term]').val();
             var fuzzy = parseFloat($('input[name=df-geonames-fuzzy]').val());
-            self.searchGeonames(term, fuzzy / 10.0);
+            // geonames wants 0 as very fuzzy and 1 as not fuzzy so we swap and normalize
+            self.searchGeonames(term, (10.0 - fuzzy) / 10.0);
         });
 
         $('#df-finder-minimize').on('click', function() {

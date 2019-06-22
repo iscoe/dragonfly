@@ -104,37 +104,37 @@ body {
     background-color: #bbbbbb;
     cursor: row-resize;
 }
-.df-nav-slim {
-    margin-bottom: 0;
+.df-finder-nav {
+    height: 50px;
 }
-.df-nav-slim .form-control {
-    padding: 3px 6px;
-    height: 30px;
-    border-radius: 0;
+.df-finder-nav > div {
+    padding-top: 7px;
+}
+.df-finder-nav .btn-group {
     margin-right: 10px;
 }
-.df-nav-slim .btn {
-    margin: 6px 0;
+.df-finder-nav .btn, .df-finder-nav .navbar-form {
+    margin-top: 0;
 }
-.df-nav-slim .navbar-form {
-    margin: 6px 0 4px;
-}
-.df-search-label {
-    float: left;
-    margin-top: 12px;
-    margin-left: 15px;
-    color: #777;
-}
-.df-nav-slim .btn-group {
-    vertical-align: top;
-}
-.df-finder-local, .df-finder-google, .df-finder-gmaps, .df-finder-geonames {
+.df-finder-searchbox {
     display: inline-block;
 }
+.df-finder-searchbox > * {
+    display: inline-block;
+}
+.df-finder-searchbox .form-control {
+    padding: 3px 6px;
+    border-radius: 0;
+}
+.df-finder .form-group {
+    margin-right: 6px;
+}
 .df-finder-google > div {
-    float: left;
-    margin-left: 10px;
-    margin-top: 6px;
+    vertical-align: middle;
+    margin-left: 15px;
+}
+.df-finder-google form.gsc-search-box, .df-finder-google table.gsc-search-box {
+    margin-bottom: 0;
 }
 .gsc-input-box {
     width: 200px;
