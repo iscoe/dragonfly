@@ -129,27 +129,27 @@ body {
 .df-finder .form-group {
     margin-right: 6px;
 }
-.df-finder-google > div {
+.df-finder-wikipedia > div {
     vertical-align: middle;
     margin-left: 15px;
 }
-.df-finder-google form.gsc-search-box, .df-finder-google table.gsc-search-box {
+.df-finder-wikipedia form.gsc-search-box, .df-finder-wikipedia table.gsc-search-box {
     margin-bottom: 0;
 }
-.gsc-input-box {
-    width: 200px;
+.gsc-input-box, .df-finder-searchbox .df-search-control {
+    width: 300px;
 }
 .df-finder-gmaps {
     vertical-align: top;
 }
-.df-results-local, .df-results-google, .df-results-gmaps, .df-results-geonames {
+.df-results-local, .df-results-wikipedia, .df-results-gmaps, .df-results-geonames {
     flex-grow: 1;
     overflow: auto;
     margin-top: 5px;
     position: relative;
     padding: 5px;
 }
-.df-results-google, .df-results-gmaps, .df-geonames {
+.df-results-wikipedia, .df-results-gmaps, .df-geonames {
     display: none;
 }
 .gsc-adBlock {

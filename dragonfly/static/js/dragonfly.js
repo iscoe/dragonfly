@@ -776,27 +776,132 @@ dragonfly.MultiTokenTag = class MultiTokenTag {
 };
 
 
+/**
+ * Search mode configuration
+ */
+dragonfly.FinderMode = class FinderMode {
+    constructor(name, initialDisplay = false, initializeFunc = null) {
+        this.name = name;
+        this.initialDisplay = initialDisplay;
+        this.initializeFunc = initializeFunc;
+        this.initialized = initializeFunc == null;
+        this.button = '#df-finder-use-' + name;
+        this.searchBox = '.df-finder-' + name;
+        this.results = '.df-results-' + name;
+    }
+};
+
+/**
+ * Search window
+ */
 dragonfly.Finder = class Finder {
     /**
      * Create a Finder object
      * @param {Settings} settings - Settings manager
      */
     constructor(settings) {
-        this.Mode = {LOCAL: 0, GOOGLE: 1, GMAPS: 2, GEONAMES: 3}
+        var self = this;
         this.minimizedHeight = $('.df-finder').height();
         this.settings = settings;
-        // this causes jQuery to cache inline-block as the default show state
-        $('.df-finder-google').hide();
-        $('.df-finder-gmaps').hide();
-        $('.df-finder-geonames').hide();
-
-        this.googleInitialized = false;
-        this.gmapsInitialized = false;
+        this.modes = {
+            'local': new dragonfly.FinderMode('local', true),
+            'wikipedia': new dragonfly.FinderMode('wikipedia', false, function() {self.initializeWikipedia();}),
+            'gmaps': new dragonfly.FinderMode('gmaps', false, function() {self.initializeGMaps();}),
+            'geonames': new dragonfly.FinderMode('geonames'),
+        };
+        Object.values(this.modes).forEach(mode => {
+            if (!mode.initialDisplay) {
+                $(mode.searchBox).hide();
+            }
+        });
         this._initializeHandlers();
 
         // we load javascript libraries on demand and want to cache them
         $.ajaxSetup({cache: true});
     }
+
+    _initializeHandlers() {
+        var self = this;
+        // support resizing the finder window with the mouse
+        $('.df-finder').resizable({
+            handleSelector: '.df-resize-bar',
+            resizeWidth: false,
+            resizeHeightFrom: 'top',
+        });
+
+        $(window).on('df.finder.show', function(event) {
+            self.show();
+        });
+
+        // manual editing of search form and submission
+        $('#df-finder-local-form').on('submit', function(event) {
+            event.preventDefault();
+            self.searchFiles($('input[name=df-finder-term]').val(), true);
+        });
+
+        $('#df-finder-geonames-form').on('submit', function(event) {
+            event.preventDefault();
+            $(this).find('button').blur();
+            var term = $('input[name=df-geonames-term]').val();
+            var fuzzy = parseFloat($('input[name=df-geonames-fuzzy]').val());
+            // geonames wants 0 as very fuzzy and 1 as not fuzzy so we swap and normalize
+            self.searchGeonames(term, (10.0 - fuzzy) / 10.0);
+        });
+
+        $('#df-finder-minimize').on('click', function() {
+            self.hide();
+            $(this).blur();
+            dragonfly.highlighter.revertClickMode(dragonfly.ClickMode.FINDER);
+        });
+
+        Object.values(this.modes).forEach(mode => {
+            $(mode.button).on('click', function() {
+                $(this).blur();
+                self.use(mode);
+            });
+        });
+    }
+
+    /**
+     * Show the finder window
+     */
+    show() {
+        var cw = $('.df-finder');
+        if (cw.height() < 100) {
+            cw.height(this.settings.getFinderHeight());
+        }
+    }
+
+    /**
+     * Hide the finder window
+     */
+    hide() {
+        $('.df-finder').height(this.minimizedHeight);
+    }
+
+    /**
+     * Toggle between search modes
+     * @param {Mode} selected_mode - Search mode
+     */
+    use(selected_mode) {
+        if (!selected_mode.initialized) {
+            selected_mode.initialized = true;
+            selected_mode.initializeFunc();
+        }
+        Object.values(this.modes).forEach(mode => {
+            if (selected_mode == mode) {
+                $(mode.searchBox).show();
+                $(mode.results).show();
+            } else {
+                $(mode.searchBox).hide();
+                $(mode.results).hide();
+            }
+            $(mode.button).on('click', function() {
+                $(this).blur();
+                self.use(mode);
+            });
+        });
+     }
 
     /**
      * Search the local index
@@ -841,59 +946,10 @@ dragonfly.Finder = class Finder {
         });
     }
 
-    _initializeHandlers() {
-        var self = this;
-        // support resizing the finder window with the mouse
-        $('.df-finder').resizable({
-            handleSelector: '.df-resize-bar',
-            resizeWidth: false,
-            resizeHeightFrom: 'top',
-        });
-
-        $(window).on('df.finder.show', function(event) {
-            self.show();
-        });
-
-        // manual editing of search form and submission
-        $('#df-finder-local-form').on('submit', function(event) {
-            event.preventDefault();
-            self.searchFiles($('input[name=df-finder-term]').val(), true);
-        });
-
-        $('#df-finder-geonames-form').on('submit', function(event) {
-            event.preventDefault();
-            var term = $('input[name=df-geonames-term]').val();
-            var fuzzy = parseFloat($('input[name=df-geonames-fuzzy]').val());
-            // geonames wants 0 as very fuzzy and 1 as not fuzzy so we swap and normalize
-            self.searchGeonames(term, (10.0 - fuzzy) / 10.0);
-        });
-
-        $('#df-finder-minimize').on('click', function() {
-            self.hide();
-            dragonfly.highlighter.revertClickMode(dragonfly.ClickMode.FINDER);
-        });
-
-        $('#df-finder-use-local').on('click', function() {
-            self.use(self.Mode.LOCAL);
-        });
-
-        $('#df-finder-use-google').on('click', function() {
-            self.use(self.Mode.GOOGLE);
-        });
-
-        $('#df-finder-use-gmaps').on('click', function() {
-            self.use(self.Mode.GMAPS);
-        });
-
-        $('#df-finder-use-geonames').on('click', function() {
-            self.use(self.Mode.GEONAMES);
-        });
-    }
-
     /**
-     * Load the custom Google search engine
+     * Load the custom Google search engine for Wikipedia
      */
-    initializeGoogle() {
+    initializeWikipedia() {
         var cx = '003899999982319279749:whnyex5nm1c';
         var src = 'https://cse.google.com/cse.js?cx=' + cx;
         $.getScript(src)
@@ -983,75 +1039,6 @@ dragonfly.Finder = class Finder {
         });
         map.fitBounds(bounds);
     }
-
-    /**
-     * Show the finder window
-     */
-    show() {
-        var cw = $('.df-finder');
-        if (cw.height() < 100) {
-            cw.height(this.settings.getFinderHeight());
-        }
-    }
-
-    /**
-     * Hide the finder window
-     */
-    hide() {
-        $('.df-finder').height(this.minimizedHeight);
-    }
-
-    /**
-     * Toggle between search modes
-     * @param {Mode} mode - Search mode
-     */
-    use(mode) {
-        if (mode == this.Mode.LOCAL) {
-            $('.df-finder-local').show();
-            $('.df-results-local').show();
-            $('.df-finder-google').hide();
-            $('.df-results-google').hide();
-            $('.df-finder-gmaps').hide();
-            $('.df-results-gmaps').hide();
-            $('.df-finder-geonames').hide();
-            $('.df-results-geonames').hide();
-        } else if (mode == this.Mode.GOOGLE) {
-            if (!this.googleInitialized) {
-                this.googleInitialized = true;
-                this.initializeGoogle();
-            }
-            $('.df-finder-local').hide();
-            $('.df-results-local').hide();
-            $('.df-finder-google').show();
-            $('.df-results-google').show();
-            $('.df-finder-gmaps').hide();
-            $('.df-results-gmaps').hide();
-            $('.df-finder-geonames').hide();
-            $('.df-results-geonames').hide();
-        } else if (mode == this.Mode.GMAPS) {
-            if (!this.gmapsInitialized) {
-                this.gmapsInitialized = true;
-                this.initializeGMaps();
-            }
-            $('.df-finder-local').hide();
-            $('.df-results-local').hide();
-            $('.df-finder-google').hide();
-            $('.df-results-google').hide();
-            $('.df-finder-gmaps').show();
-            $('.df-results-gmaps').show();
-            $('.df-finder-geonames').hide();
-            $('.df-results-geonames').hide();
-        } else if (mode == this.Mode.GEONAMES) {
-            $('.df-finder-local').hide();
-            $('.df-results-local').hide();
-            $('.df-finder-google').hide();
-            $('.df-results-google').hide();
-            $('.df-finder-gmaps').hide();
-            $('.df-results-gmaps').hide();
-            $('.df-finder-geonames').show();
-            $('.df-results-geonames').show();
-        }
-     }
 };
 
 /**
