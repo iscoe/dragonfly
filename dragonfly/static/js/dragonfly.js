@@ -852,7 +852,26 @@ dragonfly.Finder = class Finder {
             event.preventDefault();
             $(this).find('button').blur();
             var term = $('input[name=df-dict-term]').val();
-            var column = parseInt($('input[name=dict-column]:checked').val());
+            var column = parseInt($('input[name=df-dict-column]:checked').val());
+            self.searchDictionary(term, column);
+        });
+
+        // autocomplete for bilingual dictionary
+        $('input[name=df-dict-term]').typeahead({minLength: 2}, {
+            name: 'dict',
+            async: true,
+            limit: 10,
+            source: function(query, syncResults, asyncResults) {
+                var column = parseInt($('input[name=df-dict-column]:checked').val());
+                $.get('/search/dict/autocomplete', {term: query, column: column}, function(data) {
+                    return asyncResults(data);
+                });
+            }
+        });
+
+        // when selects from autocomplete suggestions, submit
+        $('input[name=df-dict-term]').on('typeahead:selected', function(event, term) {
+            var column = parseInt($('input[name=df-dict-column]:checked').val());
             self.searchDictionary(term, column);
         });
 

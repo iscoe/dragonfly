@@ -314,3 +314,21 @@ body {
 }
 
 .icon-wikipedia-w:before { content: '\f266'; } /* '' */
+
+/* typeahead */
+.tt-menu {
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  min-width: 160px;
+  padding: 6px 0;
+}
+.tt-suggestion {
+  display: block;
+  padding: 3px 20px;
+  white-space: nowrap;
+}
+.tt-suggestion:hover, .tt-suggestion:focus {
+  background-color: #e7e7e7;
+}

@@ -206,6 +206,22 @@ class DictionarySearch:
         elif column == self.TRANS:
             return self.trans_index[term]
 
+    def suggest(self, term, column):
+        if not self.loaded:
+            self._load()
+        index = {}
+        if column == self.IL:
+            index = self.il_index
+        elif column == self.ENG:
+            index = self.english_index
+        elif column == self.TRANS:
+            index = self.trans_index
+        matches = fnmatch.filter(index.keys(), term.lower() + '*')
+        results = []
+        for match in matches:
+            results.append(match)
+        return results
+
     def _load(self):
         self.loaded = True
         with open(self.filename, 'r', encoding='utf8') as fp:

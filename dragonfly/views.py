@@ -166,6 +166,16 @@ def search_dict():
     return flask.render_template('search/dictionary.html', results=results)
 
 
+@app.route('/search/dict/autocomplete', methods=['GET'])
+def autocomplete_dict():
+    term = flask.request.args.get('term')
+    column = flask.request.args.get('column')
+    local_md_dir = app.config.get('dragonfly.local_md_dir')
+    engine = DictionarySearch(local_md_dir)
+    results = engine.suggest(term, int(column))
+    return flask.jsonify(results)
+
+
 @app.route('/search/dict/import', methods=['POST'])
 def import_combodict():
     local_md_dir = app.config.get('dragonfly.local_md_dir')
