@@ -1,13 +1,107 @@
 <div class="panel-group" id="tools-accordion" role="tablist" aria-multiselectable="true">
   <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="recommendations">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#tools-accordion" href="#recommendations-collapse" aria-expanded="false" aria-controls="recommendations-collapse">
+          Recommendations
+        </a>
+      </h4>
+    </div>
+    <div id="recommendations-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="recommendations">
+      <div class="panel-body">
+        <form id="df-get-recommend" action="/recommend/get" method="get">
+          {% set rec = recommender.latest %}
+          <select name="recommendation" class="form-control">
+            {% for option in recommender.list %}
+            <option{% if option == rec.name %} selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+        </form>
+        <div id="df-recommend-display">
+          {% include 'modals/recommend.html' %}
+        </div>
+        <script>
+          $("select[name='recommendation']").on('change', function(event) {
+            var form = $("#df-get-recommend");
+            $.ajax({
+              url: form.attr('action'),
+              type: 'GET',
+              data: form.serialize(),
+              success: function(html) {
+                $('#df-recommend-display').html(html);
+              },
+              error: function(xhr) {
+                dragonfly.showStatus('danger', 'Error contacting the server');
+              }
+            });
+          });
+        </script>
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="recommend-builder">
+      <h4 class="panel-title">
+        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#tools-accordion" href="#recommend-builder-collapse" aria-expanded="true" aria-controls="recommend-builder-collapse">
+          Recommendations Builder
+        </a>
+      </h4>
+    </div>
+    <div id="recommend-builder-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="recommend-builder">
+      <div class="panel-body">
+        <form id="df-build-recommend" action="/recommend/build" method="post" enctype="multipart/form-data">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" class="form-control" name="name" placeholder="Recommendation name" autocomplete="off" required>
+          </div>
+          <div class="form-group">
+            <label>Words</label>
+            <textarea class="form-control" name="words" rows="8" required></textarea>
+          </div>
+          <div class="checkbox">
+            <label><input type="checkbox" name="length_penalty" value="True" checked>Length penalty</label>
+          </div>
+          <div class="checkbox">
+            <label><input type="checkbox" name="exact_match" value="True">Exact match</label>
+          </div>
+          <button type="submit" class="btn btn-default">Submit</button>
+        </form>
+        <div id="df-recommend-results"></div>
+        <script>
+          $("#df-build-recommend").on('submit', function(event) {
+            event.preventDefault();
+            $(this).find('button').blur();
+            $('#df-tools-modal').modal('hide');
+            $.ajax({
+              url: $(this).attr('action'),
+              type: 'POST',
+              data: $(this).serialize(),
+              dataType: 'json',
+              success: function(response) {
+                if (response.success) {
+                  dragonfly.showStatus('success', response.message);
+                } else {
+                  dragonfly.showStatus('danger', response.message);
+                }
+              },
+              error: function(xhr) {
+                dragonfly.showStatus('danger', 'Error contacting the server');
+              }
+            });
+          });
+        </script>
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
     <div class="panel-heading" role="tab" id="gen-tools">
       <h4 class="panel-title">
-        <a role="button" data-toggle="collapse" data-parent="#tools-accordion" href="#gen-tools-collapse" aria-expanded="true" aria-controls="gen-tools-collapse">
+        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#tools-accordion" href="#gen-tools-collapse" aria-expanded="true" aria-controls="gen-tools-collapse">
           General Tools
         </a>
       </h4>
     </div>
-    <div id="gen-tools-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="gen-tools">
+    <div id="gen-tools-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="gen-tools">
       <div class="panel-body">
         <div class="container-fluid">
           <div class="row">
@@ -16,7 +110,6 @@
                 <a class="btn btn-default" href="/translations/export/{{ lang }}" role="button">Export Dictionary</a>
               </div>
             </div>
-
             <div class="col-md-6">
               <form id="df-trans-dict-import" class="form-inline" action="/translations/import/{{ lang }}" method="post" enctype="multipart/form-data">
                 <label class="btn btn-default">
@@ -106,20 +199,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="future-tools">
-      <h4 class="panel-title">
-        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#tools-accordion" href="#future-tools-collapse" aria-expanded="false" aria-controls="future-tools-collapse">
-          Future Tools
-        </a>
-      </h4>
-    </div>
-    <div id="future-tools-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="future-tools">
-      <div class="panel-body">
-          content here
       </div>
     </div>
   </div>

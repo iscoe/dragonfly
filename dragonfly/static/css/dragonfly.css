@@ -313,7 +313,7 @@ body {
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
-.icon-wikipedia-w:before { content: '\f266'; } /* '' */
+.icon-wikipedia-w:before { content: '\f266'; }
 
 /* typeahead */
 .tt-menu {
@@ -331,4 +331,11 @@ body {
 }
 .tt-suggestion:hover, .tt-suggestion:focus {
   background-color: #e7e7e7;
+}
+/* extras */
+#df-tools-modal > .modal-dialog {
+    width: 800px;
+}
+#df-recommend-display {
+    margin-top: 15px;
 }

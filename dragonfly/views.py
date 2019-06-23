@@ -12,6 +12,7 @@ import string
 import os
 from .data import OutputWriter, HintLoader, SentenceMarkerManager
 from .mode import ModeManager
+from .recommend import Recommender, RecommendConfig
 from .settings import GlobalSettingsManager, LocalSettingsManager
 from .search import DictionarySearch, GeonamesSearch
 from .stats import Stats
@@ -246,4 +247,24 @@ def stats():
 @app.route('/tools')
 def tools():
     lang = app.config.get('dragonfly.lang')
-    return flask.render_template('modals/tools.html', lang=lang)
+    recommender = Recommender(app.config.get('dragonfly.input').filenames, app.config.get('dragonfly.output'), app.config.get('dragonfly.local_md_dir'))
+    return flask.render_template('modals/tools.html', lang=lang, recommender=recommender)
+
+
+@app.route('/recommend/build', methods=['POST'])
+def build_recommendations():
+    name = flask.request.form['name']
+    config = RecommendConfig(flask.request.form)
+    recommender = Recommender(app.config.get('dragonfly.input').filenames, app.config.get('dragonfly.output'), app.config.get('dragonfly.local_md_dir'))
+    recommender.build(name, config)
+    results = {'success': True, 'message': '{} recommendation built'.format(name)}
+    app.logger.info('Completed building recommendations for %s', name)
+    return flask.jsonify(results)
+
+
+@app.route('/recommend/get')
+def get_recommendations():
+    rec_name = flask.request.args.get('recommendation')
+    recommender = Recommender(app.config.get('dragonfly.input').filenames, app.config.get('dragonfly.output'), app.config.get('dragonfly.local_md_dir'))
+    recommendation = recommender.get(rec_name)
+    return flask.render_template('modals/recommend.html', rec=recommendation)
