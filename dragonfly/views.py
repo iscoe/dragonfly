@@ -24,7 +24,7 @@ def inject_dragonfly_context():
     if app.debug:
         version += '.' + ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
     tags = app.config.get('dragonfly.tags')
-    locator = app.config.get('dragonfly.locator')
+    locator = app.locator
     dict_available = locator.dictionary_search.available
     data = dict(df_version=version, df_settings=locator.settings, df_tags=tags, df_dict_avail=dict_available)
     return data
@@ -116,28 +116,29 @@ def import_translations(lang):
     return flask.jsonify(results)
 
 
-@app.route('/search', methods=['POST'])
+@app.route('/search/local', methods=['POST'])
 def search_local():
     term = flask.request.form['term']
     use_wildcards = False
     if flask.request.form['manual'] == 'true':
         use_wildcards = any(ch in term for ch in ['*', '?', '[', ']'])
-    results = app.dragonfly_index.retrieve(term, use_wildcards)
+    results = app.locator.local_search.retrieve(term, use_wildcards)
     app.logger.info('Returned %d results from local search for %s', len(results['refs']), term)
     return flask.render_template('search/inverse.html', results=results)
+
+
+@app.route('/search/local/build', methods=['POST'])
+def build_index():
+    app.locator.local_search.build_index(True)
+    results = {'success': True, 'message': 'Command queued'}
+    return flask.jsonify(results)
 
 
 @app.route('/search/geonames', methods=['POST'])
 def search_geonames():
     term = flask.request.form['term']
-    fuzzy = flask.request.form['fuzzy']
-    locator = app.config.get('dragonfly.locator')
-    settings = locator.settings
-    countries = []
-    if settings['Geonames County Codes']:
-        countries = [code.strip().upper() for code in settings['Geonames County Codes'].split(',')]
-    geonames = GeonamesSearch(settings['Geonames Username'], countries=countries, fuzzy=fuzzy)
-    results = geonames.retrieve(term)
+    fuzzy = float(flask.request.form['fuzzy'])
+    results = app.locator.geonames_search.retrieve(term, fuzzy)
     if results is None:
         return '<p class="text-danger">Error getting response from geonames</p>'
     app.logger.info('Returned %d results from geonames for %s', len(results['geonames']), term)
@@ -148,9 +149,7 @@ def search_geonames():
 def search_dict():
     term = flask.request.form['term']
     column = flask.request.form['column']
-    locator = app.config.get('dragonfly.locator')
-    engine = locator.dictionary_search
-    results = engine.retrieve(term, int(column))
+    results = app.locator.dictionary_search.retrieve(term, int(column))
     app.logger.info('Returned %d results from dictionary search for %s', len(results), term)
     return flask.render_template('search/dictionary.html', results=results)
 
@@ -159,28 +158,17 @@ def search_dict():
 def autocomplete_dict():
     term = flask.request.args.get('term')
     column = flask.request.args.get('column')
-    locator = app.config.get('dragonfly.locator')
-    engine = locator.dictionary_search
-    results = engine.suggest(term, int(column))
+    results = app.locator.dictionary_search.suggest(term, int(column))
     return flask.jsonify(results)
 
 
 @app.route('/search/dict/import', methods=['POST'])
 def import_combodict():
-    locator = app.config.get('dragonfly.locator')
-    engine = locator.dictionary_search
     file = flask.request.files['combodict']
     data = file.read().decode('utf-8')
-    engine.copy(data)
+    app.locator.dictionary_search.copy(data)
     results = {'success': True, 'message': 'Loaded the bilingual dictionary for search'}
     app.logger.info('Imported combodict %s', file.filename)
-    return flask.jsonify(results)
-
-
-@app.route('/search/build', methods=['POST'])
-def build_index():
-    app.dragonfly_bg.build_index()
-    results = {'success': True, 'message': 'Command queued'}
     return flask.jsonify(results)
 
 
@@ -235,16 +223,14 @@ def stats():
 @app.route('/tools')
 def tools():
     lang = app.config.get('dragonfly.lang')
-    locator = app.config.get('dragonfly.locator')
-    return flask.render_template('modals/tools.html', lang=lang, recommender=locator.recommender)
+    return flask.render_template('modals/tools.html', lang=lang, recommender=app.locator.recommender)
 
 
 @app.route('/recommend/build', methods=['POST'])
 def build_recommendations():
     name = flask.request.form['name']
     config = RecommendConfig(flask.request.form)
-    recommender = app.config.get('dragonfly.locator').recommender
-    recommender.build(name, config)
+    app.locator.recommender.build(name, config)
     results = {'success': True, 'message': '{} recommendation built'.format(name)}
     app.logger.info('Completed building recommendations for %s', name)
     return flask.jsonify(results)
@@ -253,6 +239,5 @@ def build_recommendations():
 @app.route('/recommend/get')
 def get_recommendations():
     rec_name = flask.request.args.get('recommendation')
-    recommender = app.config.get('dragonfly.locator').recommender
-    recommendation = recommender.get(rec_name)
+    recommendation = app.locator.recommender.get(rec_name)
     return flask.render_template('modals/recommend.html', rec=recommendation)

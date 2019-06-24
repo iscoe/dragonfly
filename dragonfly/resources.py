@@ -4,7 +4,7 @@
 
 import copy
 from .recommend import Recommender
-from .search import DictionarySearch
+from .search import DictionarySearch, GeonamesSearch, LocalSearch
 from .settings import GlobalSettingsManager, LocalSettingsManager
 
 
@@ -18,11 +18,12 @@ class ResourceLocator:
     def __init__(self, config):
         self.config = config
         self._dictionary_search = None
+        self._local_search = None
         self._recommender = None
 
     @property
     def settings(self):
-        # fresh as as settings can change during runtime
+        # not cached as as settings can change during runtime
         global_md_dir = self.config.get('dragonfly.global_md_dir')
         gsm = GlobalSettingsManager(global_md_dir)
         gsm.load()
@@ -39,6 +40,24 @@ class ResourceLocator:
         if self._dictionary_search is None:
             self._dictionary_search = DictionarySearch(self.config.get('dragonfly.local_md_dir'))
         return self._dictionary_search
+
+    @property
+    def geonames_search(self):
+        # not cached as user may change country settings
+        settings = self.settings
+        countries = []
+        if settings['Geonames County Codes']:
+            countries = [code.strip().upper() for code in settings['Geonames County Codes'].split(',')]
+        return GeonamesSearch(settings['Geonames Username'], countries=countries)
+
+    @property
+    def local_search(self):
+        # cached
+        if self._local_search is None:
+            data_dir = self.config.get('dragonfly.data_dir')
+            local_md_dir = self.config.get('dragonfly.local_md_dir')
+            self._local_search = LocalSearch(data_dir, local_md_dir)
+        return self._local_search
 
     @property
     def recommender(self):

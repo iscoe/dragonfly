@@ -938,7 +938,7 @@ dragonfly.Finder = class Finder {
         var self = this;
         $('input[name=df-finder-term]').val(word);
         $.ajax({
-            url: '/search',
+            url: '/search/local',
             type: 'POST',
             data: {'term': word, 'manual': manual},
             dataType: 'html',

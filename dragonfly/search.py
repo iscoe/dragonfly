@@ -63,7 +63,7 @@ class InvertedIndex:
             self.index = pickle.load(fp)
 
 
-class Indexer:
+class LocalSearch:
     INVERTED_INDEX = "inverted_index.pkl"
     TOKEN = 0
     TRANSLIT = 1
@@ -73,8 +73,26 @@ class Indexer:
         self.data_dir = data_dir
         self.index_dir = metadata_dir
         self.index = InvertedIndex()
+        self.executor = concurrent.futures.ThreadPoolExecutor(1)
 
-    def load(self):
+    def load_index(self, bg=False):
+        if bg:
+            self.executor.submit(self._load_index)
+        else:
+            self._load_index()
+
+    def build_index(self, bg=False):
+        if bg:
+            logger.info('Building the search index for %s', self.data_dir)
+            self.executor.submit(self._build_index)
+            logger.info('Completed the search index for %s', self.data_dir)
+        else:
+            self._build_index()
+
+    def retrieve(self, term, wildcards=False):
+        return self.index.retrieve(term.lower(), wildcards)
+
+    def _load_index(self):
         try:
             self.index.load(self._get_path(self.INVERTED_INDEX))
             self.loaded = True
@@ -83,13 +101,11 @@ class Indexer:
             logger.info('No search index created yet')
             self.loaded = False
 
-    def build(self):
+    def _build_index(self):
         self.index.clear()
         filenames = sorted([x for x in glob.glob(os.path.join(self.data_dir, "*.*")) if os.path.isfile(x)])
         for filename in filenames:
             self._add_doc_to_index(filename)
-
-    def save(self):
         self.index.save(self._get_path(self.INVERTED_INDEX))
 
     def _add_doc_to_index(self, filename):
@@ -119,57 +135,35 @@ class Indexer:
                 if translit_avail:
                     trans.append(row[self.TRANSLIT])
 
-    def retrieve(self, term, wildcards=False):
-        return self.index.retrieve(term.lower(), wildcards)
-
     def _get_path(self, filename):
         return os.path.join(self.index_dir, filename)
 
 
-class BackgroundProcess:
-    def __init__(self, indexer):
-        self.executor = concurrent.futures.ThreadPoolExecutor(1)
-        self.indexer = indexer
-
-    def load_index(self):
-        self.executor.submit(self._load_index)
-
-    def build_index(self):
-        self.executor.submit(self._build_index)
-        self.executor.submit(self._load_index)
-
-    def _load_index(self):
-        self.indexer.load()
-
-    def _build_index(self):
-        logger.info('Building the search index for %s', self.indexer.data_dir)
-        self.indexer.build()
-        self.indexer.save()
-        self.indexer.load()
-        logger.info('Completed the search index for %s', self.indexer.data_dir)
-
-
 class GeonamesSearch:
-    def __init__(self, username, fuzzy=0.8, countries=None):
+    def __init__(self, username, countries=None):
         """
         :param username: Geonames username
-        :param fuzzy: Fuzzy threshold between 0 and 1 (exact match)
         :param countries: list of country codes
         """
         self.username = username
-        self.fuzzy = fuzzy
         self.url = 'http://api.geonames.org/search?q={}&fuzzy={}&username={}&maxRows=20&type=json'
         if countries:
             for country in countries:
                 self.url += '&country=' + country
 
-    def retrieve(self, term):
+    def retrieve(self, term, fuzzy=0.8):
+        """
+        Retrieve results from geonames
+        :param term: search term
+        :param fuzzy: Fuzzy threshold between 0 and 1 (exact match)
+        :return: Geonames results object
+        """
         try:
-            response = requests.get(self.url.format(term, self.fuzzy, self.username))
+            response = requests.get(self.url.format(term, fuzzy, self.username))
             response.raise_for_status()
             return response.json()
         except Exception as err:
-            logger.warn('Error occurred: {}'.format(err))
+            logger.warning('Error occurred: {}'.format(err))
             return None
 
 
