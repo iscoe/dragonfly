@@ -71,13 +71,7 @@ class GlobalSettingsManager(SettingsManager):
     def __init__(self, base_dir):
         super().__init__(base_dir, SettingsDefaults.GLOBAL)
 
-    def get_geonames_username(self):
-        return self.settings['Geonames Username']
-
 
 class LocalSettingsManager(SettingsManager):
     def __init__(self, base_dir):
         super().__init__(base_dir, SettingsDefaults.LOCAL)
-
-    def get_geonames_country_codes(self):
-        return self.settings['Geonames County Codes']

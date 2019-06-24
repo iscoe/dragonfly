@@ -3,7 +3,6 @@
 # Distributed under the terms of the Apache 2.0 License.
 
 from dragonfly import app, __version__
-import copy
 import flask
 import io
 import json
@@ -12,9 +11,9 @@ import string
 import os
 from .data import OutputWriter, HintLoader, SentenceMarkerManager
 from .mode import ModeManager
-from .recommend import Recommender, RecommendConfig
+from .recommend import RecommendConfig
 from .settings import GlobalSettingsManager, LocalSettingsManager
-from .search import DictionarySearch, GeonamesSearch
+from .search import GeonamesSearch
 from .stats import Stats
 from .translations import TranslationDictManager
 
@@ -25,16 +24,9 @@ def inject_dragonfly_context():
     if app.debug:
         version += '.' + ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
     tags = app.config.get('dragonfly.tags')
-    global_md_dir = app.config.get('dragonfly.global_md_dir')
-    gsm = GlobalSettingsManager(global_md_dir)
-    gsm.load()
-    local_md_dir = app.config.get('dragonfly.local_md_dir')
-    lsm = LocalSettingsManager(local_md_dir)
-    lsm.load()
-    all_settings = copy.copy(gsm.settings)
-    all_settings.update(lsm.settings)
-    dict_available = DictionarySearch(local_md_dir).available
-    data = dict(df_version=version, df_settings=all_settings, df_tags=tags, df_dict_avail=dict_available)
+    locator = app.config.get('dragonfly.locator')
+    dict_available = locator.dictionary_search.available
+    data = dict(df_version=version, df_settings=locator.settings, df_tags=tags, df_dict_avail=dict_available)
     return data
 
 
@@ -139,16 +131,12 @@ def search_local():
 def search_geonames():
     term = flask.request.form['term']
     fuzzy = flask.request.form['fuzzy']
-    global_md_dir = app.config.get('dragonfly.global_md_dir')
-    gsm = GlobalSettingsManager(global_md_dir)
-    gsm.load()
-    local_md_dir = app.config.get('dragonfly.local_md_dir')
-    lsm = LocalSettingsManager(local_md_dir)
-    lsm.load()
+    locator = app.config.get('dragonfly.locator')
+    settings = locator.settings
     countries = []
-    if lsm.get_geonames_country_codes():
-        countries = [code.strip().upper() for code in lsm.get_geonames_country_codes().split(',')]
-    geonames = GeonamesSearch(gsm.get_geonames_username(), countries=countries, fuzzy=fuzzy)
+    if settings['Geonames County Codes']:
+        countries = [code.strip().upper() for code in settings['Geonames County Codes'].split(',')]
+    geonames = GeonamesSearch(settings['Geonames Username'], countries=countries, fuzzy=fuzzy)
     results = geonames.retrieve(term)
     if results is None:
         return '<p class="text-danger">Error getting response from geonames</p>'
@@ -160,8 +148,8 @@ def search_geonames():
 def search_dict():
     term = flask.request.form['term']
     column = flask.request.form['column']
-    local_md_dir = app.config.get('dragonfly.local_md_dir')
-    engine = DictionarySearch(local_md_dir)
+    locator = app.config.get('dragonfly.locator')
+    engine = locator.dictionary_search
     results = engine.retrieve(term, int(column))
     app.logger.info('Returned %d results from dictionary search for %s', len(results), term)
     return flask.render_template('search/dictionary.html', results=results)
@@ -171,16 +159,16 @@ def search_dict():
 def autocomplete_dict():
     term = flask.request.args.get('term')
     column = flask.request.args.get('column')
-    local_md_dir = app.config.get('dragonfly.local_md_dir')
-    engine = DictionarySearch(local_md_dir)
+    locator = app.config.get('dragonfly.locator')
+    engine = locator.dictionary_search
     results = engine.suggest(term, int(column))
     return flask.jsonify(results)
 
 
 @app.route('/search/dict/import', methods=['POST'])
 def import_combodict():
-    local_md_dir = app.config.get('dragonfly.local_md_dir')
-    engine = DictionarySearch(local_md_dir)
+    locator = app.config.get('dragonfly.locator')
+    engine = locator.dictionary_search
     file = flask.request.files['combodict']
     data = file.read().decode('utf-8')
     engine.copy(data)
@@ -247,15 +235,15 @@ def stats():
 @app.route('/tools')
 def tools():
     lang = app.config.get('dragonfly.lang')
-    recommender = Recommender(app.config.get('dragonfly.input').filenames, app.config.get('dragonfly.output'), app.config.get('dragonfly.local_md_dir'))
-    return flask.render_template('modals/tools.html', lang=lang, recommender=recommender)
+    locator = app.config.get('dragonfly.locator')
+    return flask.render_template('modals/tools.html', lang=lang, recommender=locator.recommender)
 
 
 @app.route('/recommend/build', methods=['POST'])
 def build_recommendations():
     name = flask.request.form['name']
     config = RecommendConfig(flask.request.form)
-    recommender = Recommender(app.config.get('dragonfly.input').filenames, app.config.get('dragonfly.output'), app.config.get('dragonfly.local_md_dir'))
+    recommender = app.config.get('dragonfly.locator').recommender
     recommender.build(name, config)
     results = {'success': True, 'message': '{} recommendation built'.format(name)}
     app.logger.info('Completed building recommendations for %s', name)
@@ -265,6 +253,6 @@ def build_recommendations():
 @app.route('/recommend/get')
 def get_recommendations():
     rec_name = flask.request.args.get('recommendation')
-    recommender = Recommender(app.config.get('dragonfly.input').filenames, app.config.get('dragonfly.output'), app.config.get('dragonfly.local_md_dir'))
+    recommender = app.config.get('dragonfly.locator').recommender
     recommendation = recommender.get(rec_name)
     return flask.render_template('modals/recommend.html', rec=recommendation)

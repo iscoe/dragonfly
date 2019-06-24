@@ -239,3 +239,8 @@ class DictionarySearch:
         with open(self.filename, 'w') as fp:
             fp.write(data)
             self.loaded = False
+            self.trans_available = None
+            self.data.clear()
+            self.english_index.clear()
+            self.il_index.clear()
+            self.trans_index.clear()

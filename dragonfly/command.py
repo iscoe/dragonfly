@@ -8,6 +8,7 @@ import logging
 import os
 from . import app
 from .data import FileLister
+from .resources import ResourceLocator
 from .search import BackgroundProcess, Indexer
 
 
@@ -114,6 +115,8 @@ class Runner:
         app.dragonfly_index = Indexer(args.data, local_md_dir)
         app.dragonfly_bg = BackgroundProcess(app.dragonfly_index)
         app.dragonfly_bg.load_index()
+
+        app.config['dragonfly.locator'] = ResourceLocator(app.config)
 
         app.jinja_env.filters['convert_to_json'] = self._convert_to_json
 
