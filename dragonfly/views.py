@@ -9,13 +9,11 @@ import json
 import random
 import string
 import os
-from .data import OutputWriter, HintLoader, SentenceMarkerManager
+from .data import HintLoader
 from .mode import ModeManager
 from .recommend import RecommendConfig
 from .settings import GlobalSettingsManager, LocalSettingsManager
-from .search import GeonamesSearch
 from .stats import Stats
-from .translations import TranslationDictManager
 
 
 @app.context_processor
@@ -48,7 +46,7 @@ def save():
     if not data:
         results = {'success': False, 'message': 'The server did not receive any data.'}
     else:
-        writer = OutputWriter(app.config.get('dragonfly.output'))
+        writer = app.locator.output_writer
         response = json.loads(data)
         writer.write(response)
         app.logger.info('Saving annotations for %s', response['filename'])
@@ -56,23 +54,19 @@ def save():
     return flask.jsonify(results)
 
 
-@app.route('/translation', methods=['POST'])
+@app.route('/translations/add', methods=['POST'])
 def translation():
-    global_md_dir = app.config.get('dragonfly.global_md_dir')
     data = flask.request.get_json('true')
-    manager = TranslationDictManager(global_md_dir)
-    manager.add(data['lang'], data['source'], data['translation'], data['type'])
+    app.locator.translation_manager.add(data['lang'], data['source'], data['translation'], data['type'])
     results = {'success': True, 'message': 'Translation saved.'}
     app.logger.info('Saved %s to the %s translation dictionary', data['source'], data['lang'])
     return flask.jsonify(results)
 
 
-@app.route('/translation/delete', methods=['POST'])
+@app.route('/translations/delete', methods=['POST'])
 def delete_translation():
-    global_md_dir = app.config.get('dragonfly.global_md_dir')
     data = flask.request.get_json('true')
-    manager = TranslationDictManager(global_md_dir)
-    if manager.delete(data['lang'], data['source']):
+    if app.locator.translation_manager.delete(data['lang'], data['source']):
         app.logger.info('Deleted %s from the %s translation dictionary', data['source'], data['lang'])
         results = {'success': True, 'message': 'Translation deleted.'}
     else:
@@ -80,20 +74,16 @@ def delete_translation():
     return flask.jsonify(results)
 
 
-@app.route('/translations/<lang>')
+@app.route('/translations/get/<lang>')
 def translations(lang):
-    global_md_dir = app.config.get('dragonfly.global_md_dir')
-    manager = TranslationDictManager(global_md_dir)
-    trans = manager.get(lang)
+    trans = app.locator.translation_manager.get(lang)
     return flask.jsonify(trans)
 
 
 @app.route('/translations/export/<lang>')
 def export_translations(lang):
-    global_md_dir = app.config.get('dragonfly.global_md_dir')
-    manager = TranslationDictManager(global_md_dir)
     filename = lang + '.json'
-    file = manager.get_filename(lang)
+    file = app.locator.translation_manager.get_filename(lang)
     if not os.path.exists(file):
         file = io.BytesIO(b'{}')
     app.logger.info('Exported %s for %s', filename, lang)
@@ -102,13 +92,11 @@ def export_translations(lang):
 
 @app.route('/translations/import/<lang>', methods=['POST'])
 def import_translations(lang):
-    global_md_dir = app.config.get('dragonfly.global_md_dir')
-    manager = TranslationDictManager(global_md_dir)
     file = flask.request.files['dict']
     data = file.read().decode('utf-8')
     try:
         trans_dict = json.loads(data)
-        num_new_items = manager.import_json(lang, trans_dict)
+        num_new_items = app.locator.translation_manager.import_json(lang, trans_dict)
         results = {'success': True, 'message': '{} items added'.format(num_new_items)}
         app.logger.info('Imported %s for %s', file.filename, lang)
     except json.JSONDecodeError:
@@ -184,7 +172,7 @@ def hints():
 
 @app.route('/marker', methods=['POST'])
 def marker():
-    manager = SentenceMarkerManager(app.config.get('dragonfly.local_md_dir'))
+    manager = app.locator.marker_manager
     document = flask.request.form['document']
     sentences = flask.request.form.getlist('sentence[]')
     for sentence in sentences:

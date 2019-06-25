@@ -268,7 +268,7 @@ dragonfly.ContextMenu = class ContextMenu {
             'lang': dragonfly.lang
         };
         $.ajax({
-            url: '/translation',
+            url: '/translations/add',
             type: 'POST',
             data: JSON.stringify(data),
             dataType: 'json',
@@ -297,7 +297,7 @@ dragonfly.ContextMenu = class ContextMenu {
             'lang': dragonfly.lang,
         };
         $.ajax({
-            url: '/translation/delete',
+            url: '/translations/delete',
             type: 'POST',
             data: JSON.stringify(data),
             dataType: 'json',
@@ -512,7 +512,7 @@ dragonfly.Translations = class Translations {
     load() {
         var self = this;
         $.ajax({
-            url: '/translations/' + this.lang,
+            url: '/translations/get/' + this.lang,
             type: 'GET',
             dataType: 'json',
             success: function(data) {

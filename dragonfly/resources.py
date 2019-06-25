@@ -3,9 +3,11 @@
 # Distributed under the terms of the Apache 2.0 License.
 
 import copy
+from .data import OutputWriter, SentenceMarkerManager
 from .recommend import Recommender
 from .search import DictionarySearch, GeonamesSearch, LocalSearch
 from .settings import GlobalSettingsManager, LocalSettingsManager
+from .translations import TranslationDictManager
 
 
 class ResourceLocator:
@@ -17,9 +19,12 @@ class ResourceLocator:
     """
     def __init__(self, config):
         self.config = config
+        self.output_writer = OutputWriter(config.get('dragonfly.output'))
         self._dictionary_search = None
         self._local_search = None
         self._recommender = None
+        self._translation_manager = None
+        self._marker_manager = None
 
     @property
     def settings(self):
@@ -68,3 +73,17 @@ class ResourceLocator:
             md_dir = self.config.get('dragonfly.local_md_dir')
             self._recommender = Recommender(input_files, anno_dir, md_dir)
         return self._recommender
+
+    @property
+    def translation_manager(self):
+        # cached
+        if self._translation_manager is None:
+            self._translation_manager = TranslationDictManager(self.config.get('dragonfly.global_md_dir'))
+        return self._translation_manager
+
+    @property
+    def marker_manager(self):
+        # cached
+        if self._marker_manager is None:
+            self._marker_manager = SentenceMarkerManager(self.config.get('dragonfly.local_md_dir'))
+        return self._marker_manager
