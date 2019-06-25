@@ -58,6 +58,7 @@ body {
     border: 3px solid #f8f8f8;
     margin-right: 3px;
     margin-left: 3px;
+    user-select: none;
 }
 .df-type-active {
     border: 3px solid #666;
@@ -138,6 +139,10 @@ body {
 }
 .gsc-input-box, .df-finder-searchbox .df-search-control {
     width: 300px;
+}
+/* safari fills space with this table if the width is not specified */
+table.gsc-search-box {
+    width: 385px !important;
 }
 .df-finder-gmaps {
     vertical-align: top;
