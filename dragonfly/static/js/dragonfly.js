@@ -258,10 +258,23 @@ dragonfly.Settings = class Settings {
 
 /** context menu used for adding user provided translations */
 dragonfly.ContextMenu = class ContextMenu {
-    // TODO probably replace with a custom event to communicate to highlighter/translations
-    constructor(highlighter, translationManager) {
-        this.highlighter = highlighter;
+    constructor(translationManager) {
         this.translationManager = translationManager;
+
+        var self = this;
+        $(".df-token").on("contextmenu", function(event) {
+            self.show($(this), event);
+        });
+
+        $("#df-context-menu-submit").on('click', function(event) {
+            self.save();
+            event.preventDefault();
+        });
+
+        $("#df-context-menu-delete").on('click', function(event) {
+            self.remove();
+            event.preventDefault();
+        });
     }
 
     /**
@@ -294,8 +307,6 @@ dragonfly.ContextMenu = class ContextMenu {
         $(document.documentElement).one("click", function(event) {
             self.hide();
         });
-
-        this.highlighter.contextMenuActive = true;
     }
 
     /**
@@ -327,7 +338,6 @@ dragonfly.ContextMenu = class ContextMenu {
      * Hide the context menu and clear input.
      */
     hide() {
-        this.highlighter.contextMenuActive = false;
         $("#df-context-menu").addClass('hidden');
         $("input[name = 'translation']").val('');
         $("input[name = 'entity-type']").val('');
@@ -1197,7 +1207,6 @@ dragonfly.Highlighter = class Highlighter {
         this.selectStart = null;
         this.undo = new dragonfly.Undo(10);
         this.undoActive = false;
-        this.contextMenuActive = false;
 
         this._initializeHandlers();
     }
@@ -1663,8 +1672,6 @@ $(document).ready(function() {
         dragonfly.multiTokenEventKey = 'ctrlKey';
     }
 
-    this.multiTokenTagClickCount = 0;
-
     dragonfly.lang = $("meta[name=lang]").attr("content");
     dragonfly.filename = dragonfly_filename;
     dragonfly.tagTypes = new dragonfly.TagTypes(dragonfly_tags);
@@ -1679,7 +1686,7 @@ $(document).ready(function() {
     dragonfly.markers = new dragonfly.Markers();
     dragonfly.translations = new dragonfly.Translations(dragonfly.lang);
     dragonfly.translations.load();
-    dragonfly.contextMenu = new dragonfly.ContextMenu(dragonfly.highlighter, dragonfly.translations);
+    dragonfly.contextMenu = new dragonfly.ContextMenu(dragonfly.translations);
     dragonfly.settings.apply(true);
 
     $(".df-token").on("click", function(event) {
@@ -1690,20 +1697,6 @@ $(document).ready(function() {
         if (event.which == dragonfly.multiTokenKey) {
             dragonfly.highlighter.setControlKeyUp();
         }
-    });
-
-    $(".df-token").on("contextmenu", function(event) {
-        dragonfly.contextMenu.show($(this), event);
-    });
-
-    $("#df-context-menu-submit").on('click', function(event) {
-        dragonfly.contextMenu.save();
-        event.preventDefault();
-    });
-
-    $("#df-context-menu-delete").on('click', function(event) {
-        dragonfly.contextMenu.remove();
-        event.preventDefault();
     });
 
     $(window).on(dragonfly.Events.NEXT, function() {
