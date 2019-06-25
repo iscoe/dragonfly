@@ -22,6 +22,89 @@ dragonfly.showStatus = function(type, text) {
     }
 };
 
+dragonfly.Events = {
+    SET_TAG_MODE: 'df:set_tag_mode',
+    SET_DELETE_MODE: 'df:set_delete_mode',
+    SET_SELECT_MODE: 'df:set_select_mode',
+    SET_FIND_MODE: 'df:set_find_mode',
+    TOGGLE_CASCADE: 'df:toggle_cascade',
+    UNDO: 'df:undo',
+    SAVE: 'df:save',
+    NEXT: 'df:next',
+    PREVIOUS: 'df:previous',
+};
+
+dragonfly.EventDispatcher = class EventDispatcher {
+    constructor(tagTypes) {
+        var self = this;
+        this.tagTypes = tagTypes;
+
+        $(document).on("keypress", function(event) {
+            if ($(event.target).is("body")) {
+                var key = String.fromCharCode(event.which);
+                self.processKeyPress(key);
+            }
+        });
+
+        // change the click mode or tag type by clicking on navbar
+        $(".df-type").on("click", function(event) {
+            var letter = $(this).attr("title");
+            self.processKeyPress(letter);
+        });
+
+        $("input[id = 'cascade']").on("click", function() {
+            $(window).trigger(dragonfly.Events.TOGGLE_CASCADE);
+        });
+
+        $("#df-save").on("click", function(event) {
+            $(window).trigger(dragonfly.Events.SAVE);
+            $(this).blur();
+        });
+
+        // ctrl+s for save annotations and ctrl+arrow for navigation
+        $(document).on("keydown", function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                if (String.fromCharCode(event.which).toLowerCase() == 's') {
+                    event.preventDefault();
+                    $(window).trigger(dragonfly.Events.SAVE);
+                } else if (event.which == 37) {
+                    // left arrow
+                    $(window).trigger(dragonfly.Events.PREVIOUS);
+                } else if (event.which == 39) {
+                    // right arrow
+                    $(window).trigger(dragonfly.Events.NEXT);
+                }
+            }
+        });
+    }
+
+    processKeyPress(key) {
+        switch (key) {
+            case 'c':
+                $(window).trigger(dragonfly.Events.TOGGLE_CASCADE);
+                break;
+            case '0':
+            case 'd':
+                $(window).trigger(dragonfly.Events.SET_DELETE_MODE);
+                break;
+            case 's':
+                $(window).trigger(dragonfly.Events.SET_SELECT_MODE);
+                break;
+            case 'f':
+                $(window).trigger(dragonfly.Events.SET_FIND_MODE);
+                break;
+            case 'u':
+                $(window).trigger(dragonfly.Events.UNDO);
+                break;
+            default:
+                if (this.tagTypes.isTagType(key)) {
+                    $(window).trigger(dragonfly.Events.SET_TAG_MODE, [key]);
+                }
+                break;
+        }
+    }
+};
+
 dragonfly.Settings = class Settings {
     /**
      * Create a Settings object
@@ -1115,6 +1198,44 @@ dragonfly.Highlighter = class Highlighter {
         this.undo = new dragonfly.Undo(10);
         this.undoActive = false;
         this.contextMenuActive = false;
+
+        this._initializeHandlers();
+    }
+
+    _initializeHandlers() {
+        var self = this;
+
+        $(window).on(dragonfly.Events.SET_TAG_MODE, function(event, number) {
+            self.clickMode = dragonfly.ClickMode.TAG;
+            self.currentTagType = self.tagTypes.getTagType(number);
+            self.highlightTypeAndClickMode();
+        });
+
+        $(window).on(dragonfly.Events.TOGGLE_CASCADE, function() {
+            self.toggleCascade();
+        });
+
+        $(window).on(dragonfly.Events.UNDO, function() {
+            self.processUndo();
+        });
+
+        $(window).on(dragonfly.Events.SET_DELETE_MODE, function() {
+            self.clickMode = dragonfly.ClickMode.DEL;
+            self.highlightTypeAndClickMode();
+        });
+
+        $(window).on(dragonfly.Events.SET_SELECT_MODE, function() {
+            self.prevClickMode = this.clickMode;
+            self.clickMode = dragonfly.ClickMode.SELECT;
+            self.highlightTypeAndClickMode();
+        });
+
+        $(window).on(dragonfly.Events.SET_FIND_MODE, function() {
+            self.prevClickMode = this.clickMode;
+            self.clickMode = dragonfly.ClickMode.FINDER;
+            self.highlightTypeAndClickMode();
+            self.finder.show();
+        });
     }
 
     /**
@@ -1236,54 +1357,6 @@ dragonfly.Highlighter = class Highlighter {
             }
         });
     };
-
-    /**
-     * Process a user key press.
-     * @param {string} letter - The letter the user pressed.
-     */
-    pressKey(letter) {
-        if (this.contextMenuActive) {
-            return;
-        }
-
-        // handle token independent key controls first
-        switch (letter) {
-            case 'c':
-                // toggle cascade
-                this.toggleCascade();
-                break;
-            case '0':
-            case 'd':
-                // enter into delete mode
-                this.clickMode = dragonfly.ClickMode.DEL;
-                this.highlightTypeAndClickMode();
-                break;
-            case 's':
-                // enter into select mode
-                this.prevClickMode = this.clickMode;
-                this.clickMode = dragonfly.ClickMode.SELECT;
-                this.highlightTypeAndClickMode();
-                break;
-            case 'f':
-                // finder mode
-                this.prevClickMode = this.clickMode;
-                this.clickMode = dragonfly.ClickMode.FINDER;
-                this.highlightTypeAndClickMode();
-                this.finder.show();
-                break;
-            case 'u':
-                this.processUndo();
-                break;
-            default:
-                if (this.tagTypes.isTagType(letter)) {
-                    // change the tag type
-                    this.clickMode = dragonfly.ClickMode.TAG;
-                    this.currentTagType = this.tagTypes.getTagType(letter);
-                    this.highlightTypeAndClickMode();
-                }
-                break;
-        }
-    }
 
     /**
      * Process a token click.
@@ -1515,6 +1588,11 @@ dragonfly.AnnotationSaver = class AnnotationSaver {
         this.filename = filename;
         this.saveClicked = false;
         this.terminalBlankLine = terminalBlankLine;
+
+        var self = this;
+        $(window).on(dragonfly.Events.SAVE, function() {
+            self.save();
+        });
     }
 
     /**
@@ -1590,6 +1668,7 @@ $(document).ready(function() {
     dragonfly.lang = $("meta[name=lang]").attr("content");
     dragonfly.filename = dragonfly_filename;
     dragonfly.tagTypes = new dragonfly.TagTypes(dragonfly_tags);
+    dragonfly.eventDispatcher = new dragonfly.EventDispatcher(dragonfly.tagTypes);
     dragonfly.annotationSaver = new dragonfly.AnnotationSaver(dragonfly.filename, dragonfly_terminal_blank_line);
     dragonfly.settings = new dragonfly.Settings(dragonfly_settings, dragonfly.annotationSaver);
     dragonfly.finder = new dragonfly.Finder(dragonfly.settings);
@@ -1603,57 +1682,14 @@ $(document).ready(function() {
     dragonfly.contextMenu = new dragonfly.ContextMenu(dragonfly.highlighter, dragonfly.translations);
     dragonfly.settings.apply(true);
 
-    $("input[id = 'cascade']").on("click", function() {
-        dragonfly.highlighter.toggleCascade();
-    });
-
     $(".df-token").on("click", function(event) {
         dragonfly.highlighter.clickToken($(this), event);
-    });
-
-    $(document).on("keypress", function(event) {
-        if (!$(event.target).is("input")) {
-            dragonfly.highlighter.pressKey(String.fromCharCode(event.which));
-        }
     });
 
     $(document).on("keyup", function(event) {
         if (event.which == dragonfly.multiTokenKey) {
             dragonfly.highlighter.setControlKeyUp();
         }
-    });
-
-    // ctrl+s for save annotations and ctrl+arrow for navigation
-    $(document).on("keydown", function(event) {
-        if (event.ctrlKey || event.metaKey) {
-            if (String.fromCharCode(event.which).toLowerCase() == 's') {
-                event.preventDefault();
-                dragonfly.annotationSaver.save();
-            } else if (event.which == 37) {
-                // left arrow
-                var url = $('#df-prev-doc').attr('href');
-                if (url) {
-                    window.location.href = url;
-                }
-            } else if (event.which == 39) {
-                // right arrow
-                var url = $('#df-next-doc').attr('href');
-                if (url) {
-                    window.location.href = url;
-                }
-            }
-        }
-    });
-
-    // change the click mode or tag type by clicking on navbar
-    $(".df-type").on("click", function(event) {
-        var letter = $(this).attr("title");
-        dragonfly.highlighter.pressKey(letter);
-    });
-
-    $("#df-save").on("click", function(event) {
-        dragonfly.annotationSaver.save();
-        $(this).blur();
     });
 
     $(".df-token").on("contextmenu", function(event) {
@@ -1668,6 +1704,20 @@ $(document).ready(function() {
     $("#df-context-menu-delete").on('click', function(event) {
         dragonfly.contextMenu.remove();
         event.preventDefault();
+    });
+
+    $(window).on(dragonfly.Events.NEXT, function() {
+        var url = $('#df-next-doc').attr('href');
+        if (url) {
+            window.location.href = url;
+        }
+    });
+
+    $(window).on(dragonfly.Events.PREVIOUS, function() {
+        var url = $('#df-prev-doc').attr('href');
+        if (url) {
+            window.location.href = url;
+        }
     });
 
     $(window).on("beforeunload", function() {
