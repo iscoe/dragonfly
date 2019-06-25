@@ -33,6 +33,7 @@ dragonfly.Events = {
     NEXT: 'df:next',
     PREVIOUS: 'df:previous',
     CHANGE_SETTINGS: 'df:change_settings',
+    LEAVE: 'df:leave',
 };
 
 dragonfly.EventDispatcher = class EventDispatcher {
@@ -1233,6 +1234,15 @@ dragonfly.Highlighter = class Highlighter {
             self.highlightTypeAndClickMode();
             self.finder.show();
         });
+
+        $(window).on(dragonfly.Events.SAVE, function() {
+            self.anyTaggingPerformed = false;
+        });
+
+        $(window).on(dragonfly.Events.LEAVE, function(event) {
+            // if any tagging, return false on leaving the page
+            event.result = !self.anyTaggingPerformed;
+        });
     }
 
     /**
@@ -1603,7 +1613,10 @@ dragonfly.AnnotationSaver = class AnnotationSaver {
         // prevent user from navigating away with unsaved annotations
         if (!this.viewOnly) {
             $(window).on("beforeunload", function() {
-                if (self.highlighter.anyTaggingPerformed && !self.saveClicked) {
+                // ask if we can leave this page (return false to stop)
+                var event = jQuery.Event(dragonfly.Events.LEAVE);
+                $(window).trigger(event);
+                if (!event.result) {
                     if (self.settings.isAutoSaveOnNav()) {
                         self.save(false);
                     } else {
