@@ -8,6 +8,7 @@ var dragonfly_filename = "{{ title }}";
 var dragonfly_settings = {{ df_settings|convert_to_json|safe }};
 var dragonfly_tags = {{ df_tags|convert_to_json|safe }};
 var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
+var dragonfly_view_only = {{ view_only|lower }};
 </script>
 {%- if rtl -%}
 <style>

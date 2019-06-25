@@ -32,6 +32,7 @@ dragonfly.Events = {
     SAVE: 'df:save',
     NEXT: 'df:next',
     PREVIOUS: 'df:previous',
+    CHANGE_SETTINGS: 'df:change_settings',
 };
 
 dragonfly.EventDispatcher = class EventDispatcher {
@@ -109,12 +110,9 @@ dragonfly.Settings = class Settings {
     /**
      * Create a Settings object
      * @param {object} settings - Settings object
-     * @param {AnnotationSaver} annotationSaver - object for background saving of user annotations
      */
-    constructor(settings, annotationSaver) {
+    constructor(settings) {
         this.settings = settings;
-        this.timerId = null;
-        this.annotationSaver = annotationSaver;
         this._initializeHandlers();
     }
 
@@ -193,18 +191,7 @@ dragonfly.Settings = class Settings {
         } else {
             $(".df-column-labels").show();
         }
-        if (this.isAutoSave()) {
-            if (this.timerId == null) {
-                var self = this;
-                var autoSave = function() {self.annotationSaver.save(false)};
-                this.timerId = window.setInterval(autoSave, 60*1000);
-            }
-        } else {
-            if (this.timerId != null) {
-                window.clearInterval(this.timerId);
-                this.timerId = null;
-            }
-        }
+
         if (this.isCascadeOn() != $("#cascade").prop("checked")) {
             $(document).trigger({type: 'keypress', which: 'c'.charCodeAt(0), ctrlKey: false});
         }
@@ -228,6 +215,7 @@ dragonfly.Settings = class Settings {
             success: function(response) {
                 if (response.success) {
                     dragonfly.showStatus('success', response.message);
+                    $(window).trigger(dragonfly.Events.CHANGE_SETTINGS);
                     self.apply(false);
                 } else {
                     dragonfly.showStatus('danger', response.message);
@@ -1592,27 +1580,60 @@ dragonfly.AnnotationSaver = class AnnotationSaver {
     /**
      * Create an annotation saver.
      * @param {string} filename - The filename being edited.
+     * @param {Settings} settings - Dragonfly settings.
+     * @param {Highlighter} highlighter - Dragonfly highlighter.
+     * @param {boolean} terminalBlankLine - Whether to write blank line to end of file.
+     * @param {boolean} viewOnly - In view only mode, there is no saving.
      */
-    constructor(filename, terminalBlankLine) {
+    constructor(filename, settings, highlighter, terminalBlankLine, viewOnly) {
         this.filename = filename;
-        this.saveClicked = false;
+        this.settings = settings;
+        this.highlighter = highlighter;
         this.terminalBlankLine = terminalBlankLine;
+        this.viewOnly = viewOnly;
+        this.saveClicked = false;
+        this.timerId = null;
 
         var self = this;
+
         $(window).on(dragonfly.Events.SAVE, function() {
             self.save();
+        });
+
+        // prevent user from navigating away with unsaved annotations
+        if (!this.viewOnly) {
+            $(window).on("beforeunload", function() {
+                if (self.highlighter.anyTaggingPerformed && !self.saveClicked) {
+                    if (self.settings.isAutoSaveOnNav()) {
+                        self.save(false);
+                    } else {
+                        // this actual text may not display depending on browser
+                        return "Changes have not been saved.";
+                    }
+                }
+            });
+        }
+
+        self._configureAutoSave();
+        $(window).on(dragonfly.Events.CHANGE_SETTINGS, function() {
+            self._configureAutoSave();
         });
     }
 
     /**
      * Save the annotations.
+     * @param {boolean} notify - Whether to notify the user the annotations have been saved.
      */
     save(notify = true) {
+        if (this.viewOnly) {
+            return;
+        }
+
         var self = this;
         this.saveClicked = true;
         var data = {
             filename: this.filename,
-            tokens: this.collectAnnotations()
+            tokens: this._collectAnnotations()
         };
         $.ajax({
             url: '/save',
@@ -1638,7 +1659,7 @@ dragonfly.AnnotationSaver = class AnnotationSaver {
      * Collect annotations from the DOM.
      * @return {array} An array of token tag information.
      */
-    collectAnnotations() {
+    _collectAnnotations() {
         var tokens = [];
         $(".df-sentence").each(function() {
             $(this).find(".df-token").each(function() {
@@ -1658,6 +1679,21 @@ dragonfly.AnnotationSaver = class AnnotationSaver {
         }
         return tokens;
     }
+
+    _configureAutoSave() {
+        if (this.settings.isAutoSave()) {
+            if (this.timerId == null) {
+                // save once a minute
+                var self = this;
+                this.timerId = window.setInterval(function() {self.save(false)}, 60*1000);
+            }
+        } else {
+            if (this.timerId != null) {
+                window.clearInterval(this.timerId);
+                this.timerId = null;
+            }
+        }
+    }
 };
 
 $(document).ready(function() {
@@ -1676,17 +1712,18 @@ $(document).ready(function() {
     dragonfly.filename = dragonfly_filename;
     dragonfly.tagTypes = new dragonfly.TagTypes(dragonfly_tags);
     dragonfly.eventDispatcher = new dragonfly.EventDispatcher(dragonfly.tagTypes);
-    dragonfly.annotationSaver = new dragonfly.AnnotationSaver(dragonfly.filename, dragonfly_terminal_blank_line);
-    dragonfly.settings = new dragonfly.Settings(dragonfly_settings, dragonfly.annotationSaver);
+    dragonfly.settings = new dragonfly.Settings(dragonfly_settings);
     dragonfly.finder = new dragonfly.Finder(dragonfly.settings);
     dragonfly.highlighter = new dragonfly.Highlighter(dragonfly.tagTypes, dragonfly.finder);
     dragonfly.highlighter.initializeHighlight();
-    dragonfly.hints = new dragonfly.Hints(1);
-    dragonfly.hints.run();
-    dragonfly.markers = new dragonfly.Markers();
+    dragonfly.annotationSaver = new dragonfly.AnnotationSaver(dragonfly.filename, dragonfly.settings,
+        dragonfly.highlighter, dragonfly_terminal_blank_line, dragonfly_view_only);
     dragonfly.translations = new dragonfly.Translations(dragonfly.lang);
     dragonfly.translations.load();
     dragonfly.contextMenu = new dragonfly.ContextMenu(dragonfly.translations);
+    dragonfly.hints = new dragonfly.Hints(1);
+    dragonfly.hints.run();
+    dragonfly.markers = new dragonfly.Markers();
     dragonfly.settings.apply(true);
 
     $(".df-token").on("click", function(event) {
@@ -1710,17 +1747,6 @@ $(document).ready(function() {
         var url = $('#df-prev-doc').attr('href');
         if (url) {
             window.location.href = url;
-        }
-    });
-
-    $(window).on("beforeunload", function() {
-        if (dragonfly.highlighter.anyTaggingPerformed && !dragonfly.annotationSaver.saveClicked) {
-            if (dragonfly.settings.isAutoSaveOnNav()) {
-                dragonfly.annotationSaver.save(false);
-            } else {
-                // this actual text may not display depending on browser
-                return "Changes have not been saved.";
-            }
         }
     });
 

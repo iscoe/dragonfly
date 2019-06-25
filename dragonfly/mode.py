@@ -12,7 +12,8 @@ class ModeManager:
     ANNOTATE = "annotate"
     ADJUDICATE = "adjudicate"
 
-    def __init__(self, mode):
+    def __init__(self, mode, view_only):
+        self.view_only = view_only
         if mode == self.ANNOTATE:
             self.mode = self.ANNOTATE
         else:
@@ -50,7 +51,8 @@ class ModeManager:
         document.attach_markers(marker_manager.get(title))
 
         content = flask.render_template('annotate.html', title=title, document=document,
-                                        index=index, next_index=next_index, rtl=rtl, lang=lang)
+                                        index=index, next_index=next_index, rtl=rtl, lang=lang,
+                                        view_only=self.view_only)
         total_time = timeit.default_timer() - start_time
         app.logger.info('Serving %s in %1.2fs', filename, total_time)
         return content

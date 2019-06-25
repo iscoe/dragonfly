@@ -31,8 +31,9 @@ def inject_dragonfly_context():
 @app.route('/', defaults={'filename': None})
 @app.route('/<filename>')
 def index(filename):
+    view_only = flask.request.args.get('view', default=False, type=bool)
     mode = app.config.get('dragonfly.mode')
-    manager = ModeManager(mode)
+    manager = ModeManager(mode, view_only)
     file_index = flask.request.args.get('index')
     content = manager.render(app, filename, file_index)
     if not content:
