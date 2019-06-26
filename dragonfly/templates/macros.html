@@ -3,7 +3,7 @@
   {%- for row in sentence.rows -%}
     {% if loop.index == 1 %}{# Tokens #}
       {%- if has_annotations -%}
-    <div class="df-token noselect" id="df-token-{{ sentence.index }}-{{ tok }}"
+    <div class="df-token" id="df-token-{{ sentence.index }}-{{ tok }}"
          data-tag="{{ row.annotations[tok] }}">{{ row.strings[tok] }}</div>
       {%- else -%}
     <div class="df-token" id="df-token-{{ sentence.index }}-{{ tok }}">{{ row.strings[tok] }}</div>

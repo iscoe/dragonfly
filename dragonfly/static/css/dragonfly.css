@@ -58,7 +58,6 @@ body {
     border: 3px solid #f8f8f8;
     margin-right: 3px;
     margin-left: 3px;
-    user-select: none;
 }
 .df-type-active {
     border: 3px solid #666;
@@ -231,6 +230,7 @@ table.gsc-search-box {
 }
 .df-token, .df-type, .df-sentence-badge {
     cursor: pointer;
+    user-select: none;
 }
 .df-section > div:first-child {
     margin-top: 4px;
@@ -243,6 +243,25 @@ table.gsc-search-box {
 }
 .df-section > div.df-b-tag {
     border-left: 5px solid #333;
+}
+.df-rtl .df-sentence {
+    white-space: normal;
+    direction: rtl;
+    border-top: 2px solid #e7e7e7;
+}
+.df-rtl .df-sentence-id {
+    border-top: none;
+}
+.df-rtl .df-section {
+    border-top: none;
+    border-bottom: none;
+}
+.df-rtl .df-section:last-of-type {
+    border-right: none;
+}
+.df-rtl .df-section > div.df-b-tag {
+    border-right: 5px solid #333;
+    border-left: none;
 }
 .df-marked {
    background-color: #2e6da4;
@@ -258,15 +277,6 @@ table.gsc-search-box {
 }
 #df-settings-section-checkbox {
     margin-left: 20px !important;
-}
-.noselect {
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
 }
 .tooltip {
     font-size: 14px; /* override bootstrap */
