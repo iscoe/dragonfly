@@ -354,3 +354,7 @@ table.gsc-search-box {
 #df-recommend-display {
     margin-top: 15px;
 }
+#df-context-menu {
+    display: none;
+    z-index: 100;
+}

@@ -256,20 +256,21 @@ dragonfly.Settings = class Settings {
 /** context menu used for adding user provided translations */
 dragonfly.ContextMenu = class ContextMenu {
     constructor(translationManager) {
+        var self = this;
+        this.modal = $("#df-context-menu");
         this.translationManager = translationManager;
 
-        var self = this;
         $(".df-token").on("contextmenu", function(event) {
-            self.show($(this), event);
+            self._show($(this), event);
         });
 
         $("#df-context-menu-submit").on('click', function(event) {
-            self.save();
+            self._save();
             event.preventDefault();
         });
 
         $("#df-context-menu-delete").on('click', function(event) {
-            self.remove();
+            self._remove();
             event.preventDefault();
         });
     }
@@ -279,45 +280,71 @@ dragonfly.ContextMenu = class ContextMenu {
      * @param {jQuery} token - The token element clicked on.
      * @param {Event} event - The click event for location information.
      */
-    show(token, event) {
+    _show(token, event) {
         var self = this;
-
         event.preventDefault();
-        var top = event.pageY;
-        var left = event.pageX;
-        $("#df-context-menu").css({top: top, left: left, position:'absolute'});
-        var sourceInfo = this.getSource(token);
-        if (sourceInfo === null) {
-            return;
-        }
+
+        var sourceInfo = this._getSource(token);
         $("#df-trans-source").html(sourceInfo['text']);
         $("input[name = 'entity-type']").val(sourceInfo['type']);
         $("input[name = 'translation']").val(sourceInfo['trans']);
-        $("#df-context-menu").removeClass('hidden');
+
+        var position = this._getPosition(event);
+        this.modal.css({top: position.top, left: position.left, position:'absolute'});
+        this.modal.show();
         $("input[name = 'translation']").focus();
 
-        $("#df-context-menu").on('click', function(event) {
+        // don't want to hide context menu when clicking on it
+        this.modal.on('click', function(event) {
             event.stopPropagation();
         });
+
         // documentElement to work around bug in firefox
         // https://bugzilla.mozilla.org/show_bug.cgi?id=184051
         $(document.documentElement).one("click", function(event) {
-            self.hide();
+            self._hide();
         });
     }
 
     /**
-     * Get the information about the tag like type and text
-     * @param {jQuery} token - Token element for tag
-     * @return {object} - initial values
+     * Get position to show context menu
+     * @param {event} event - Right click event
+     * @return {object}
      */
-    getSource(token) {
-        var result = {'type': null, 'trans': null};
+    _getPosition(event) {
+        var position = {top: event.pageY, left: event.pageX};
+        var viewport = {
+            top: $(window).scrollTop(),
+            left: $(window).scrollLeft()
+        };
+        viewport.right = viewport.left + $(window).width();
+        viewport.bottom = viewport.top + $(window).height();
+
+        var modalRight = position.left + this.modal.outerWidth();
+        if (modalRight > viewport.right) {
+            position.left -= (modalRight - viewport.right);
+        }
+        var modalBottom = position.top + this.modal.outerHeight();
+        if (modalBottom > viewport.bottom) {
+            position.top -= (modalBottom - viewport.bottom);
+        }
+
+        return position;
+    }
+
+    /**
+     * Get the information about the token like text, tag type, and translation
+     * @param {jQuery} token - Token element for tag
+     * @return {object}
+     */
+    _getSource(token) {
+        var result = {text: null, type: null, trans: null};
         var tag = token.data('tag');
         if (tag == null || tag == 'O') {
             result['text'] = token.html();
         } else {
             result['text'] = token.html();
+            // B-GPE for example
             result['type'] = tag.slice(2);
         }
         var info = this.translationManager.get(result['text']);
@@ -334,8 +361,8 @@ dragonfly.ContextMenu = class ContextMenu {
     /**
      * Hide the context menu and clear input.
      */
-    hide() {
-        $("#df-context-menu").addClass('hidden');
+    _hide() {
+        this.modal.hide();
         $("input[name = 'translation']").val('');
         $("input[name = 'entity-type']").val('');
     }
@@ -343,12 +370,12 @@ dragonfly.ContextMenu = class ContextMenu {
     /**
      * Save the translation through ajax to server.
      */
-    save() {
+    _save() {
         var self = this;
         var translation = $("input[name = 'translation']").val();
         var entityType = $("input[name = 'entity-type']").val();
         if (translation.length == 0) {
-            this.hide();
+            this._hide();
             return;
         }
         var data = {
@@ -365,7 +392,7 @@ dragonfly.ContextMenu = class ContextMenu {
             success: function(response) {
                 if (response.success) {
                     dragonfly.showStatus('success', response.message);
-                    self.hide();
+                    self._hide();
                     self.translationManager.add(data.source, {'trans': data.translation, 'type': data.type});
                 } else {
                     dragonfly.showStatus('danger', response.message);
@@ -380,7 +407,7 @@ dragonfly.ContextMenu = class ContextMenu {
     /**
      * Remove the translation through ajax to server.
      */
-    remove() {
+    _remove() {
         var self = this;
         var data = {
             'source': $("#df-trans-source").html(),
@@ -392,7 +419,7 @@ dragonfly.ContextMenu = class ContextMenu {
             data: JSON.stringify(data),
             dataType: 'json',
             success: function(response) {
-                self.hide();
+                self._hide();
                 if (response.success) {
                     dragonfly.showStatus('success', response.message);
                     self.translationManager.remove(data.source);
