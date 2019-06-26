@@ -1202,11 +1202,31 @@ dragonfly.Highlighter = class Highlighter {
         this.undo = new dragonfly.Undo(10);
         this.undoActive = false;
 
+        // According to http://unixpapa.com/js/key.html, shift = 16, control = 17, alt = 18, caps lock = 20
+        if (/Mac/.test(window.navigator.platform)) {
+            // Option key on Macs
+            this.multiTokenKey = '18';
+            this.multiTokenEventKey = 'altKey';
+        } else {
+            // Control key for Windows and Linux
+            this.multiTokenKey = '17';
+            this.multiTokenEventKey = 'ctrlKey';
+        }
         this._initializeHandlers();
     }
 
     _initializeHandlers() {
         var self = this;
+
+        $(".df-token").on("click", function(event) {
+            self.clickToken($(this), event);
+        });
+
+        $(document).on("keyup", function(event) {
+            if (event.which == self.multiTokenKey) {
+                self.setControlKeyUp();
+            }
+        });
 
         $(window).on(dragonfly.Events.SET_TAG_MODE, function(event, number) {
             self.clickMode = dragonfly.ClickMode.TAG;
@@ -1264,7 +1284,7 @@ dragonfly.Highlighter = class Highlighter {
      * @return {boolean}
      */
     isMultiTokenOn(event) {
-        return event[dragonfly.multiTokenEventKey];
+        return event[this.multiTokenEventKey];
     }
 
     /**
@@ -1715,17 +1735,6 @@ dragonfly.AnnotationSaver = class AnnotationSaver {
 };
 
 $(document).ready(function() {
-    // According to http://unixpapa.com/js/key.html, shift = 16, control = 17, alt = 18, caps lock = 20
-    if (/Mac/.test(window.navigator.platform)) {
-        // Option key on Macs
-        dragonfly.multiTokenKey = '18';
-        dragonfly.multiTokenEventKey = 'altKey';
-    } else {
-        // Control key for Windows and Linux
-        dragonfly.multiTokenKey = '17';
-        dragonfly.multiTokenEventKey = 'ctrlKey';
-    }
-
     dragonfly.lang = $("meta[name=lang]").attr("content");
     dragonfly.filename = dragonfly_filename;
     dragonfly.tagTypes = new dragonfly.TagTypes(dragonfly_tags);
@@ -1743,16 +1752,6 @@ $(document).ready(function() {
     dragonfly.hints.run();
     dragonfly.markers = new dragonfly.Markers();
     dragonfly.settings.apply(true);
-
-    $(".df-token").on("click", function(event) {
-        dragonfly.highlighter.clickToken($(this), event);
-    });
-
-    $(document).on("keyup", function(event) {
-        if (event.which == dragonfly.multiTokenKey) {
-            dragonfly.highlighter.setControlKeyUp();
-        }
-    });
 
     $(window).on(dragonfly.Events.NEXT, function() {
         var url = $('#df-next-doc').attr('href');
