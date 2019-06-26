@@ -202,7 +202,7 @@ dragonfly.Settings = class Settings {
         }
 
         if (this.isCascadeOn() != $("#cascade").prop("checked")) {
-            $(document).trigger({type: 'keypress', which: 'c'.charCodeAt(0), ctrlKey: false});
+            $(window).trigger(dragonfly.Events.TOGGLE_CASCADE);
         }
 
         if (first && this.isFinderOpenDefault()) {
