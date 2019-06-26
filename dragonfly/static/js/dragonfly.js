@@ -34,6 +34,7 @@ dragonfly.Events = {
     PREVIOUS: 'df:previous',
     CHANGE_SETTINGS: 'df:change_settings',
     LEAVE: 'df:leave',
+    CLEAR_MARKERS: 'df:clear_markers',
 };
 
 dragonfly.EventDispatcher = class EventDispatcher {
@@ -76,6 +77,13 @@ dragonfly.EventDispatcher = class EventDispatcher {
                     // right arrow
                     $(window).trigger(dragonfly.Events.NEXT);
                 }
+            }
+        });
+
+        $(document).on("keydown", function(event) {
+            // check for delete key
+            if (event.which == 46) {
+                $(window).trigger(dragonfly.Events.CLEAR_MARKERS);
             }
         });
     }
@@ -548,11 +556,8 @@ dragonfly.Markers = class Markers {
             self.toggle([this]);
         });
 
-        $(document).on("keydown", function(event) {
-            if (event.which == 46) {
-                // delete key
-                self.toggle($(".df-marked").toArray());
-            }
+        $(window).on(dragonfly.Events.CLEAR_MARKERS, function() {
+            self.toggle($(".df-marked").toArray());
         });
     }
 
