@@ -75,13 +75,25 @@ class LocalSearch:
         self.index = InvertedIndex()
         self.executor = concurrent.futures.ThreadPoolExecutor(1)
 
-    def load_index(self, bg=False):
-        if bg:
-            self.executor.submit(self._load_index)
+    def load_index(self, bg=False, build=False):
+        """
+        Load the inverted index from disk
+        :param bg: Whether to run this as a background task
+        :param build: Whether to build the index if it doesn't exist
+        """
+        if build and not self._index_exists():
+            self.build_index(bg)
         else:
-            self._load_index()
+            if bg:
+                self.executor.submit(self._load_index)
+            else:
+                self._load_index()
 
     def build_index(self, bg=False):
+        """
+        Build the index
+        :param bg: Whether to run this as a background task
+        """
         if bg:
             logger.info('Building the search index for %s', self.data_dir)
             self.executor.submit(self._build_index)
@@ -90,7 +102,16 @@ class LocalSearch:
             self._build_index()
 
     def retrieve(self, term, wildcards=False):
+        """
+        Retrieve results for a query
+        :param term: Query term
+        :param wildcards: Whether to use shell-style wildcards
+        :return: dictionary of results
+        """
         return self.index.retrieve(term.lower(), wildcards)
+
+    def _index_exists(self):
+        return os.path.exists(self._get_path(self.INVERTED_INDEX))
 
     def _load_index(self):
         try:

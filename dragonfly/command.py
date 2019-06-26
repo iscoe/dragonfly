@@ -112,7 +112,7 @@ class Runner:
             app.config['dragonfly.mode'] = 'annotate'
 
         app.locator = ResourceLocator(app.config)
-        app.locator.local_search.load_index(True)
+        app.locator.local_search.load_index(bg=True, build=True)
 
         app.jinja_env.filters['convert_to_json'] = self._convert_to_json
 
