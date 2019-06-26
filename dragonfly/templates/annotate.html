@@ -30,7 +30,9 @@ var dragonfly_view_only = {{ view_only|lower }};
     {%- set marker_class = '' -%}
     {%- endif -%}
     <div class="df-sentence" id="df-sentence-{{ sentence.index }}">
-        <div class="df-sentence-id"><span class="df-sentence-badge badge {{ marker_class }}" id="{{ sentence.index }}">{{ sentence.index }}</span></div>
+        <div class="df-sentence-id">
+            <span class="df-sentence-badge badge {{ marker_class }}" id="{{ sentence.index }}" data-index="{{ sentence.index}}">{{ sentence.index + 1 }}</span>
+        </div>
         <div class="df-section df-column-labels">
         {%- for row in sentence.rows -%}
             <div>{{ row.label }}</div>

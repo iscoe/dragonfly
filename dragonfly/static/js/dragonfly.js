@@ -596,7 +596,7 @@ dragonfly.Markers = class Markers {
         var ids = [];
         elements.forEach(function(element) {
             $(element).toggleClass("df-marked");
-            ids.push($(element).html());
+            ids.push($(element).data('index'));
         });
 
         $.ajax({
