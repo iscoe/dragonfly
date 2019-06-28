@@ -919,6 +919,7 @@ dragonfly.Finder = class Finder {
         this.modes = {
             'local': new dragonfly.FinderMode('local', true),
             'wikipedia': new dragonfly.FinderMode('wikipedia', false, function() {self.initializeWikipedia();}),
+            'google': new dragonfly.FinderMode('google', false, function() {self.initializeGoogle();}),
             'gmaps': new dragonfly.FinderMode('gmaps', false, function() {self.initializeGMaps();}),
             'geonames': new dragonfly.FinderMode('geonames'),
             'dict': new dragonfly.FinderMode('dict'),
@@ -1117,6 +1118,13 @@ dragonfly.Finder = class Finder {
             .fail(function(jqxhr, settings, exception) {
                 dragonfly.showStatus('danger', 'Unable to contact Google Search');
         });
+    }
+
+    /**
+     * Load the iframe for Google search
+     */
+    initializeGoogle() {
+        $('.df-results-google').html('<iframe width="100%" height="300px" src="https://www.google.com/?igu=1"></iframe>');
     }
 
     /**

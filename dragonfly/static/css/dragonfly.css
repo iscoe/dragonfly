@@ -329,6 +329,7 @@ table.gsc-search-box {
 }
 
 .icon-wikipedia-w:before { content: '\f266'; }
+.icon-google:before { content: '\f1a0'; }
 
 /* typeahead */
 .tt-menu {
