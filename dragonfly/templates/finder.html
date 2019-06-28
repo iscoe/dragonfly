@@ -1,4 +1,4 @@
-<div class="df-finder">
+<div class="df-finder" {% if df_settings['Finder Starts Open'] %}style="height: {{ df_settings['Finder Height'] }}px;"{% endif %}>
   <div class="df-resize-bar"></div>
   <div class="navbar navbar-default df-finder-nav">
     <div class="container-fluid">

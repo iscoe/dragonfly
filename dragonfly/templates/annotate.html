@@ -33,7 +33,7 @@ var dragonfly_view_only = {{ view_only|lower }};
         <div class="df-sentence-id">
             <span class="df-sentence-badge badge {{ marker_class }}" id="{{ sentence.index }}" data-index="{{ sentence.index}}">{{ sentence.index + 1 }}</span>
         </div>
-        <div class="df-section df-column-labels">
+        <div class="df-section df-column-labels{% if not df_settings['Display Row Labels'] %} df-hide{% endif %}">
         {%- for row in sentence.rows -%}
             <div>{{ row.label }}</div>
         {%- endfor -%}

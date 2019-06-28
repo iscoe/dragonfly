@@ -358,3 +358,6 @@ table.gsc-search-box {
     display: none;
     z-index: 100;
 }
+.df-hide {
+    display: none;
+}

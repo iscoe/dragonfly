@@ -191,22 +191,13 @@ dragonfly.Settings = class Settings {
     }
 
     /**
-     * Apply the current settings to the page
-     * @param {boolean} first - Is this the first run of apply
+     * Apply changed settings to the page
      */
-    apply(first) {
+    apply() {
         if (!this.isDisplayRowLabels()) {
             $(".df-column-labels").hide();
         } else {
             $(".df-column-labels").show();
-        }
-
-        if (this.isCascadeOn() != $("#cascade").prop("checked")) {
-            $(window).trigger(dragonfly.Events.TOGGLE_CASCADE);
-        }
-
-        if (first && this.isFinderOpenDefault()) {
-            $(window).trigger('df.finder.show');
         }
     }
 
@@ -225,7 +216,7 @@ dragonfly.Settings = class Settings {
                 if (response.success) {
                     dragonfly.showStatus('success', response.message);
                     $(window).trigger(dragonfly.Events.CHANGE_SETTINGS);
-                    self.apply(false);
+                    self.apply();
                 } else {
                     dragonfly.showStatus('danger', response.message);
                 }
@@ -941,10 +932,6 @@ dragonfly.Finder = class Finder {
             handleSelector: '.df-resize-bar',
             resizeWidth: false,
             resizeHeightFrom: 'top',
-        });
-
-        $(window).on('df.finder.show', function(event) {
-            self.show();
         });
 
         // manual editing of search form and submission
@@ -1778,7 +1765,6 @@ $(document).ready(function() {
     dragonfly.hints = new dragonfly.Hints(1);
     dragonfly.hints.run();
     dragonfly.markers = new dragonfly.Markers();
-    dragonfly.settings.apply(true);
 
     $(window).on(dragonfly.Events.NEXT, function() {
         var url = $('#df-next-doc').attr('href');
