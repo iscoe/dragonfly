@@ -11,6 +11,23 @@ from .data import FileLister
 from .resources import ResourceLocator
 
 
+class PrefixMiddleware(object):
+
+    def __init__(self, web_app, prefix=''):
+        self.app = web_app
+        self.prefix = prefix
+
+    def __call__(self, environ, start_response):
+
+        if environ['PATH_INFO'].startswith(self.prefix):
+            environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
+            environ['SCRIPT_NAME'] = self.prefix
+            return self.app(environ, start_response)
+        else:
+            start_response('404', [('Content-Type', 'text/plain')])
+            return ["Bad request. Check configuration.".encode()]
+
+
 class Runner:
     ANNOTATE = 0
     ADJUDICATE = 1
@@ -45,6 +62,7 @@ class Runner:
         parser.add_argument("-p", "--port", help="optional port to use (default is 5000)")
         parser.add_argument("-e", "--ext", help="optional file extension to match (default is .txt)")
         parser.add_argument("-t", "--tags", help="optional list of tags (default is PER,ORG,GPE,LOC)")
+        parser.add_argument("--prefix", help="optional URL prefix for web server")
         parser.add_argument("--rtl", action='store_true', help="option to display text RTL")
         parser.add_argument("--debug", action='store_true', help="option to run in debug mode")
         return parser.parse_args()
@@ -92,6 +110,13 @@ class Runner:
         app.config['dragonfly.tags'] = args.tags
         # for rtl, manually turn off settings for Auto Scrolling Sentence IDs and probably Display Row Labels
         app.config['dragonfly.rtl'] = args.rtl
+
+        # if we're running in a sub-directory
+        if args.prefix:
+            prefix = args.prefix
+            if prefix[0] != '/':
+                prefix = '/' + prefix
+            app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix=prefix)
 
         # make a global .dragonfly metadata directory for storing settings and dictionaries
         global_md_dir = os.path.join(os.path.expanduser("~"), '.dragonfly')

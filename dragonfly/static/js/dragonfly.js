@@ -130,7 +130,7 @@ dragonfly.Settings = class Settings {
 
         $('#df-settings-modal').on('show.bs.modal', function(event) {
             var body = $(this).find('.modal-body');
-            body.load('/settings');
+            body.load('settings');
             $('#df-settings-button').one('focus', function(event) {
                 $(this).blur();
             });
@@ -217,7 +217,7 @@ dragonfly.Settings = class Settings {
         var self = this;
         this.settings = this._convertToObject($("#df-settings-form").serializeArray());
         $.ajax({
-            url: '/settings',
+            url: 'settings',
             type: 'POST',
             data: {json: JSON.stringify(this.settings)},
             dataType: 'json',
@@ -385,7 +385,7 @@ dragonfly.ContextMenu = class ContextMenu {
             'lang': dragonfly.lang
         };
         $.ajax({
-            url: '/translations/add',
+            url: 'translations/add',
             type: 'POST',
             data: JSON.stringify(data),
             dataType: 'json',
@@ -414,7 +414,7 @@ dragonfly.ContextMenu = class ContextMenu {
             'lang': dragonfly.lang,
         };
         $.ajax({
-            url: '/translations/delete',
+            url: 'translations/delete',
             type: 'POST',
             data: JSON.stringify(data),
             dataType: 'json',
@@ -527,7 +527,7 @@ dragonfly.Hints = class Hints {
     run() {
         var self = this;
         $.ajax({
-            url: '/hints',
+            url: 'hints',
             type: 'GET',
             dataType: 'json',
             success: function(data) {
@@ -600,7 +600,7 @@ dragonfly.Markers = class Markers {
         });
 
         $.ajax({
-            url: '/marker',
+            url: 'marker',
             type: 'POST',
             data: {'document': dragonfly.filename, 'sentence': ids},
             dataType: 'json',
@@ -626,7 +626,7 @@ dragonfly.Translations = class Translations {
     load() {
         var self = this;
         $.ajax({
-            url: '/translations/get/' + this.lang,
+            url: 'translations/get/' + this.lang,
             type: 'GET',
             dataType: 'json',
             success: function(data) {
@@ -1052,7 +1052,7 @@ dragonfly.Finder = class Finder {
         var self = this;
         $('input[name=df-finder-term]').val(word);
         $.ajax({
-            url: '/search/local',
+            url: 'search/local',
             type: 'POST',
             data: {'term': word, 'manual': manual},
             dataType: 'html',
@@ -1073,7 +1073,7 @@ dragonfly.Finder = class Finder {
     searchGeonames(word, fuzzy) {
         var self = this;
         $.ajax({
-            url: '/search/geonames',
+            url: 'search/geonames',
             type: 'POST',
             data: {'term': word, 'fuzzy': fuzzy},
             dataType: 'html',
@@ -1701,7 +1701,7 @@ dragonfly.AnnotationSaver = class AnnotationSaver {
             tokens: this._collectAnnotations()
         };
         $.ajax({
-            url: '/save',
+            url: 'save',
             type: 'POST',
             data: {json: JSON.stringify(data)},
             dataType: 'json',
@@ -1806,7 +1806,7 @@ $(document).ready(function() {
 
     $('#df-stats-modal').on('show.bs.modal', function(event) {
         var body = $(this).find('.modal-body');
-        body.load('/stats');
+        body.load('stats');
         $('#df-stats-button').one('focus', function(event) {
             $(this).blur();
         });
@@ -1814,7 +1814,7 @@ $(document).ready(function() {
 
     $('#df-tools-modal').on('show.bs.modal', function(event) {
         var body = $(this).find('.modal-body');
-        body.load('/tools');
+        body.load('tools');
         $('#df-tools-button').one('focus', function(event) {
             $(this).blur();
         });
