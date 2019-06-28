@@ -1,23 +1,25 @@
 import unittest
 import os
-from dragonfly.data import Document, FileLister, InputReader
+import shutil
+import tempfile
+from dragonfly.data import Document, FileLister, InputReader, StopWords
 
 
-def get_filename(filename):
-    return os.path.join(os.path.dirname(__file__), filename)
+def get_path(*args):
+    return os.path.join(os.path.dirname(__file__), *args)
 
 
 class FileListerTest(unittest.TestCase):
     @staticmethod
     def get_directory():
-        return os.path.join(os.path.dirname(__file__), 'data', 'lister')
+        return get_path('data', 'lister')
 
-    def test_init_with_bad_extension(self):
+    def test_init_with_bad_directory(self):
         directory = os.path.join(self.get_directory(), 'not_exist')
         with self.assertRaises(ValueError) as context:
             FileLister(directory, 'txt')
 
-    def test_init_with_bad_directory(self):
+    def test_init_with_bad_extension(self):
         with self.assertRaises(ValueError) as context:
             FileLister(self.get_directory(), 'notxt')
 
@@ -37,9 +39,8 @@ class FileListerTest(unittest.TestCase):
 
 
 class InputReaderTest(unittest.TestCase):
-
     def test_basic_file(self):
-        filename = get_filename('data/input_basic.tsv')
+        filename = get_path('data', 'input_basic.tsv')
         reader = InputReader(filename)
         self.assertEqual(2, len(reader.sentences))
         self.assertEqual(0, reader.sentences[0].index)
@@ -53,21 +54,21 @@ class InputReaderTest(unittest.TestCase):
         self.assertEqual(True, reader.terminal_blank_line)
 
     def test_with_no_final_empty_line(self):
-        filename = get_filename('data/input_with_no_last_line.tsv')
+        filename = get_path('data', 'input_with_no_last_line.tsv')
         reader = InputReader(filename)
         self.assertEqual(1, len(reader.sentences))
         self.assertEqual(False, reader.terminal_blank_line)
 
     def test_with_conll(self):
-        filename = get_filename('data/input_conll.tsv')
+        filename = get_path('data', 'input_conll.tsv')
         reader = InputReader(filename)
         self.assertEqual(3, len(reader.sentences))
 
 
 class DocumentTest(unittest.TestCase):
     def test_applying_annotations(self):
-        original_filename = get_filename('data/input_no_annotations.tsv')
-        annotations_filename = get_filename('data/input_with_annotations.tsv')
+        original_filename = get_path('data', 'input_no_annotations.tsv')
+        annotations_filename = get_path('data', 'input_with_annotations.tsv')
         document = Document(original_filename, InputReader(original_filename).sentences, False)
         annotations = InputReader(annotations_filename).sentences
         document.attach_annotations(annotations)
@@ -75,17 +76,35 @@ class DocumentTest(unittest.TestCase):
         self.assertEqual('B-GPE', document.sentences[0].rows[0].annotations[5])
 
     def test_applying_annotations_with_wrong_length(self):
-        original_filename = get_filename('data/input_no_annotations.tsv')
-        annotations_filename = get_filename('data/input_with_wrong_annotations_length.tsv')
+        original_filename = get_path('data', 'input_no_annotations.tsv')
+        annotations_filename = get_path('data', 'input_with_wrong_annotations_length.tsv')
         document = Document(original_filename, InputReader(original_filename).sentences, False)
         annotations = InputReader(annotations_filename).sentences
         with self.assertRaises(ValueError) as context:
             document.attach_annotations(annotations)
 
     def test_applying_annotations_with_wrong_words(self):
-        original_filename = get_filename('data/input_no_annotations.tsv')
-        annotations_filename = get_filename('data/input_with_wrong_annotations.tsv')
+        original_filename = get_path('data', 'input_no_annotations.tsv')
+        annotations_filename = get_path('data', 'input_with_wrong_annotations.tsv')
         document = Document(original_filename, InputReader(original_filename).sentences, False)
         annotations = InputReader(annotations_filename).sentences
         with self.assertRaises(ValueError) as context:
             document.attach_annotations(annotations)
+
+
+class StopWordsTest(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
+    def test_build(self):
+        stop_words = StopWords(get_path('data', 'stop_words'), self.test_dir, 10)
+        self.assertIn('the', stop_words.words)
+
+    def test_save_and_load(self):
+        stop_words = StopWords(get_path('data', 'stop_words'), self.test_dir, 10)
+        stop_words2 = StopWords(get_path('data', 'stop_words'), self.test_dir)
+        self.assertEqual(10, len(stop_words2.words))
+        self.assertIn('.', stop_words2.words)

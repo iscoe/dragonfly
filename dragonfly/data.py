@@ -2,6 +2,7 @@
 # All rights reserved.
 # Distributed under the terms of the Apache 2.0 License.
 
+import collections
 import csv
 import glob
 import json
@@ -41,6 +42,45 @@ class FileLister:
 
     def __contains__(self, key):
         return 0 <= key < len(self.filenames)
+
+
+class StopWords:
+    """
+    Calculate a list of stop words from a corpus
+    """
+    CACHE_FILE = 'stop_words.json'
+    TOKEN_INDEX = 0
+
+    def __init__(self, data_dir, metadata_dir, size=50):
+        self.words = set()
+        self.cache_filename = os.path.join(metadata_dir, self.CACHE_FILE)
+        if not os.path.exists(self.cache_filename):
+            self.build(data_dir, size)
+            self._save()
+        else:
+            self._load()
+
+    def build(self, data_dir, size):
+        counts = collections.Counter()
+        filenames = sorted([x for x in glob.glob(os.path.join(data_dir, "*.*")) if os.path.isfile(x)])
+        for filename in filenames:
+            with open(filename, 'r', encoding='utf8') as fp:
+                reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
+                for row in reader:
+                    # sentence separator
+                    if len(row) < 1:
+                        continue
+                    counts.update({row[self.TOKEN_INDEX].lower(), 1})
+        self.words = {x[0] for x in counts.most_common(size)}
+
+    def _load(self):
+        with open(self.cache_filename, 'r', encoding='utf8') as fp:
+            words = json.load(fp)
+        self.words = set(words)
+
+    def _save(self):
+        with open(self.cache_filename, 'w', encoding='utf8') as fp:
+            json.dump(list(self.words), fp)
 
 
 class AnnotationLoader:
