@@ -24,6 +24,7 @@ class RecommendConfig:
         self.words = form['words']
         self.length_penalty = 'length_penalty' in form
         self.exact_match = 'exact_match' in form
+        self.news_only = 'news_only' in form
 
     @classmethod
     def get_empty(cls):
@@ -41,6 +42,7 @@ class Recommender:
     LATEST = 'Latest'
     NATURAL = 'Natural'
     RANDOM = 'Random'
+    NEWS_ID = '_NW_'
 
     def __init__(self, filenames, annotation_dir, metadata_dir):
         self.content_files = filenames
@@ -87,6 +89,8 @@ class Recommender:
             score = 0
             tokens = []
             with open(filename, 'r', encoding='utf8') as fp:
+                if config.news_only and self.NEWS_ID not in filename:
+                    continue
                 reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
                 for row in reader:
                     # sentence separator
