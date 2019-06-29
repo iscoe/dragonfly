@@ -904,7 +904,6 @@ dragonfly.Finder = class Finder {
      */
     constructor(settings) {
         var self = this;
-        this.minimizedHeight = $('.df-finder').height();
         this.settings = settings;
         this.modes = {
             'local': new dragonfly.FinderMode('local'),
@@ -912,7 +911,6 @@ dragonfly.Finder = class Finder {
             'gmaps': new dragonfly.FinderMode('gmaps', function() {self.initializeGMaps();}),
             'geonames': new dragonfly.FinderMode('geonames'),
             'dict': new dragonfly.FinderMode('dict'),
-            'notes': new dragonfly.FinderMode('notes'),
         };
         this._initializeHandlers();
 
@@ -924,9 +922,21 @@ dragonfly.Finder = class Finder {
         var self = this;
         // support resizing the finder window with the mouse
         $('.df-finder').resizable({
-            handleSelector: '.df-resize-bar',
+            handleSelector: '.df-resize-bar-h',
             resizeWidth: false,
             resizeHeightFrom: 'top',
+        });
+
+        $('.df-finder-notes').resizable({
+            handleSelector: '.df-resize-bar-v',
+            resizeHeight: false,
+            resizeWidthFrom: 'left',
+        });
+
+        $('#df-finder-minimize').on('click', function() {
+            self.hide();
+            $(this).blur();
+            dragonfly.highlighter.revertClickMode(dragonfly.ClickMode.FINDER);
         });
 
         // manual editing of search form and submission
@@ -971,12 +981,6 @@ dragonfly.Finder = class Finder {
             self.searchDictionary(term, column);
         });
 
-        $('#df-finder-minimize').on('click', function() {
-            self.hide();
-            $(this).blur();
-            dragonfly.highlighter.revertClickMode(dragonfly.ClickMode.FINDER);
-        });
-
         Object.values(this.modes).forEach(mode => {
             $(mode.button).on('click', function() {
                 $(this).blur();
@@ -999,7 +1003,7 @@ dragonfly.Finder = class Finder {
      * Hide the finder window
      */
     hide() {
-        $('.df-finder').height(this.minimizedHeight);
+        $('.df-finder').height('6px');
     }
 
     /**

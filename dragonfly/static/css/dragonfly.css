@@ -88,21 +88,24 @@ body {
     background-color: white;
     width: 100%;
     height: 5px;
-    z-index: 100;
     flex: none;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
 }
-.df-resize-bar {
+.df-resize-bar-h {
     border-top: 1px solid #cccccc;
     background-color: #e7e7e7;
     height: 4px;
-    flex: none;
 }
-.df-resize-bar:hover {
+.df-resize-bar-h:hover {
     background-color: #bbbbbb;
     cursor: row-resize;
+}
+.df-finder-container {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+.df-finder-search {
+    flex-grow: 1;
 }
 .df-finder-nav {
     height: 50px;
@@ -193,11 +196,30 @@ table.gsc-search-box {
 .df-result-highlight {
     color: red;
 }
-.df-results-notes {
-    overflow: visible;
-    margin-top: 0;
+.df-resize-bar-v:hover {
+    background-color: #bbbbbb;
+    cursor: col-resize;
 }
-.df-results-notes > textarea {
+.df-resize-bar-v {
+    border-top: 1px solid #cccccc;
+    background-color: #e7e7e7;
+    width: 4px;
+    height: 100%;
+}
+.df-finder-notes {
+    width: 30%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.df-notes-searchbox {
+    margin: 8px;
+}
+.df-notes-content {
+    flex-grow: 1;
+    padding: 8px;
+}
+.df-notes-content > textarea {
     width: 100%;
     height: 100%;
     box-sizing: border-box;
