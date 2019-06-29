@@ -1221,6 +1221,18 @@ dragonfly.Notepad = class Notepad {
         $('textarea[name="df-notes"]').one('change', function() {
             self.changed = true;
         });
+
+        // capture tabs rather than using them for ui navigation
+        $('textarea[name="df-notes"]').on('keydown', function(event) {
+            if (event.which == 9) {
+                event.preventDefault();
+                var offset = this.selectionStart;
+                $(this).val(function(i, str) {
+                    return str.substring(0, offset) + "\t" + str.substring(this.selectionEnd)
+                });
+                this.selectionEnd = offset + 1;
+            }
+        });
     }
 };
 
