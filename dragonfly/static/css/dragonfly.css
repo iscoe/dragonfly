@@ -399,3 +399,15 @@ table.gsc-search-box {
 .df-hide {
     display: none;
 }
+.df-rec-config > * {
+    display: inline-block;
+}
+.df-rec-config > dt {
+    margin-right: 4px;
+}
+.df-rec-config > dt::after {
+  content: ":";
+}
+.df-rec-config > dd {
+    margin-right: 8px;
+}
