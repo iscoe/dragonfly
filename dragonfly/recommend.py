@@ -152,7 +152,7 @@ class Recommender:
 
     def _load_rec_list(self):
         self._list = [self.NATURAL, self.RANDOM]
-        self._list.extend(sorted([os.path.basename(x)[:-4] for x in glob.glob(os.path.join(self.rec_dir, '*.rec'))]))
+        self._list.extend(sorted([os.path.basename(x)[:-4] for x in glob.glob(os.path.join(self.rec_dir, '*.rec'))], key=str.lower))
 
     def _load_rec(self, name):
         if name == self.NATURAL:
