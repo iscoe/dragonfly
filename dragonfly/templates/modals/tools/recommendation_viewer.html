@@ -1,6 +1,6 @@
 {% import 'macros.html' as macros %}
 <form id="df-get-recommend" action="{{ url_for('get_recommendations') }}" method="get">
-  {% set rec = recommender.latest %}
+  {% set rec = recommender.get_latest() %}
   <select name="recommendation" class="form-control">
     {% for option in recommender.list %}
     <option{% if option == rec.name %} selected{% endif %}>{{ option }}</option>

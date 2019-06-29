@@ -16,7 +16,7 @@ FileStat = collections.namedtuple('FileStat', 'sentences words')
 
 Recommendation = collections.namedtuple('Recommendation', 'name config items')
 
-RecommendItem = collections.namedtuple('RecommendItem', 'doc sentences words score')
+RecommendItem = collections.namedtuple('RecommendItem', 'doc path sentences words score')
 
 
 class RecommendConfig:
@@ -56,13 +56,12 @@ class Recommender:
             self._load_rec_list()
         return self._list
 
-    @property
-    def latest(self):
+    def get_latest(self, include_complete=False):
         name = self._get_latest()
         if name:
-            return self.get(name)
+            return self.get(name, include_complete)
         else:
-            return self.get(self.NATURAL)
+            return self.get(self.NATURAL, include_complete)
 
     def get(self, name, include_complete=False):
         """
@@ -105,7 +104,8 @@ class Recommender:
             score *= 100
             if config.length_penalty:
                 score = self._penalize_score(score, stats[filename].sentences)
-            items.append(RecommendItem(os.path.basename(filename), stats[filename].sentences, stats[filename].words, score))
+            item = RecommendItem(os.path.basename(filename), filename, stats[filename].sentences, stats[filename].words, score)
+            items.append(item)
         items.sort(key=lambda x: x.score, reverse=True)
         rec = Recommendation(name, config, items)
         rec_filename = os.path.join(self.rec_dir, name + '.rec')
@@ -153,7 +153,7 @@ class Recommender:
     def _load_rec(self, name):
         if name == self.NATURAL:
             stats = self._get_file_stats()
-            items = [RecommendItem(os.path.basename(file), stats[file].sentences, stats[file].words, 0) for file in self.content_files]
+            items = [RecommendItem(os.path.basename(file), file, stats[file].sentences, stats[file].words, 0) for file in self.content_files]
             rec = Recommendation(name, RecommendConfig.get_empty(), items)
         elif name == self.RANDOM:
             stats = self._get_file_stats()

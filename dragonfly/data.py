@@ -27,6 +27,7 @@ class FileLister:
     def get_index_from_filename(self, filename):
         if filename in self.filenames:
             return self.filenames.index(filename)
+        # if filenames include path information, exact string won't be in the list so loop over them
         for index in enumerate(self.filenames):
             if filename in self.filenames[index[0]]:
                 return index[0]

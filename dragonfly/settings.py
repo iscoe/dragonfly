@@ -22,6 +22,7 @@ class SettingsDefaults:
         ('Auto Scrolling Sentence IDs', True),
         ('Display Row Labels', True),
         ('Cascade By Default', True),
+        ('Use Recommendation Order', False),
     ]
 
     LOCAL = [
