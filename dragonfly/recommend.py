@@ -163,7 +163,7 @@ class Recommender:
             stats = self._get_file_stats()
             file_list = copy.copy(self.content_files)
             random.shuffle(file_list)
-            items = [RecommendItem(os.path.basename(file), stats[file].sentences, stats[file].words, 0) for file in file_list]
+            items = [RecommendItem(os.path.basename(file), file, stats[file].sentences, stats[file].words, 0) for file in file_list]
             rec = Recommendation(name, RecommendConfig.get_empty(), items)
         else:
             with open(os.path.join(self.rec_dir, name + '.rec'), 'rb') as fp:
