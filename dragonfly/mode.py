@@ -31,7 +31,7 @@ class ModeManager:
             return None
         filename = lister.get_filename(index)
         # remove any path information
-        title = os.path.basename(filename)
+        local_filename = os.path.basename(filename)
 
         reader = InputReader(filename)
         document = Document(filename, reader.sentences, reader.terminal_blank_line)
@@ -48,11 +48,11 @@ class ModeManager:
             document.attach_translation(translation)
 
         marker_manager = SentenceMarkerManager(app.config.get('dragonfly.local_md_dir'))
-        document.attach_markers(marker_manager.get(title))
+        document.attach_markers(marker_manager.get(local_filename))
 
-        content = flask.render_template('annotate.html', title=title, document=document,
+        content = flask.render_template('annotate.html', title=local_filename, document=document,
                                         index=index, next_index=next_index, rtl=rtl, lang=lang,
-                                        view_only=self.view_only)
+                                        view_only=self.view_only, filename=local_filename)
         total_time = timeit.default_timer() - start_time
         app.logger.info('Serving %s in %1.2fs', filename, total_time)
         return content

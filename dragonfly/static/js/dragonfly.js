@@ -884,9 +884,8 @@ dragonfly.MultiTokenTag = class MultiTokenTag {
  * Search mode configuration
  */
 dragonfly.FinderMode = class FinderMode {
-    constructor(name, initialDisplay = false, initializeFunc = null) {
+    constructor(name, initializeFunc = null) {
         this.name = name;
-        this.initialDisplay = initialDisplay;
         this.initializeFunc = initializeFunc;
         this.initialized = initializeFunc == null;
         this.button = '#df-finder-use-' + name;
@@ -908,17 +907,13 @@ dragonfly.Finder = class Finder {
         this.minimizedHeight = $('.df-finder').height();
         this.settings = settings;
         this.modes = {
-            'local': new dragonfly.FinderMode('local', true),
-            'wikipedia': new dragonfly.FinderMode('wikipedia', false, function() {self.initializeWikipedia();}),
-            'gmaps': new dragonfly.FinderMode('gmaps', false, function() {self.initializeGMaps();}),
+            'local': new dragonfly.FinderMode('local'),
+            'wikipedia': new dragonfly.FinderMode('wikipedia', function() {self.initializeWikipedia();}),
+            'gmaps': new dragonfly.FinderMode('gmaps', function() {self.initializeGMaps();}),
             'geonames': new dragonfly.FinderMode('geonames'),
             'dict': new dragonfly.FinderMode('dict'),
+            'notes': new dragonfly.FinderMode('notes'),
         };
-        Object.values(this.modes).forEach(mode => {
-            if (!mode.initialDisplay) {
-                $(mode.searchBox).hide();
-            }
-        });
         this._initializeHandlers();
 
         // we load javascript libraries on demand and want to cache them
@@ -1018,7 +1013,7 @@ dragonfly.Finder = class Finder {
         }
         Object.values(this.modes).forEach(mode => {
             if (selected_mode == mode) {
-                $(mode.searchBox).show();
+                $(mode.searchBox).show().css('display', 'inline-block');
                 $(mode.results).show();
             } else {
                 $(mode.searchBox).hide();
@@ -1186,6 +1181,42 @@ dragonfly.Finder = class Finder {
           }
         });
         map.fitBounds(bounds);
+    }
+};
+
+
+/**
+ * Manage notes on documents/annotations
+ */
+dragonfly.Notepad = class Notepad {
+    /**
+     * Create the notepad
+     * @param {string} filename - The file being annotated
+     */
+    constructor(filename) {
+        var self = this;
+        this.filename = filename;
+        this.changed = false;
+
+        $(window).on(dragonfly.Events.LEAVE, function() {
+            if (self.changed) {
+                var formData = new FormData();
+                formData.append('filename', self.filename);
+                formData.append('notes', $('textarea[name="df-notes"]').val());
+                $.ajax({
+                    url: 'notes',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                });
+            }
+        });
+
+        $('textarea[name="df-notes"]').one('change', function() {
+            self.changed = true;
+        });
     }
 };
 
@@ -1765,6 +1796,7 @@ $(document).ready(function() {
     dragonfly.hints = new dragonfly.Hints(1);
     dragonfly.hints.run();
     dragonfly.markers = new dragonfly.Markers();
+    dragonfly.notepad = new dragonfly.Notepad(dragonfly.filename);
 
     $(window).on(dragonfly.Events.NEXT, function() {
         var url = $('#df-next-doc').attr('href');

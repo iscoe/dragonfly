@@ -4,6 +4,7 @@
 
 import copy
 from .data import OutputWriter, SentenceMarkerManager
+from .notepad import Notepad
 from .recommend import Recommender
 from .search import DictionarySearch, GeonamesSearch, LocalSearch
 from .settings import GlobalSettingsManager, LocalSettingsManager
@@ -19,6 +20,7 @@ class ResourceLocator:
     """
     def __init__(self, config):
         self.config = config
+        self.notepad = Notepad(config.get('dragonfly.local_md_dir'))
         self.output_writer = OutputWriter(config.get('dragonfly.output'))
         self._dictionary_search = None
         self._local_search = None

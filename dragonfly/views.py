@@ -24,8 +24,13 @@ def inject_dragonfly_context():
     tags = app.config.get('dragonfly.tags')
     locator = app.locator
     dict_available = locator.dictionary_search.available
-    data = dict(df_version=version, df_settings=locator.settings, df_tags=tags, df_dict_avail=dict_available)
-    return data
+    return {
+        'df_version': version,
+        'df_locator': locator,
+        'df_settings': locator.settings,
+        'df_tags': tags,
+        'df_dict_avail': dict_available,
+    }
 
 
 @app.route('/', defaults={'filename': None})
@@ -207,6 +212,13 @@ def stats():
     stats_data = Stats()
     stats_data.collect(output_dir)
     return flask.render_template('modals/stats.html', stats=stats_data)
+
+
+@app.route('/notes', methods=['POST'])
+def notes():
+    app.locator.notepad.save(flask.request.form['filename'], flask.request.form['notes'])
+    results = {'success': True, 'message': 'Notes saved'}
+    return flask.jsonify(results)
 
 
 @app.route('/tools')
