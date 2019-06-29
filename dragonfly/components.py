@@ -5,7 +5,124 @@
 import collections
 import csv
 import glob
+import json
 import os
+
+
+class HintLoader:
+    def __init__(self, path):
+        """
+        :param path: Path to hints tsv file
+        """
+        self.hints = []
+        with open(path, 'r', encoding='utf8') as fp:
+            reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
+            for row in reader:
+                self.hints.append({'regex': row[0], 'comment': row[1]})
+
+
+class Notepad:
+    """
+    Maintain notes related to annotating
+    """
+    DIR = 'notes'
+
+    def __init__(self, metadata_dir):
+        self.dir = os.path.join(metadata_dir, self.DIR)
+        if not os.path.exists(self.dir):
+            os.mkdir(self.dir)
+
+    def save(self, filename, notes):
+        filename = os.path.join(self.dir, filename)
+        with open(filename, 'w', encoding='utf8') as fp:
+            fp.write(notes)
+
+    def load(self, filename):
+        filename = os.path.join(self.dir, filename)
+        if os.path.exists(filename):
+            with open(filename, 'r', encoding='utf8') as fp:
+                return fp.read()
+        return ''
+
+
+class SentenceMarkerManager:
+    """
+    Manage sentence markers
+
+    The markers dictionary is document -> list of sentence ids (0-based index)
+    """
+    def __init__(self, metadata_dir):
+        self.path = os.path.join(metadata_dir, 'markers')
+        self.markers = self._load(self.path)
+
+    def toggle(self, document, sentence):
+        sentence = int(sentence)
+        if document not in self.markers:
+            self.markers[document] = []
+            self.markers[document].append(sentence)
+        elif sentence not in self.markers[document]:
+            self.markers[document].append(sentence)
+        else:
+            self.markers[document].remove(sentence)
+        self._save(self.path, self.markers)
+
+    def get(self, document):
+        markers = []
+        if document in self.markers:
+            markers = self.markers[document]
+        return markers
+
+    @staticmethod
+    def _load(path):
+        markers = {}
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf8') as fp:
+                markers = json.load(fp)
+        return markers
+
+    @staticmethod
+    def _save(path, markers):
+        with open(path, 'w', encoding='utf8') as fp:
+            json.dump(markers, fp)
+
+
+class StopWords:
+    """
+    Calculate a list of stop words from a corpus
+    """
+    CACHE_FILE = 'stop_words.json'
+    TOKEN_INDEX = 0
+
+    def __init__(self, data_dir, metadata_dir, size=50):
+        self.words = set()
+        self.cache_filename = os.path.join(metadata_dir, self.CACHE_FILE)
+        if not os.path.exists(self.cache_filename):
+            self.build(data_dir, size)
+            self._save()
+        else:
+            self._load()
+
+    def build(self, data_dir, size):
+        counts = collections.Counter()
+        filenames = sorted([x for x in glob.glob(os.path.join(data_dir, "*.*")) if os.path.isfile(x)])
+        for filename in filenames:
+            with open(filename, 'r', encoding='utf8') as fp:
+                reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
+                for row in reader:
+                    # sentence separator
+                    if len(row) < 1:
+                        continue
+                    counts.update({row[self.TOKEN_INDEX].lower(), 1})
+        self.words = {x[0] for x in counts.most_common(size)}
+
+    def _load(self):
+        with open(self.cache_filename, 'r', encoding='utf8') as fp:
+            words = json.load(fp)
+        self.words = set(words)
+
+    def _save(self):
+        with open(self.cache_filename, 'w', encoding='utf8') as fp:
+            json.dump(list(self.words), fp)
 
 
 class TypeStats:

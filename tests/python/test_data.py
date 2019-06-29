@@ -1,8 +1,6 @@
 import unittest
 import os
-import shutil
-import tempfile
-from dragonfly.data import Document, FileLister, InputReader, StopWords
+from dragonfly.data import Document, FileLister, InputReader
 
 
 def get_path(*args):
@@ -90,21 +88,3 @@ class DocumentTest(unittest.TestCase):
         annotations = InputReader(annotations_filename).sentences
         with self.assertRaises(ValueError) as context:
             document.attach_annotations(annotations)
-
-
-class StopWordsTest(unittest.TestCase):
-    def setUp(self):
-        self.test_dir = tempfile.mkdtemp()
-
-    def tearDown(self):
-        shutil.rmtree(self.test_dir)
-
-    def test_build(self):
-        stop_words = StopWords(get_path('data', 'stop_words'), self.test_dir, 10)
-        self.assertIn('the', stop_words.words)
-
-    def test_save_and_load(self):
-        stop_words = StopWords(get_path('data', 'stop_words'), self.test_dir, 10)
-        stop_words2 = StopWords(get_path('data', 'stop_words'), self.test_dir)
-        self.assertEqual(10, len(stop_words2.words))
-        self.assertIn('.', stop_words2.words)

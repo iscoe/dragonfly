@@ -7,14 +7,10 @@ import copy
 import os
 import json
 
-"""
-Settings Manager
-
-The settings strings mush be synchronized with the javascript library
-"""
-
 
 class SettingsDefaults:
+    # These strings must be synced with the JavaScript settings class.
+    # They are also used in the HTML templates.
     GLOBAL = [
         ('GMaps Key', ''),
         ('Geonames Username', ''),

@@ -5,7 +5,8 @@
 import flask
 import os
 import timeit
-from .data import InputReader, Document, AnnotationLoader, EnglishTranslationLoader, SentenceMarkerManager
+from .components import SentenceMarkerManager
+from .data import InputReader, Document, AnnotationLoader, EnglishTranslationLoader
 
 
 class ModeManager:

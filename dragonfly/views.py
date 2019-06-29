@@ -9,11 +9,9 @@ import json
 import random
 import string
 import os
-from .data import HintLoader
 from .mode import ModeManager
 from .recommend import RecommendConfig
 from .settings import GlobalSettingsManager, LocalSettingsManager
-from .stats import Stats
 
 
 @app.context_processor
@@ -168,12 +166,7 @@ def import_combodict():
 
 @app.route('/hints', methods=['GET'])
 def hints():
-    if app.config.get('dragonfly.hints'):
-        hint_loader = HintLoader(app.config.get('dragonfly.hints'))
-        hints = hint_loader.hints
-    else:
-        hints = []
-    return flask.jsonify(hints)
+    return flask.jsonify(app.locator.hints)
 
 
 @app.route('/marker', methods=['POST'])
@@ -208,9 +201,8 @@ def settings():
 
 @app.route('/stats')
 def stats():
-    output_dir = app.config.get('dragonfly.output')
-    stats_data = Stats()
-    stats_data.collect(output_dir)
+    stats_data = app.locator.stats
+    stats_data.collect(app.config.get('dragonfly.output'))
     return flask.render_template('modals/stats.html', stats=stats_data)
 
 
