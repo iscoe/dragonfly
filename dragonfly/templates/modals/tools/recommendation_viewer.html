@@ -1,0 +1,28 @@
+{% import 'macros.html' as macros %}
+<form id="df-get-recommend" action="{{ url_for('get_recommendations') }}" method="get">
+  {% set rec = recommender.latest %}
+  <select name="recommendation" class="form-control">
+    {% for option in recommender.list %}
+    <option{% if option == rec.name %} selected{% endif %}>{{ option }}</option>
+    {% endfor %}
+  </select>
+</form>
+<div id="df-recommend-display">
+  {{ macros.render_recommendation(rec) }}
+</div>
+<script>
+  $("select[name='recommendation']").on('change', function(event) {
+    var form = $("#df-get-recommend");
+    $.ajax({
+      url: form.attr('action'),
+      type: 'GET',
+      data: form.serialize(),
+      success: function(html) {
+        $('#df-recommend-display').html(html);
+      },
+      error: function(xhr) {
+        dragonfly.showStatus('danger', 'Error contacting the server');
+      }
+    });
+  });
+</script>

@@ -9,33 +9,7 @@
     </div>
     <div id="recommendations-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="recommendations">
       <div class="panel-body">
-        <form id="df-get-recommend" action="{{ url_for('get_recommendations') }}" method="get">
-          {% set rec = recommender.latest %}
-          <select name="recommendation" class="form-control">
-            {% for option in recommender.list %}
-            <option{% if option == rec.name %} selected{% endif %}>{{ option }}</option>
-            {% endfor %}
-          </select>
-        </form>
-        <div id="df-recommend-display">
-          {% include 'modals/recommend.html' %}
-        </div>
-        <script>
-          $("select[name='recommendation']").on('change', function(event) {
-            var form = $("#df-get-recommend");
-            $.ajax({
-              url: form.attr('action'),
-              type: 'GET',
-              data: form.serialize(),
-              success: function(html) {
-                $('#df-recommend-display').html(html);
-              },
-              error: function(xhr) {
-                dragonfly.showStatus('danger', 'Error contacting the server');
-              }
-            });
-          });
-        </script>
+        {% include 'modals/tools/recommendation_viewer.html' %}
       </div>
     </div>
   </div>
@@ -49,47 +23,7 @@
     </div>
     <div id="recommend-builder-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="recommend-builder">
       <div class="panel-body">
-        <form id="df-build-recommend" action="{{ url_for('build_recommendations') }}" method="post" enctype="multipart/form-data">
-          <div class="form-group">
-            <label>Name</label>
-            <input type="text" class="form-control" name="name" placeholder="Recommendation name" autocomplete="off" required>
-          </div>
-          <div class="form-group">
-            <label>Words</label>
-            <textarea class="form-control" name="words" rows="8" required></textarea>
-          </div>
-          <div class="checkbox">
-            <label><input type="checkbox" name="length_penalty" value="True" checked>Length penalty</label>
-          </div>
-          <div class="checkbox">
-            <label><input type="checkbox" name="exact_match" value="True">Exact match</label>
-          </div>
-          <button type="submit" class="btn btn-default">Submit</button>
-        </form>
-        <div id="df-recommend-results"></div>
-        <script>
-          $("#df-build-recommend").on('submit', function(event) {
-            event.preventDefault();
-            $(this).find('button').blur();
-            $('#df-tools-modal').modal('hide');
-            $.ajax({
-              url: $(this).attr('action'),
-              type: 'POST',
-              data: $(this).serialize(),
-              dataType: 'json',
-              success: function(response) {
-                if (response.success) {
-                  dragonfly.showStatus('success', response.message);
-                } else {
-                  dragonfly.showStatus('danger', response.message);
-                }
-              },
-              error: function(xhr) {
-                dragonfly.showStatus('danger', 'Error contacting the server');
-              }
-            });
-          });
-        </script>
+        {% include 'modals/tools/recommendation_builder.html' %}
       </div>
     </div>
   </div>
@@ -104,100 +38,7 @@
     <div id="gen-tools-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="gen-tools">
       <div class="panel-body">
         <div class="container-fluid">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <a class="btn btn-default" href="{{ url_for('export_translations', lang=lang) }}" role="button">Export Dictionary</a>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <form id="df-trans-dict-import" class="form-inline" action="{{ url_for('import_translations', lang=lang) }}" method="post" enctype="multipart/form-data">
-                <label class="btn btn-default">
-                  Import Dictionary<input type="file" id="df-trans-import-file" name="dict" class="hidden" accept=".json">
-                </label>
-                <p class="help-block">json file for {{ lang }}</p>
-              </form>
-              <script>
-                $("#df-trans-import-file").on('change', function(event) {
-                  var form = $("#df-trans-dict-import");
-                  $.ajax({
-                    url: form.attr('action'),
-                    type: 'POST',
-                    data: new FormData(form.get(0)),
-                    contentType: false,
-                    processData: false,
-                    success: function(response) {
-                      if (response.success) {
-                        dragonfly.showStatus('success', response.message);
-                      } else {
-                        dragonfly.showStatus('danger', response.message);
-                      }
-                    },
-                    error: function(xhr) {
-                      dragonfly.showStatus('danger', 'Error contacting the server');
-                    }
-                  });
-                  event.preventDefault();
-                });
-              </script>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <a id="df-build-index" class="btn btn-default" href="{{ url_for('build_index') }}" role="button">Build Search Index</a>
-              </div>
-              <script>
-                $("#df-build-index").on('click', function(event) {
-                  $.ajax({
-                    url: $(this).attr('href'),
-                    type: 'POST',
-                    success: function(response) {
-                      if (response.success) {
-                          dragonfly.showStatus('success', response.message);
-                      } else {
-                          dragonfly.showStatus('danger', response.message);
-                      }
-                    },
-                    error: function(xhr) {
-                      dragonfly.showStatus('danger', 'Error contacting the server');
-                    }
-                  });
-                  event.preventDefault();
-                });
-              </script>
-            </div>
-            <div class="col-md-6">
-              <form id="df-combo-dict-import" class="form-inline" action="{{ url_for('import_combodict') }}" method="post" enctype="multipart/form-data">
-                <label class="btn btn-default">
-                  Import combodict.txt<input type="file" id="df-combo-dict-import-file" name="combodict" class="hidden" accept=".txt">
-                </label>
-              </form>
-              <script>
-                $("#df-combo-dict-import-file").on('change', function(event) {
-                  var form = $("#df-combo-dict-import");
-                  $.ajax({
-                    url: form.attr('action'),
-                    type: 'POST',
-                    data: new FormData(form.get(0)),
-                    contentType: false,
-                    processData: false,
-                    success: function(response) {
-                      if (response.success) {
-                        dragonfly.showStatus('success', response.message);
-                      } else {
-                        dragonfly.showStatus('danger', response.message);
-                      }
-                    },
-                    error: function(xhr) {
-                      dragonfly.showStatus('danger', 'Error contacting the server');
-                    }
-                  });
-                  event.preventDefault();
-                });
-              </script>
-            </div>
-          </div>
+          {% include 'modals/tools/general.html' %}
         </div>
       </div>
     </div>

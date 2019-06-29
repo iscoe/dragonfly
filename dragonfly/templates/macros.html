@@ -29,3 +29,19 @@
   {%- endfor -%}
 </div>
 {%- endmacro -%}
+{% macro render_recommendation(rec) %}
+  <h4>{{ rec.name }}</h4>
+  <table class="table table-bordered table-condensed table-hover">
+    <tbody>
+        <tr><th>Doc</th><th>Sentences</th><th>Words</th><th>Score</th></tr>
+        {% for item in rec.items[0:15] %}
+        <tr>
+            <td><a href="/{{ item.doc }}">{{ item.doc }}</a></td>
+            <td>{{ item.sentences }}</td>
+            <td>{{ item.words }}</td>
+            <td>{{ '%0.2f' % item.score }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+{% endmacro %}

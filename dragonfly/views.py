@@ -233,4 +233,5 @@ def build_recommendations():
 def get_recommendations():
     rec_name = flask.request.args.get('recommendation')
     recommendation = app.locator.recommender.get(rec_name)
-    return flask.render_template('modals/recommend.html', rec=recommendation)
+    render = flask.get_template_attribute('macros.html', 'render_recommendation')
+    return render(recommendation)
