@@ -45,6 +45,7 @@ class Recommender:
 
     Two default recommendations are random and natural.
     """
+    DIR = 'recommendations'
     FILE_STATS = '.file.stats'
     FILE_LATEST = '.latest'
     LATEST = 'Latest'
@@ -55,7 +56,7 @@ class Recommender:
     def __init__(self, filenames, annotation_dir, metadata_dir):
         self.content_files = filenames
         self.annotations_dir = annotation_dir
-        self.rec_dir = os.path.join(metadata_dir, 'recommendations')
+        self.rec_dir = os.path.join(metadata_dir, self.DIR)
         if not os.path.exists(self.rec_dir):
             os.mkdir(self.rec_dir)
         self._list = []
@@ -189,3 +190,98 @@ class Recommender:
             return score / (1 + (num_sentences - 20) / 30)
         else:
             return score
+
+
+class TaggedTokenFrequencies:
+    """
+    Track the frequency of each token being tagged.
+
+    We track the total counts of each token and counts that token has been tagged.
+    This lets us estimate a "probability" the token should be tagged in the future.
+    We're conservative and assume any sentence without a tag has not been annotated.
+    Each time a user saves a document, we have to remove previous counts for that document before adding it.
+
+    Note: this is not thread safe due to updating corpus stats.
+    """
+    DIR = 'frequencies'
+    CORPUS_FILE = 'corpus.pkl'
+
+    class Data:
+        def __init__(self):
+            self.counts = collections.Counter()
+            self.tagged_counts = collections.Counter()
+
+        def add(self, data):
+            self.counts.update(data.counts)
+            self.tagged_counts.update(data.tagged_counts)
+
+        def subtract(self, data):
+            self.counts.subtract(data.counts)
+            self.tagged_counts.subtract(data.tagged_counts)
+
+    def __init__(self, metadata_dir):
+        self.dir = os.path.join(metadata_dir, self.DIR)
+        if not os.path.exists(self.dir):
+            os.mkdir(self.dir)
+        self.corpus_filename = self._get_path(self.CORPUS_FILE)
+
+    def update(self, annotation):
+        filename = annotation['filename']
+        tokens = annotation['tokens']
+        file_data = self.Data()
+
+        sentence = []
+        for token in tokens:
+            if not token:
+                # new sentence
+                self._process_sentence(sentence, file_data)
+                sentence = []
+                continue
+            sentence.append(token)
+        # catch last sentence
+        if sentence:
+            self._process_sentence(sentence, file_data)
+
+        previous_file_data = self._load_file_data(filename)
+        self._save_file_data(filename, file_data)
+        corpus_data = self._load_corpus_data()
+        self._update_corpus(corpus_data, previous_file_data, file_data)
+        self._save_corpus_data(corpus_data)
+        return corpus_data
+
+    def _load_corpus_data(self):
+        if os.path.exists(self.corpus_filename):
+            with open(self.corpus_filename, 'rb') as fp:
+                data = pickle.load(fp)
+        else:
+            data = self.Data()
+        return data
+
+    def _save_corpus_data(self, data):
+        with open(self._get_path(self.corpus_filename), 'wb') as fp:
+            pickle.dump(data, fp)
+
+    def _update_corpus(self, corpus_data, previous_file_data, new_file_data):
+        if previous_file_data:
+            corpus_data.subtract(previous_file_data)
+        corpus_data.add(new_file_data)
+
+    def _load_file_data(self, filename):
+        tagged_counts = None
+        if os.path.exists(self._get_path(filename)):
+            with open(self._get_path(filename), 'rb') as fp:
+                tagged_counts = pickle.load(fp)
+        return tagged_counts
+
+    def _save_file_data(self, filename, data):
+        with open(self._get_path(filename), 'wb') as fp:
+            pickle.dump(data, fp)
+
+    def _process_sentence(self, sentence, data):
+        if set([x['tag'] for x in sentence]) == set('O'):
+            return
+        [data.counts.update({x['token'].lower(): 1}) for x in sentence]
+        [data.tagged_counts.update({x['token'].lower(): 1}) for x in sentence if x['tag'] is not 'O']
+
+    def _get_path(self, filename):
+        return os.path.join(self.dir, filename)
