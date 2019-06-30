@@ -26,6 +26,14 @@ class RecommendConfig:
         self.exact_match = 'exact_match' in form
         self.news_only = 'news_only' in form
 
+    def export(self):
+        return dict(
+            words=self.words,
+            length_penalty=self.length_penalty,
+            exact_match=self.exact_match,
+            news_only=self.news_only
+        )
+
     @classmethod
     def get_empty(cls):
         return RecommendConfig({'words': []})

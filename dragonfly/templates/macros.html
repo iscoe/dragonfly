@@ -30,13 +30,24 @@
 </div>
 {%- endmacro -%}
 {% macro render_recommendation(rec) %}
-  <h3>{{ rec.name }}</h3>
+  <div class="df-rec-header">
+    <h3>{{ rec.name }}</h3>
+    {% if rec.config.words %}
+    <button class="btn btn-default btn-xs df-rec-edit" type="submit">Edit</button>
+    {% endif %}
+  </div>
   {% if rec.config.words %}
   <dl class="df-rec-config">
     <dt>Length penalty</dt><dd>{{ rec.config.length_penalty }}</dd>
     <dt>Exact match</dt><dd>{{ rec.config.exact_match }}</dd>
     <dt>News only</dt><dd>{{ rec.config.news_only }}</dd>
   </dl>
+  <script>
+    var dragonfly_rec = {{ rec.config.export()|convert_to_json|safe }};
+    $(".df-rec-edit").on('click', function() {
+      $(window).trigger('df:edit_rec');
+    });
+  </script>
   {% endif %}
   <table class="table table-bordered table-condensed table-hover">
     <tbody>

@@ -399,6 +399,10 @@ table.gsc-search-box {
 .df-hide {
     display: none;
 }
+.df-rec-header > * {
+    display: inline-block;
+    margin-right: 8px;
+}
 .df-rec-config > * {
     display: inline-block;
 }

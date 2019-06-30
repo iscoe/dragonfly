@@ -25,4 +25,15 @@
       }
     });
   });
+
+  $(window).on('df:edit_rec', function() {
+    var name = $(".df-rec-header").find('h3').html();
+    $("#df-build-recommend").find('input[name="name"]').val(name);
+    $("#df-build-recommend").find('textarea[name="words"]').val(dragonfly_rec['words']);
+    $("#df-build-recommend").find('input[name="length_penalty"]').prop('checked', dragonfly_rec['length_penalty']);
+    $("#df-build-recommend").find('input[name="exact_match"]').prop('checked', dragonfly_rec['exact_match']);
+    $("#df-build-recommend").find('input[name="news_only"]').prop('checked', dragonfly_rec['news_only']);
+    $("#recommendations-collapse").collapse('hide');
+    $("#recommend-builder-collapse").collapse('show');
+  });
 </script>
