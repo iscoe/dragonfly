@@ -16,18 +16,19 @@ class SettingsDefaults:
         ('Geonames Username', ''),
         ('Column Width', 40),
         ('Footer Height', 200),
-        ('Footer Starts Open', False),
         ('Auto Save', False),
         ('Auto Save On Nav', False),
         ('Auto Scrolling Sentence IDs', True),
-        ('Display Row Labels', True),
         ('Cascade By Default', True),
+        ('Display Row Labels', True),
+        ('Footer Starts Open', False),
         ('Use Recommendation Order', False),
     ]
 
     LOCAL = [
         ('GMaps Params', '0, 0, 2'),
         ('Geonames County Codes', ''),
+        ('Hint Row', '2'),
     ]
 
 

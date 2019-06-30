@@ -190,6 +190,10 @@ dragonfly.Settings = class Settings {
         return values;
     }
 
+    getHintsRow() {
+        return this.settings['Hint Row'];
+    }
+
     /**
      * Apply changed settings to the page
      */
@@ -505,7 +509,7 @@ dragonfly.Undo = class Undo {
 dragonfly.Hints = class Hints {
     /**
      * Create a hints manager.
-     * @param {int} row - Zero-based index of row to apply hints to.
+     * @param {string} row - One-based index of row to apply hints to.
      */
     constructor(row) {
         this.row = row;
@@ -547,8 +551,7 @@ dragonfly.Hints = class Hints {
             }
         }
 
-        var child = this.row + 1;
-        var selector = ".df-main .df-row > div:nth-child(" + child.toString() + ")";
+        var selector = ".df-main .df-row > div:nth-child(" + this.row + ")";
         $(selector).each(function() {
             for (var i = 0; i < self.hints.length; i++) {
                 var text = $(this).text();
@@ -1819,7 +1822,7 @@ $(document).ready(function() {
     dragonfly.translations = new dragonfly.Translations(dragonfly.lang);
     dragonfly.translations.load();
     dragonfly.contextMenu = new dragonfly.ContextMenu(dragonfly.translations);
-    dragonfly.hints = new dragonfly.Hints(1);
+    dragonfly.hints = new dragonfly.Hints(dragonfly.settings.getHintsRow());
     dragonfly.hints.run();
     dragonfly.markers = new dragonfly.Markers();
     dragonfly.notepad = new dragonfly.Notepad(dragonfly.filename);
