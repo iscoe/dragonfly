@@ -546,8 +546,10 @@ dragonfly.Hints = class Hints {
                 this.hints[i].regex = null;
             }
         }
-        // TODO row is hard coded to the second row (usually transliteration)
-        $(".df-row div:nth-child(2)").each(function() {
+
+        var child = this.row + 1;
+        var selector = ".df-main .df-row > div:nth-child(" + child.toString() + ")";
+        $(selector).each(function() {
             for (var i = 0; i < self.hints.length; i++) {
                 var text = $(this).text();
                 var match = text.match(self.hints[i].regex);
