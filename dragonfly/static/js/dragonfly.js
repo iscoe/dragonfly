@@ -1768,13 +1768,15 @@ dragonfly.AnnotationSaver = class AnnotationSaver {
      */
     _collectAnnotations() {
         var tokens = [];
+        // df-sentence only used for annotation text
         $(".df-sentence").each(function() {
             $(this).find(".df-token").each(function() {
                 var tagValue = $(this).data('tag');
+                var tokenText = this.textContent;
                 if (tagValue != null) {
-                    var token = {token: $(this).html(), tag: tagValue }
+                    var token = {token: tokenText, tag: tagValue }
                 } else {
-                    var token = {token: $(this).html(), tag: 'O'}
+                    var token = {token: tokenText, tag: 'O'}
                 }
                 tokens.push(token);
             });
