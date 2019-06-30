@@ -19,7 +19,7 @@ body {
     min-width: 400px;
     z-index: 2000;
 }
-/* header */
+/***** header *****/
 .navbar {
     /* reset bootstrap defaults for navbar */
     margin-bottom: 0;
@@ -83,8 +83,8 @@ body {
 .df-del, .df-sel, .df-find {
     background-color: rgba(33, 33, 33, 0.5);
 }
-/* footer */
-.df-finder {
+/***** footer *****/
+.df-footer {
     background-color: white;
     width: 100%;
     height: 5px;
@@ -99,66 +99,101 @@ body {
     background-color: #bbbbbb;
     cursor: row-resize;
 }
-.df-finder-container {
+.df-footer-container {
     display: flex;
     flex-direction: row;
     height: 100%;
 }
-.df-finder-search {
+.df-footer-main {
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
+    overflow: hidden;
 }
-.df-finder-nav {
+.df-footer-sidebar {
+    width: 30%;
+    flex: none;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+}
+.df-resize-bar-v {
+    border-left: 1px solid #cccccc;
+    background-color: #e7e7e7;
+    width: 4px;
+    height: 100%;
+    flex: none;
+}
+.df-resize-bar-v:hover {
+    background-color: #bbbbbb;
+    cursor: col-resize;
+}
+.df-footer-sidebar-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+}
+.df-footer-nav {
     height: 50px;
+    flex: none;
+    padding-left: 15px;
+    padding-right: 15px;
 }
-.df-finder-nav > div {
-    padding-top: 7px;
+.df-footer-content {
+    flex-grow: 1;
+    overflow: auto;
 }
-.df-finder-nav .btn-group {
-    margin-right: 10px;
-}
-.df-finder-nav .btn, .df-finder-nav .navbar-form {
+.df-footer-nav .btn {
     margin-top: 0;
 }
-.df-finder-searchbox {
+.df-search-label {
+    margin-left: 10px;
+}
+.df-searchbox {
     display: none;
 }
-.df-finder-local {
+.df-searchbox > * {
     display: inline-block;
 }
-.df-finder-searchbox > * {
+.df-searchbox-local {
     display: inline-block;
 }
-.df-finder-searchbox .form-control {
+.df-searchbox .form-control {
     padding: 3px 6px;
     border-radius: 0;
 }
-.df-finder .form-group {
+.df-searchbox .form-group, .df-searchbox .form-group > div {
     margin-right: 6px;
 }
-.df-finder-wikipedia > div {
+.df-searchbox-wikipedia > div {
     vertical-align: middle;
     margin-left: 15px;
 }
-.df-finder-wikipedia form.gsc-search-box, .df-finder-wikipedia table.gsc-search-box {
+.df-searchbox-wikipedia > p {
+    margin-top: 14px;
+}
+.df-searchbox-wikipedia form.gsc-search-box, .df-searchbox-wikipedia table.gsc-search-box {
     margin-bottom: 0;
 }
-.gsc-input-box, .df-finder-searchbox .df-search-control {
+.gsc-input-box, .df-searchbox .df-search-control {
     width: 300px;
 }
 /* safari fills space with this table if the width is not specified */
 table.gsc-search-box {
     width: 385px !important;
 }
+/*
 .df-finder-gmaps {
     vertical-align: top;
 }
+*/
+
 .df-results {
-    flex-grow: 1;
-    overflow: auto;
-    margin-top: 5px;
-    position: relative;
-    padding: 5px;
     display: none;
+    position: relative;
+    margin-top: 5px;
+    padding: 5px;
 }
 .df-results-local {
     display: block;
@@ -166,12 +201,12 @@ table.gsc-search-box {
 .gsc-adBlock {
     display: none !important;
 }
+.df-results-local {
+    white-space: nowrap;
+}
 .df-results-gmaps {
     margin: 0;
     padding: 0;
-}
-.df-results-local {
-    white-space: nowrap;
 }
 .df-results-count {
     color: #777;
@@ -196,38 +231,23 @@ table.gsc-search-box {
 .df-result-highlight {
     color: red;
 }
-.df-resize-bar-v:hover {
-    background-color: #bbbbbb;
-    cursor: col-resize;
+.df-footer-sidebar .df-footer-nav {
+    padding-top: 15px;
 }
-.df-resize-bar-v {
-    border-top: 1px solid #cccccc;
-    background-color: #e7e7e7;
-    width: 4px;
-    height: 100%;
-}
-.df-finder-notes {
-    width: 30%;
+.df-footer-sidebar .df-footer-content {
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    padding: 4px;
 }
-.df-notes-searchbox {
-    margin: 8px;
-}
-.df-notes-content {
-    flex-grow: 1;
-    padding: 8px;
-}
-.df-notes-content > textarea {
+#df-notes {
     width: 100%;
     height: 100%;
     box-sizing: border-box;
     resize: none;
     border-width: 0;
     outline: none;
+    padding: 0;
 }
-/* main */
+/***** main *****/
 .df-main {
     flex-grow: 1;
     overflow-y: auto;
@@ -385,7 +405,7 @@ table.gsc-search-box {
 .tt-suggestion:hover, .tt-suggestion:focus {
   background-color: #e7e7e7;
 }
-/* extras */
+/***** extras *****/
 #df-tools-modal > .modal-dialog {
     width: 800px;
 }

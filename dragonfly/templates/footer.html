@@ -1,0 +1,11 @@
+<div class="df-footer" {% if df_settings['Footer Starts Open'] %}style="height: {{ df_settings['Footer Height'] }}px;"{% endif %}>
+  <div class="df-resize-bar-h"></div>
+  <div class="df-footer-container">
+    <div class="df-footer-main">
+      {% include 'footer/main.html' %}
+    </div>
+    <div class="df-footer-sidebar">
+      {% include 'footer/sidebar.html' %}
+    </div>
+  </div>
+</div>

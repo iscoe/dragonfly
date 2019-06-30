@@ -169,12 +169,12 @@ dragonfly.Settings = class Settings {
         return this.settings['Cascade By Default'];
     }
 
-    getFinderHeight() {
-        return this.settings['Finder Height'];
+    getFooterHeight() {
+        return this.settings['Footer Height'];
     }
 
-    isFinderOpenDefault() {
-        return this.settings['Finder Starts Open'];
+    isFooterOpenDefault() {
+        return this.settings['Footer Starts Open'];
     }
 
     getGMapsKey() {
@@ -883,13 +883,13 @@ dragonfly.MultiTokenTag = class MultiTokenTag {
 /**
  * Search mode configuration
  */
-dragonfly.FinderMode = class FinderMode {
+dragonfly.SearchMode = class SearchMode {
     constructor(name, initializeFunc = null) {
         this.name = name;
         this.initializeFunc = initializeFunc;
         this.initialized = initializeFunc == null;
-        this.button = '#df-finder-use-' + name;
-        this.searchBox = '.df-finder-' + name;
+        this.button = '#df-search-use-' + name;
+        this.searchBox = '.df-searchbox-' + name;
         this.results = '.df-results-' + name;
     }
 };
@@ -897,20 +897,20 @@ dragonfly.FinderMode = class FinderMode {
 /**
  * Search window
  */
-dragonfly.Finder = class Finder {
+dragonfly.Search = class Search {
     /**
-     * Create a Finder object
+     * Create a Search object
      * @param {Settings} settings - Settings manager
      */
     constructor(settings) {
         var self = this;
         this.settings = settings;
         this.modes = {
-            'local': new dragonfly.FinderMode('local'),
-            'wikipedia': new dragonfly.FinderMode('wikipedia', function() {self.initializeWikipedia();}),
-            'gmaps': new dragonfly.FinderMode('gmaps', function() {self.initializeGMaps();}),
-            'geonames': new dragonfly.FinderMode('geonames'),
-            'dict': new dragonfly.FinderMode('dict'),
+            'local': new dragonfly.SearchMode('local'),
+            'wikipedia': new dragonfly.SearchMode('wikipedia', function() {self.initializeWikipedia();}),
+            'gmaps': new dragonfly.SearchMode('gmaps', function() {self.initializeGMaps();}),
+            'geonames': new dragonfly.SearchMode('geonames'),
+            'dict': new dragonfly.SearchMode('dict'),
         };
         this._initializeHandlers();
 
@@ -920,55 +920,55 @@ dragonfly.Finder = class Finder {
 
     _initializeHandlers() {
         var self = this;
-        // support resizing the finder window with the mouse
-        $('.df-finder').resizable({
+        // support resizing the footer window with the mouse
+        $('.df-footer').resizable({
             handleSelector: '.df-resize-bar-h',
             resizeWidth: false,
             resizeHeightFrom: 'top',
         });
 
-        $('.df-finder-notes').resizable({
+        $('.df-footer-sidebar').resizable({
             handleSelector: '.df-resize-bar-v',
             resizeHeight: false,
             resizeWidthFrom: 'left',
         });
 
-        $('#df-finder-minimize').on('click', function() {
+        $('#df-footer-minimize').on('click', function() {
             self.hide();
             $(this).blur();
             dragonfly.highlighter.revertClickMode(dragonfly.ClickMode.FINDER);
         });
 
         // manual editing of search form and submission
-        $('#df-finder-local-form').on('submit', function(event) {
+        $('#df-search-local-form').on('submit', function(event) {
             event.preventDefault();
-            self.searchFiles($('input[name=df-finder-term]').val(), true);
+            self.searchFiles($(this).find('input[name="term"]').val(), true);
         });
 
-        $('#df-finder-geonames-form').on('submit', function(event) {
+        $('#df-search-geonames-form').on('submit', function(event) {
             event.preventDefault();
             $(this).find('button').blur();
-            var term = $('input[name=df-geonames-term]').val();
-            var fuzzy = parseFloat($('input[name=df-geonames-fuzzy]').val());
-            // geonames wants 0 as very fuzzy and 1 as not fuzzy so we swap and normalize
+            var term = $(this).find('input[name="term"]').val();
+            var fuzzy = parseFloat($(this).find('input[name="fuzzy"]').val());
+            // geonames wants 0 as very fuzzy and 1 as not fuzzy so we flip and normalize
             self.searchGeonames(term, (10.0 - fuzzy) / 10.0);
         });
 
-        $('#df-finder-dict-form').on('submit', function(event) {
+        $('#df-search-dict-form').on('submit', function(event) {
             event.preventDefault();
             $(this).find('button').blur();
-            var term = $('input[name=df-dict-term]').val();
-            var column = parseInt($('input[name=df-dict-column]:checked').val());
+            var term = $(this).find('input[name="term"]').val();
+            var column = parseInt($(this).find('input[name="dict-column"]:checked').val());
             self.searchDictionary(term, column);
         });
 
         // autocomplete for bilingual dictionary
-        $('input[name=df-dict-term]').typeahead({minLength: 2}, {
+        $('#df-search-dict-term').typeahead({minLength: 2}, {
             name: 'dict',
             async: true,
             limit: 10,
             source: function(query, syncResults, asyncResults) {
-                var column = parseInt($('input[name=df-dict-column]:checked').val());
+                var column = parseInt($('input[name="dict-column"]:checked').val());
                 $.get('/search/dict/autocomplete', {term: query, column: column}, function(data) {
                     return asyncResults(data);
                 });
@@ -976,8 +976,8 @@ dragonfly.Finder = class Finder {
         });
 
         // when selects from autocomplete suggestions, submit
-        $('input[name=df-dict-term]').on('typeahead:selected', function(event, term) {
-            var column = parseInt($('input[name=df-dict-column]:checked').val());
+        $('#df-search-dict-term').on('typeahead:selected', function(event, term) {
+            var column = parseInt($('input[name="dict-column"]:checked').val());
             self.searchDictionary(term, column);
         });
 
@@ -990,20 +990,20 @@ dragonfly.Finder = class Finder {
     }
 
     /**
-     * Show the finder window
+     * Show the footer
      */
     show() {
-        var cw = $('.df-finder');
+        var cw = $('.df-footer');
         if (cw.height() < 100) {
-            cw.height(this.settings.getFinderHeight());
+            cw.height(this.settings.getFooterHeight());
         }
     }
 
     /**
-     * Hide the finder window
+     * Hide the footer
      */
     hide() {
-        $('.df-finder').height('6px');
+        $('.df-footer').height('6px');
     }
 
     /**
@@ -1036,7 +1036,9 @@ dragonfly.Finder = class Finder {
      */
     searchFiles(word, manual) {
         var self = this;
-        $('input[name=df-finder-term]').val(word);
+        if (!manual) {
+            $('#df-search-local-form').find('input[name="term"]').val(word);
+        }
         $.ajax({
             url: 'search/local',
             type: 'POST',
@@ -1111,7 +1113,7 @@ dragonfly.Finder = class Finder {
     initializeGMaps() {
         var key = this.settings.getGMapsKey();
         var src = 'https://maps.googleapis.com/maps/api/js?key=' + key;
-        src += '&libraries=places&callback=dragonfly.finder.initializeGMapsCallback';
+        src += '&libraries=places&callback=dragonfly.search.initializeGMapsCallback';
         $.getScript(src)
             .fail(function(jqxhr, settings, exception) {
                 dragonfly.showStatus('danger', 'Unable to contact Google Maps');
@@ -1247,11 +1249,11 @@ dragonfly.Highlighter = class Highlighter {
     /**
      * Create the highlighter manager.
      * @param {TagTypes} tagTypes - A representation of the tag types.
-     * @param {Finder} finder - Object that manages search.
+     * @param {Search} search - Object that manages search.
      */
-    constructor(tagTypes, finder) {
+    constructor(tagTypes, search) {
         this.tagTypes = tagTypes;
-        this.finder = finder;
+        this.search = search;
         this.isCascade = true;
         this.clickMode = dragonfly.ClickMode.TAG;
         this.prevClickMode = dragonfly.ClickMode.TAG;
@@ -1318,7 +1320,7 @@ dragonfly.Highlighter = class Highlighter {
             self.prevClickMode = this.clickMode;
             self.clickMode = dragonfly.ClickMode.FINDER;
             self.highlightTypeAndClickMode();
-            self.finder.show();
+            self.search.show();
         });
 
         $(window).on(dragonfly.Events.SAVE, function() {
@@ -1467,7 +1469,7 @@ dragonfly.Highlighter = class Highlighter {
         } else if (this.clickMode == dragonfly.ClickMode.SELECT) {
             this.select(element);
         } else if (this.clickMode == dragonfly.ClickMode.FINDER) {
-            this.finder.searchFiles(element.html(), false);
+            this.search.searchFiles(element.html(), false);
         } else {
             // set this so we know whether to prevent user navigating away
             this.anyTaggingPerformed = true;
@@ -1801,8 +1803,8 @@ $(document).ready(function() {
     dragonfly.tagTypes = new dragonfly.TagTypes(dragonfly_tags);
     dragonfly.eventDispatcher = new dragonfly.EventDispatcher(dragonfly.tagTypes);
     dragonfly.settings = new dragonfly.Settings(dragonfly_settings);
-    dragonfly.finder = new dragonfly.Finder(dragonfly.settings);
-    dragonfly.highlighter = new dragonfly.Highlighter(dragonfly.tagTypes, dragonfly.finder);
+    dragonfly.search = new dragonfly.Search(dragonfly.settings);
+    dragonfly.highlighter = new dragonfly.Highlighter(dragonfly.tagTypes, dragonfly.search);
     dragonfly.highlighter.initializeHighlight();
     dragonfly.annotationSaver = new dragonfly.AnnotationSaver(dragonfly.filename, dragonfly.settings,
         dragonfly.highlighter, dragonfly_terminal_blank_line, dragonfly_view_only);
