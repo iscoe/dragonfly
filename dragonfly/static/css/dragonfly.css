@@ -35,9 +35,9 @@ body {
 }
 .navbar-header > .label {
     color: white;
-    font-size: 120%;
-    padding: .2em .5em .2em;
-    margin-top: 10px;
+    font-size: 17px;
+    padding: 5px 8px;
+    margin-top: 8px;
     margin-bottom: 5px;
 }
 .navbar-form > .navbar-text {
@@ -48,7 +48,7 @@ body {
     margin-left: 10px;
 }
 .df-navbar-button {
-    margin-top: 10px;
+    margin-top: 8px;
 }
 .navbar-buttons a {
     color: #333;
