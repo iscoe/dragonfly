@@ -954,6 +954,10 @@ dragonfly.Search = class Search {
             self.searchGeonames(term, (10.0 - fuzzy) / 10.0);
         });
 
+        $('.gmaps-form').on('submit', function(event) {
+            event.preventDefault();
+        });
+
         $('#df-search-dict-form').on('submit', function(event) {
             event.preventDefault();
             $(this).find('button').blur();

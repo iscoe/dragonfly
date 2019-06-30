@@ -183,12 +183,6 @@ body {
 table.gsc-search-box {
     width: 385px !important;
 }
-/*
-.df-finder-gmaps {
-    vertical-align: top;
-}
-*/
-
 .df-results {
     display: none;
     position: relative;
@@ -207,6 +201,7 @@ table.gsc-search-box {
 .df-results-gmaps {
     margin: 0;
     padding: 0;
+    height: 100%;
 }
 .df-results-count {
     color: #777;
