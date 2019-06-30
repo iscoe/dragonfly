@@ -16,20 +16,31 @@ logger = logging.getLogger(__name__)
 
 
 class InvertedIndex:
+    """
+    Case insensitive inverted index
+    """
     MAX_ENTRIES = 25
 
     def __init__(self):
         self.index = {}
 
-    def add(self, doc, sent, trans):
-        doc = os.path.basename(doc)
-        for word in sent:
-            word = word.lower()
-            if word not in self.index:
-                self.index[word] = {'count': 0, 'refs': []}
-            self.index[word]['count'] += 1
-            if self.index[word]['count'] < self.MAX_ENTRIES:
-                self.index[word]['refs'].append({'doc': doc, 'text': sent, 'trans': trans})
+    def add(self, filename, sentences, transliterations):
+        """
+        Add a document to the index
+        :param filename: Filename of the document
+        :param sentences: list of sentences where each sentence is a list of words
+        :param transliterations: same structure as sentences or None/empty list
+        """
+        doc = os.path.basename(filename)
+        for i, sentence in enumerate(sentences):
+            for word in sentence:
+                word = word.lower()
+                if word not in self.index:
+                    self.index[word] = {'count': 0, 'refs': []}
+                self.index[word]['count'] += 1
+                if self.index[word]['count'] < self.MAX_ENTRIES:
+                    trans = transliterations[i] if transliterations else None
+                    self.index[word]['refs'].append({'doc': doc, 'text': sentence, 'trans': trans})
 
     def clear(self):
         self.index = {}
@@ -132,29 +143,38 @@ class LocalSearch:
     def _add_doc_to_index(self, filename):
         with open(filename, 'r', encoding='utf8') as ifp:
             reader = csv.reader(ifp, delimiter='\t', quoting=csv.QUOTE_NONE)
+            sentences = []
+            transliterations = []
             sentence = []
-            trans = []
+            translit = []
             translit_avail = False
             for row in reader:
                 # skip header and sentence breaks
                 if not row or not row[self.TOKEN]:
+                    sentences.append(sentence)
                     if translit_avail:
-                        self.index.add(filename, sentence, trans)
-                    else:
-                        self.index.add(filename, sentence, None)
+                        transliterations.append(translit)
                     sentence = []
-                    trans = []
+                    translit = []
                     continue
+
+                # header skip
                 if row[self.TOKEN] == 'TOKEN':
                     if row[self.TRANSLIT] == 'ROMAN':
                         translit_avail = True
                     continue
 
-                # inverted index update
-                token = row[self.TOKEN].lower()
-                sentence.append(token)
+                sentence.append(row[self.TOKEN])
                 if translit_avail:
-                    trans.append(row[self.TRANSLIT])
+                    translit.append(row[self.TRANSLIT])
+
+            # end of document sentence
+            if sentence:
+                sentences.append(sentence)
+                if translit_avail:
+                    transliterations.append(translit)
+
+            self.index.add(filename, sentences, transliterations)
 
     def _get_path(self, filename):
         return os.path.join(self.index_dir, filename)
