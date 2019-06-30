@@ -58,7 +58,6 @@ class Runner:
         else:
             parser.add_argument('annotations', nargs='*', help="directories with annotation files")
             parser.add_argument("-o", "--output", help="output directory to store annotations", required=True)
-        parser.add_argument("-d", "--hints", help="optional hints displayed on the transliterations")
         parser.add_argument("-p", "--port", help="optional port to use (default is 5000)")
         parser.add_argument("-e", "--ext", help="optional file extension to match (default is .txt)")
         parser.add_argument("-t", "--tags", help="optional list of tags (default is PER,ORG,GPE,LOC)")
@@ -106,7 +105,6 @@ class Runner:
         app.config['dragonfly.data_dir'] = args.data
         app.config['dragonfly.input'] = FileLister(args.data, args.ext)
         app.config['dragonfly.output'] = args.output
-        app.config['dragonfly.hints'] = args.hints
         app.config['dragonfly.tags'] = args.tags
         # for rtl, manually turn off settings for Auto Scrolling Sentence IDs and probably Display Row Labels
         app.config['dragonfly.rtl'] = args.rtl

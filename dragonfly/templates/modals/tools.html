@@ -1,4 +1,5 @@
 <div class="panel-group" id="tools-accordion" role="tablist" aria-multiselectable="true">
+
   <div class="panel panel-default">
     <div class="panel-heading" role="tab" id="recommendations">
       <h4 class="panel-title">
@@ -13,6 +14,7 @@
       </div>
     </div>
   </div>
+
   <div class="panel panel-default">
     <div class="panel-heading" role="tab" id="recommend-builder">
       <h4 class="panel-title">
@@ -27,6 +29,7 @@
       </div>
     </div>
   </div>
+
   <div class="panel panel-default">
     <div class="panel-heading" role="tab" id="gen-tools">
       <h4 class="panel-title">
@@ -43,4 +46,22 @@
       </div>
     </div>
   </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="hints-tools">
+      <h4 class="panel-title">
+        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#tools-accordion" href="#hints-tools-collapse" aria-expanded="true" aria-controls="hints-tools-collapse">
+          Hints
+        </a>
+      </h4>
+    </div>
+    <div id="hints-tools-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="hints-tools">
+      <div class="panel-body">
+        <div class="container-fluid">
+          {% include 'modals/tools/hints.html' %}
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

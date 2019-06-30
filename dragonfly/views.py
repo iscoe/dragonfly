@@ -164,9 +164,14 @@ def import_combodict():
     return flask.jsonify(results)
 
 
-@app.route('/hints', methods=['GET'])
+@app.route('/hints', methods=['GET', 'POST'])
 def hints():
-    return flask.jsonify(app.locator.hints)
+    if flask.request.method == 'GET':
+        return flask.jsonify(app.locator.hints.load())
+    else:
+        app.locator.hints.save(flask.request.form['hints'])
+        results = {'success': True, 'message': 'Hints saved. Page must be reloaded to take affect.'}
+        return flask.jsonify(results)
 
 
 @app.route('/marker', methods=['POST'])

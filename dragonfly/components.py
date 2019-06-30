@@ -9,16 +9,31 @@ import json
 import os
 
 
-class HintLoader:
-    def __init__(self, path):
-        """
-        :param path: Path to hints tsv file
-        """
-        self.hints = []
-        with open(path, 'r', encoding='utf8') as fp:
-            reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
-            for row in reader:
-                self.hints.append({'regex': row[0], 'comment': row[1]})
+class Hints:
+    FILE = 'hints'
+
+    def __init__(self, metadata_dir):
+        self.filename = os.path.join(metadata_dir, self.FILE)
+
+    def load(self):
+        hints = []
+        if os.path.exists(self.filename):
+            with open(self.filename, 'r', encoding='utf8') as fp:
+                reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
+                for row in reader:
+                    hints.append({'regex': row[0], 'comment': row[1]})
+        return hints
+
+    def load_raw(self):
+        text = ''
+        if os.path.exists(self.filename):
+            with open(self.filename, 'r', encoding='utf8') as fp:
+                text = fp.read()
+        return text
+
+    def save(self, text):
+        with open(self.filename, 'w', encoding='utf8') as fp:
+            fp.write(text)
 
 
 class Notepad:

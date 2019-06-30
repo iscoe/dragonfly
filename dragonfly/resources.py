@@ -3,7 +3,7 @@
 # Distributed under the terms of the Apache 2.0 License.
 
 import copy
-from .components import HintLoader, Notepad, SentenceMarkerManager, Stats
+from .components import Hints, Notepad, SentenceMarkerManager, Stats
 from .data import OutputWriter
 from .recommend import Recommender
 from .search import DictionarySearch, GeonamesSearch, LocalSearch
@@ -20,12 +20,12 @@ class ResourceLocator:
     """
     def __init__(self, config):
         self.config = config
+        self.hints = Hints(config.get('dragonfly.local_md_dir'))
         self.notepad = Notepad(config.get('dragonfly.local_md_dir'))
         self.output_writer = OutputWriter(config.get('dragonfly.output'))
         self.stats = Stats()
         self._dictionary_search = None
         self._local_search = None
-        self._hints = None
         self._recommender = None
         self._translation_manager = None
         self._marker_manager = None
@@ -67,17 +67,6 @@ class ResourceLocator:
             local_md_dir = self.config.get('dragonfly.local_md_dir')
             self._local_search = LocalSearch(data_dir, local_md_dir)
         return self._local_search
-
-    @property
-    def hints(self):
-        # cached
-        if self._hints is None:
-            if self.config.get('dragonfly.hints'):
-                hint_loader = HintLoader(self.config.get('dragonfly.hints'))
-                self._hints = hint_loader.hints
-            else:
-                self._hints = []
-        return self._hints
 
     @property
     def recommender(self):

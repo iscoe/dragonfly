@@ -115,8 +115,10 @@ The json object is a dictionary with tokens as the keys and a list of translatio
 Importing a dictionary will not overwrite anything that you have already translated.
 
 ### Hints
-A hints file can be loaded and displayed. It is a two column tsv file with the first column being regular expressions
-and the second column is text that explains the hint. It is matched with the words in the 2nd row (transliteration).
+Annotation hints can be configured in the tools dialog.
+Hints are represented as two columns with the first column being regular expressions
+and the second column is text that explains the hint.
+The row for the hints is configured in the settings.
 An example from Amharic would be:
 ```
 ^ba	prefix that represents a preposition 'in' or 'on'
@@ -124,12 +126,6 @@ An example from Amharic would be:
 
 Anything that matches the hint is highlighted.
 The regular expressions are processed from top to bottom and only the first match is used.
-
-The hints file is loaded on the command line with the --hints or -d option (d for dictionary):
-
-```
-python3 annotate.py --hints il5_hints.tsv [lang] [data dir]
-```
 
 ### Translation
 When annotating the file `x.txt`, if there is a file in the same directory with the name `x.txt.eng`, 

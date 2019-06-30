@@ -1,0 +1,49 @@
+<p class="help-block">
+Hints are usually morpological observations. They are displayed on the original text or transliterations as selected
+in the settings. The hints should be in two columns separated by a tab with the first column being a regular expression.
+The second column is the text that explains the hint. The below example is for Amharic on transliterations.
+</p>
+<p>
+<code>
+^ba &emsp; prefix that represents a preposition 'in' or 'on'
+</code>
+</p>
+<form id="df-hints-form" action="{{ url_for('hints') }}" method="post">
+  <div class="form-group">
+    <textarea name="hints" class="form-control" rows="8">{{ df_locator.hints.load_raw() }}</textarea>
+  </div>
+  <button class="btn btn-default" type="submit">Save</button>
+</form>
+<script>
+$('textarea[name="hints"]').on('keydown', function(event) {
+    if (event.which == 9) {
+        event.preventDefault();
+        var offset = this.selectionStart;
+        $(this).val(function(i, str) {
+            return str.substring(0, offset) + "\t" + str.substring(this.selectionEnd)
+        });
+        this.selectionEnd = offset + 1;
+    }
+});
+$("#df-hints-form").on('submit', function(event) {
+    event.preventDefault();
+    $(this).find('button').blur();
+    $('#df-tools-modal').modal('hide');
+    $.ajax({
+      url: $(this).attr('action'),
+      type: 'POST',
+      data: $(this).serialize(),
+      dataType: 'json',
+      success: function(response) {
+        if (response.success) {
+          dragonfly.showStatus('success', response.message);
+        } else {
+          dragonfly.showStatus('danger', response.message);
+        }
+      },
+      error: function(xhr) {
+        dragonfly.showStatus('danger', 'Error contacting the server');
+      }
+    });
+});
+</script>
