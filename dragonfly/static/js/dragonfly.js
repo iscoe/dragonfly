@@ -201,7 +201,7 @@ dragonfly.Settings = class Settings {
         if (!this.isDisplayRowLabels()) {
             $(".df-column-labels").hide();
         } else {
-            $(".df-column-labels").show();
+            $(".df-column-labels").show().css('display', 'inline-block');
         }
     }
 
