@@ -248,264 +248,6 @@ dragonfly.Settings = class Settings {
     }
 };
 
-/** context menu used for adding user provided translations */
-dragonfly.ContextMenu = class ContextMenu {
-    constructor(translationManager) {
-        var self = this;
-        this.modal = $("#df-context-menu");
-        this.translationManager = translationManager;
-
-        $(".df-token").on("contextmenu", function(event) {
-            self._show($(this), event);
-        });
-
-        $("#df-context-menu-submit").on('click', function(event) {
-            self._save();
-            event.preventDefault();
-        });
-
-        $("#df-context-menu-delete").on('click', function(event) {
-            self._remove();
-            event.preventDefault();
-        });
-    }
-
-    /**
-     * Show the context menu.
-     * @param {jQuery} token - The token element clicked on.
-     * @param {Event} event - The click event for location information.
-     */
-    _show(token, event) {
-        var self = this;
-        event.preventDefault();
-
-        var sourceInfo = this._getSource(token);
-        $("#df-trans-source").html(sourceInfo['text']);
-        $("input[name = 'entity-type']").val(sourceInfo['type']);
-        $("input[name = 'translation']").val(sourceInfo['trans']);
-
-        var position = this._getPosition(event);
-        this.modal.css({top: position.top, left: position.left, position:'absolute'});
-        this.modal.show();
-        $("input[name = 'translation']").focus();
-
-        // don't want to hide context menu when clicking on it
-        this.modal.on('click', function(event) {
-            event.stopPropagation();
-        });
-
-        // documentElement to work around bug in firefox
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=184051
-        $(document.documentElement).one("click", function(event) {
-            self._hide();
-        });
-    }
-
-    /**
-     * Get position to show context menu
-     * @param {event} event - Right click event
-     * @return {object}
-     */
-    _getPosition(event) {
-        var position = {top: event.pageY, left: event.pageX};
-        var viewport = {
-            top: $(window).scrollTop(),
-            left: $(window).scrollLeft()
-        };
-        viewport.right = viewport.left + $(window).width();
-        viewport.bottom = viewport.top + $(window).height();
-
-        var modalRight = position.left + this.modal.outerWidth();
-        if (modalRight > viewport.right) {
-            position.left -= (modalRight - viewport.right);
-        }
-        var modalBottom = position.top + this.modal.outerHeight();
-        if (modalBottom > viewport.bottom) {
-            position.top -= (modalBottom - viewport.bottom);
-        }
-
-        return position;
-    }
-
-    /**
-     * Get the information about the token like text, tag type, and translation
-     * @param {jQuery} token - Token element for tag
-     * @return {object}
-     */
-    _getSource(token) {
-        var result = {text: null, type: null, trans: null};
-        var tag = token.data('tag');
-        if (tag == null || tag == 'O') {
-            result['text'] = token.html();
-        } else {
-            result['text'] = token.html();
-            // B-GPE for example
-            result['type'] = tag.slice(2);
-        }
-        var info = this.translationManager.get(result['text']);
-        if (info) {
-            result['trans'] = info['trans'];
-            // current tag type takes precedence
-            if (!result['type']) {
-                result['type'] = info['type'];
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Hide the context menu and clear input.
-     */
-    _hide() {
-        this.modal.hide();
-        $("input[name = 'translation']").val('');
-        $("input[name = 'entity-type']").val('');
-    }
-
-    /**
-     * Save the translation through ajax to server.
-     */
-    _save() {
-        var self = this;
-        var translation = $("input[name = 'translation']").val();
-        var entityType = $("input[name = 'entity-type']").val();
-        if (translation.length == 0) {
-            this._hide();
-            return;
-        }
-        var data = {
-            'source': $("#df-trans-source").html(),
-            'translation': translation,
-            'type': entityType,
-            'lang': dragonfly.lang
-        };
-        $.ajax({
-            url: 'translations/add',
-            type: 'POST',
-            data: JSON.stringify(data),
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    dragonfly.showStatus('success', response.message);
-                    self._hide();
-                    self.translationManager.add(data.source, {'trans': data.translation, 'type': data.type});
-                } else {
-                    dragonfly.showStatus('danger', response.message);
-                }
-            },
-            error: function(xhr) {
-                dragonfly.showStatus('danger', 'Error contacting the server');
-            }
-        });
-    }
-
-    /**
-     * Remove the translation through ajax to server.
-     */
-    _remove() {
-        var self = this;
-        var data = {
-            'source': $("#df-trans-source").html(),
-            'lang': dragonfly.lang,
-        };
-        $.ajax({
-            url: 'translations/delete',
-            type: 'POST',
-            data: JSON.stringify(data),
-            dataType: 'json',
-            success: function(response) {
-                self._hide();
-                if (response.success) {
-                    dragonfly.showStatus('success', response.message);
-                    self.translationManager.remove(data.source);
-                }
-            },
-            error: function(xhr) {
-                dragonfly.showStatus('danger', 'Error contacting the server');
-            }
-        });
-    }
-};
-
-dragonfly.UndoLevel = class UndoLevel {
-    constructor() {
-        this.elements = [];
-    }
-
-    /**
-     * Add a jQuery object representing a token to an undo level.
-     * @param {jQuery} element - A token element before a change.
-     */
-    add(element) {
-        if (!this.contains(element)) {
-            this.elements.push({
-                key: element.attr('id'),
-                value: element.clone(true)
-            });
-        }
-    }
-
-    /**
-     * Does this undo level already contain this token?
-     * @param {jQuery} element - A token element.
-     */
-    contains(element) {
-        var id = element.attr('id');
-        for (var i = 0; i < this.elements.length; i++) {
-            if (id == this.elements[i].key) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Restore the token objects to their original state.
-     */
-    apply() {
-        for (var i = 0; i < this.elements.length; i++) {
-            $("#" + this.elements[i].key).replaceWith(this.elements[i].value);
-        }
-    }
-};
-
-dragonfly.Undo = class Undo {
-    /**
-     * Create an Undo manager.
-     * @param {int} capacity - Maximum number of undo levels.
-     */
-    constructor(capacity) {
-        this.capacity = capacity;
-        this.items = [];
-    }
-
-    /**
-     * Start a new undo level.
-     */
-    start() {
-        this.items.unshift(new dragonfly.UndoLevel());
-        if (this.items.length > this.capacity) {
-            this.items.length = this.capacity;
-        }
-    }
-
-    /**
-     * Remove the latest undo level and return it.
-     * @return UndoLevel
-     */
-    pop() {
-        return this.items.shift();
-    }
-
-    /**
-     * Add a token object to the current undo level.
-     * @param {jQuery} element - A token element that is about to be changed.
-     */
-    add(element) {
-        this.items[0].add(element);
-    }
-};
-
 dragonfly.Hints = class Hints {
     /**
      * Create a hints manager.
@@ -607,283 +349,52 @@ dragonfly.Markers = class Markers {
     }
 };
 
-dragonfly.Translations = class Translations {
+/**
+ * Manage notes on documents/annotations
+ */
+dragonfly.Notepad = class Notepad {
     /**
-     * Create a translations manager.
+     * Create the notepad
+     * @param {string} filename - The file being annotated
      */
-    constructor(lang) {
-        this.lang = lang;
-        this.transMap = new Map();
-    }
-
-    /**
-     * Load the translations and apply them to the page.
-     */
-    load() {
+    constructor(filename) {
         var self = this;
-        $.ajax({
-            url: 'translations/get/' + this.lang,
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                self.createMap(data);
-                self.apply();
-            },
-            error: function(xhr) {
-                dragonfly.showStatus('danger', 'Error contacting the server');
+        this.filename = filename;
+        this.changed = false;
+
+        $(window).on(dragonfly.Events.LEAVE, function() {
+            if (self.changed) {
+                var formData = new FormData();
+                formData.append('filename', self.filename);
+                formData.append('notes', $('textarea[name="df-notes"]').val());
+                $.ajax({
+                    url: 'notes',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                });
             }
         });
-    }
 
-    /**
-     * Create a source token -> gloss map
-     * @param {object} translations - JSON object of translations.
-     */
-    createMap(translations) {
-        for (var source in translations) {
-            this.transMap.set(source.toLowerCase(), {'trans': translations[source][0], 'type': translations[source][1]});
-        }
-    }
-
-    /**
-     * Get the info for this source.
-     * @param {string} source - Source language string
-     * @return {object} - trans and type or null
-     */
-    get(source) {
-        if (this.transMap.has(source.toLowerCase())) {
-            return this.transMap.get(source.toLowerCase());
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Add a new translation pair to the translation manager.
-     * @param {string} source - Source string.
-     * @param {object} info - Object with keys trans and type.
-     */
-    add(source, info) {
-        this.transMap.set(source.toLowerCase(), info);
-        this.addDisplay(source.toLowerCase(), info.trans, info.type);
-    }
-
-    /**
-     * Remove a source from the translation manager.
-     * @param {string} source - Source string.
-     */
-    remove(source) {
-        this.transMap.delete(source.toLowerCase());
-        this.removeDisplay(source.toLowerCase());
-    }
-
-    /**
-     * Apply the translations to the web page.
-     */
-    apply() {
-        var self = this;
-        $(".df-token").each(function() {
-            var token = $(this).html().toLowerCase();
-            if (self.transMap.has(token)) {
-                if (self.transMap.get(token).type) {
-                    var title = self.transMap.get(token).type + ' : ' + self.transMap.get(token).trans;
-                } else {
-                    var title = self.transMap.get(token).trans;
-                }
-                $(this).addClass('df-in-dict');
-                $(this).attr('title', title);
-                $(this).attr('data-toggle', 'tooltip');
-            }
+        $('textarea[name="df-notes"]').one('change', function() {
+            self.changed = true;
         });
-        // this does all tooltips including in non-token rows
-        $('[data-toggle=tooltip]').tooltip({delay: 200, placement: 'auto left', container: 'body'});
-    }
 
-    /**
-     * Add display elements for token in dictionary.
-     * @param {string} source - Source string.
-     * @param {string} translation - English translation.
-     * @param {string} type - Entity type.
-     */
-    addDisplay(source, translation, type) {
-        if (type) {
-            var title = type + ' : ' + translation;
-        } else {
-            var title = translation;
-        }
-        $(".df-token").each(function() {
-            var token = $(this).html().toLowerCase();
-            if (token == source) {
-                $(this).addClass('df-in-dict');
-                $(this).attr('title', title);
-                if (this.hasAttribute('data-toggle')) {
-                    // bootstrap is a little funky with tooltip updates
-                    $(this).attr('title', title).tooltip('fixTitle');
-                } else {
-                    $(this).attr('data-toggle', 'tooltip');
-                    $(this).tooltip({delay: 200, placement: 'auto left', container: 'body'});
-                }
-            }
-        });
-    }
-
-    /**
-     * Remove display elements for token.
-     * @param {string} source - Source string.
-     */
-    removeDisplay(source) {
-        $(".df-token").each(function() {
-            var token = $(this).html().toLowerCase();
-            if (token == source) {
-                $(this).removeClass('df-in-dict');
-                $(this).removeAttr('title');
-                $(this).removeAttr('data-toggle');
-                $(this).tooltip('destroy');
+        // capture tabs rather than using them for ui navigation
+        $('textarea[name="df-notes"]').on('keydown', function(event) {
+            if (event.which == 9) {
+                event.preventDefault();
+                var offset = this.selectionStart;
+                $(this).val(function(i, str) {
+                    return str.substring(0, offset) + "\t" + str.substring(this.selectionEnd)
+                });
+                this.selectionEnd = offset + 1;
             }
         });
     }
 };
-
-/** Class representing a tag type. */
-dragonfly.TagType = class TagType {
-    /**
-     * Create a tag type
-     * @param {string} name - The tag type name
-     */
-    constructor(id, name) {
-        this.id = id;
-        this.name = name;
-        this.class = "df-tag-" + id;
-        this.start = "B-" + name;
-        this.inside = "I-" + name;
-    }
-};
-
-dragonfly.TagTypes = class TagTypes {
-    /**
-     * Create all tag types
-     * @param {array} tagTypes - Array of tag names
-     */
-    constructor(tagTypes) {
-        this.typeMap = {};
-        this.typeList = [];
-        for (var i = 0; i < tagTypes.length; i++) {
-            var index = '' + (i + 1)
-            var object = new dragonfly.TagType(index, tagTypes[i]);
-            this.typeMap[index] = object;
-            this.typeList.push(object);
-        }
-    }
-
-    /**
-     * Is this a tag type?
-     * @param {string} id - Tag type id
-     * @return boolean
-     */
-    isTagType(id) {
-        // test if integer
-        if (id >>> 0 !== parseFloat(id)) {
-            return false;
-        }
-        return Number(id) <= this.typeList.length;
-    }
-
-    /**
-     * Get tag type object
-     * @param {string} id - Tag type id
-     * @return TagType
-     */
-    getTagType(id) {
-        return this.typeMap[id];
-    }
-
-    /**
-     * Get initial tag type object
-     * @return TagType
-     */
-    getStartTagType() {
-        // 1 is the first tag type id
-        return this.getTagType('1');
-    }
-
-    /**
-     * Get tag type object from the full tag string
-     * @param {string} value - Tag string
-     * @return TagType
-     */
-    getTagTypeFromString(value) {
-        if (value == null || value == "O") {
-            return;
-        }
-        var tagType = value;
-        tagType = tagType.slice(2);
-        for (var i = 0; i < this.typeList.length; i++) {
-            if (this.typeList[i].name == tagType) {
-                return this.typeList[i];
-            }
-        }
-    }
-
-    /**
-     * Get a map of tag -> integer id
-     * @return Object
-     */
-    getReversedMap() {
-        var map = {};
-        for (var code in this.typeMap) {
-            map[this.typeMap[code].start] = code;
-            map[this.typeMap[code].inside] = code;
-        }
-        return map;
-    }
-};
-
-dragonfly.MultiTokenTag = class MultiTokenTag {
-    /**
-     * Create a multi-token tag.
-     * @param {TagTypes} tagTypes - TagTypes object with all possible tag types.
-     * @param {TagType} tagType - TagType object that represents the entity type.
-     */
-    constructor(tagTypes, tagType) {
-        this.elements = [];
-        this.tagTypes = tagTypes;
-        this.tagType = tagType;
-    }
-
-    /**
-     * Add an additional token.
-     * @param {jQuery} element - A token element.
-     */
-    update(element) {
-        this.elements.push(element);
-    }
-
-    /**
-     * Get first element
-     * @return {jQuery}
-     */
-    first() {
-        return this.elements[0];
-    }
-
-    /**
-     * Change the entity type.
-     * @param {TagType} tagType - TagType object that represents the entity type.
-     */
-    setTagType(tagType) {
-        this.tagType = tagType;
-    }
-
-    /**
-     * Get the number of tokens in the tag.
-     * @return {int}
-     */
-    size() {
-        return this.elements.length;
-    }
-
-};
-
 
 /**
  * Search mode configuration
@@ -1199,52 +710,541 @@ dragonfly.Search = class Search {
     }
 };
 
-
 /**
- * Manage notes on documents/annotations
+ * Context menu for managing user-created translations
  */
-dragonfly.Notepad = class Notepad {
-    /**
-     * Create the notepad
-     * @param {string} filename - The file being annotated
-     */
-    constructor(filename) {
+dragonfly.ContextMenu = class ContextMenu {
+    constructor(translationManager) {
         var self = this;
-        this.filename = filename;
-        this.changed = false;
+        this.modal = $("#df-context-menu");
+        this.translationManager = translationManager;
 
-        $(window).on(dragonfly.Events.LEAVE, function() {
-            if (self.changed) {
-                var formData = new FormData();
-                formData.append('filename', self.filename);
-                formData.append('notes', $('textarea[name="df-notes"]').val());
-                $.ajax({
-                    url: 'notes',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    dataType: 'json',
-                });
+        $(".df-token").on("contextmenu", function(event) {
+            self._show($(this), event);
+        });
+
+        $("#df-context-menu-submit").on('click', function(event) {
+            self._save();
+            event.preventDefault();
+        });
+
+        $("#df-context-menu-delete").on('click', function(event) {
+            self._remove();
+            event.preventDefault();
+        });
+    }
+
+    /**
+     * Show the context menu.
+     * @param {jQuery} token - The token element clicked on.
+     * @param {Event} event - The click event for location information.
+     */
+    _show(token, event) {
+        var self = this;
+        event.preventDefault();
+
+        var sourceInfo = this._getSource(token);
+        $("#df-trans-source").html(sourceInfo['text']);
+        $("input[name = 'entity-type']").val(sourceInfo['type']);
+        $("input[name = 'translation']").val(sourceInfo['trans']);
+
+        var position = this._getPosition(event);
+        this.modal.css({top: position.top, left: position.left, position:'absolute'});
+        this.modal.show();
+        $("input[name = 'translation']").focus();
+
+        // don't want to hide context menu when clicking on it
+        this.modal.on('click', function(event) {
+            event.stopPropagation();
+        });
+
+        // documentElement to work around bug in firefox
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=184051
+        $(document.documentElement).one("click", function(event) {
+            self._hide();
+        });
+    }
+
+    /**
+     * Get position to show context menu
+     * @param {event} event - Right click event
+     * @return {object}
+     */
+    _getPosition(event) {
+        var position = {top: event.pageY, left: event.pageX};
+        var viewport = {
+            top: $(window).scrollTop(),
+            left: $(window).scrollLeft()
+        };
+        viewport.right = viewport.left + $(window).width();
+        viewport.bottom = viewport.top + $(window).height();
+
+        var modalRight = position.left + this.modal.outerWidth();
+        if (modalRight > viewport.right) {
+            position.left -= (modalRight - viewport.right);
+        }
+        var modalBottom = position.top + this.modal.outerHeight();
+        if (modalBottom > viewport.bottom) {
+            position.top -= (modalBottom - viewport.bottom);
+        }
+
+        return position;
+    }
+
+    /**
+     * Get the information about the token like text, tag type, and translation
+     * @param {jQuery} token - Token element for tag
+     * @return {object}
+     */
+    _getSource(token) {
+        var result = {text: null, type: null, trans: null};
+        var tag = token.data('tag');
+        if (tag == null || tag == 'O') {
+            result['text'] = token.html();
+        } else {
+            result['text'] = token.html();
+            // B-GPE for example
+            result['type'] = tag.slice(2);
+        }
+        var info = this.translationManager.get(result['text']);
+        if (info) {
+            result['trans'] = info['trans'];
+            // current tag type takes precedence
+            if (!result['type']) {
+                result['type'] = info['type'];
             }
-        });
+        }
+        return result;
+    }
 
-        $('textarea[name="df-notes"]').one('change', function() {
-            self.changed = true;
-        });
+    /**
+     * Hide the context menu and clear input.
+     */
+    _hide() {
+        this.modal.hide();
+        $("input[name = 'translation']").val('');
+        $("input[name = 'entity-type']").val('');
+    }
 
-        // capture tabs rather than using them for ui navigation
-        $('textarea[name="df-notes"]').on('keydown', function(event) {
-            if (event.which == 9) {
-                event.preventDefault();
-                var offset = this.selectionStart;
-                $(this).val(function(i, str) {
-                    return str.substring(0, offset) + "\t" + str.substring(this.selectionEnd)
-                });
-                this.selectionEnd = offset + 1;
+    /**
+     * Save the translation through ajax to server.
+     */
+    _save() {
+        var self = this;
+        var translation = $("input[name = 'translation']").val();
+        var entityType = $("input[name = 'entity-type']").val();
+        if (translation.length == 0) {
+            this._hide();
+            return;
+        }
+        var data = {
+            'source': $("#df-trans-source").html(),
+            'translation': translation,
+            'type': entityType,
+            'lang': dragonfly.lang
+        };
+        $.ajax({
+            url: 'translations/add',
+            type: 'POST',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    dragonfly.showStatus('success', response.message);
+                    self._hide();
+                    self.translationManager.add(data.source, {'trans': data.translation, 'type': data.type});
+                } else {
+                    dragonfly.showStatus('danger', response.message);
+                }
+            },
+            error: function(xhr) {
+                dragonfly.showStatus('danger', 'Error contacting the server');
             }
         });
     }
+
+    /**
+     * Remove the translation through ajax to server.
+     */
+    _remove() {
+        var self = this;
+        var data = {
+            'source': $("#df-trans-source").html(),
+            'lang': dragonfly.lang,
+        };
+        $.ajax({
+            url: 'translations/delete',
+            type: 'POST',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            success: function(response) {
+                self._hide();
+                if (response.success) {
+                    dragonfly.showStatus('success', response.message);
+                    self.translationManager.remove(data.source);
+                }
+            },
+            error: function(xhr) {
+                dragonfly.showStatus('danger', 'Error contacting the server');
+            }
+        });
+    }
+};
+
+dragonfly.Translations = class Translations {
+    /**
+     * Create a translations manager.
+     */
+    constructor(lang) {
+        this.lang = lang;
+        this.transMap = new Map();
+    }
+
+    /**
+     * Load the translations and apply them to the page.
+     */
+    load() {
+        var self = this;
+        $.ajax({
+            url: 'translations/get/' + this.lang,
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                self.createMap(data);
+                self.apply();
+            },
+            error: function(xhr) {
+                dragonfly.showStatus('danger', 'Error contacting the server');
+            }
+        });
+    }
+
+    /**
+     * Create a source token -> gloss map
+     * @param {object} translations - JSON object of translations.
+     */
+    createMap(translations) {
+        for (var source in translations) {
+            this.transMap.set(source.toLowerCase(), {'trans': translations[source][0], 'type': translations[source][1]});
+        }
+    }
+
+    /**
+     * Get the info for this source.
+     * @param {string} source - Source language string
+     * @return {object} - trans and type or null
+     */
+    get(source) {
+        if (this.transMap.has(source.toLowerCase())) {
+            return this.transMap.get(source.toLowerCase());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Add a new translation pair to the translation manager.
+     * @param {string} source - Source string.
+     * @param {object} info - Object with keys trans and type.
+     */
+    add(source, info) {
+        this.transMap.set(source.toLowerCase(), info);
+        this.addDisplay(source.toLowerCase(), info.trans, info.type);
+    }
+
+    /**
+     * Remove a source from the translation manager.
+     * @param {string} source - Source string.
+     */
+    remove(source) {
+        this.transMap.delete(source.toLowerCase());
+        this.removeDisplay(source.toLowerCase());
+    }
+
+    /**
+     * Apply the translations to the web page.
+     */
+    apply() {
+        var self = this;
+        $(".df-token").each(function() {
+            var token = $(this).html().toLowerCase();
+            if (self.transMap.has(token)) {
+                if (self.transMap.get(token).type) {
+                    var title = self.transMap.get(token).type + ' : ' + self.transMap.get(token).trans;
+                } else {
+                    var title = self.transMap.get(token).trans;
+                }
+                $(this).addClass('df-in-dict');
+                $(this).attr('title', title);
+                $(this).attr('data-toggle', 'tooltip');
+            }
+        });
+        // this does all tooltips including in non-token rows
+        $('[data-toggle=tooltip]').tooltip({delay: 200, placement: 'auto left', container: 'body'});
+    }
+
+    /**
+     * Add display elements for token in dictionary.
+     * @param {string} source - Source string.
+     * @param {string} translation - English translation.
+     * @param {string} type - Entity type.
+     */
+    addDisplay(source, translation, type) {
+        if (type) {
+            var title = type + ' : ' + translation;
+        } else {
+            var title = translation;
+        }
+        $(".df-token").each(function() {
+            var token = $(this).html().toLowerCase();
+            if (token == source) {
+                $(this).addClass('df-in-dict');
+                $(this).attr('title', title);
+                if (this.hasAttribute('data-toggle')) {
+                    // bootstrap is a little funky with tooltip updates
+                    $(this).attr('title', title).tooltip('fixTitle');
+                } else {
+                    $(this).attr('data-toggle', 'tooltip');
+                    $(this).tooltip({delay: 200, placement: 'auto left', container: 'body'});
+                }
+            }
+        });
+    }
+
+    /**
+     * Remove display elements for token.
+     * @param {string} source - Source string.
+     */
+    removeDisplay(source) {
+        $(".df-token").each(function() {
+            var token = $(this).html().toLowerCase();
+            if (token == source) {
+                $(this).removeClass('df-in-dict');
+                $(this).removeAttr('title');
+                $(this).removeAttr('data-toggle');
+                $(this).tooltip('destroy');
+            }
+        });
+    }
+};
+
+dragonfly.UndoLevel = class UndoLevel {
+    constructor() {
+        this.elements = [];
+    }
+
+    /**
+     * Add a jQuery object representing a token to an undo level.
+     * @param {jQuery} element - A token element before a change.
+     */
+    add(element) {
+        if (!this.contains(element)) {
+            this.elements.push({
+                key: element.attr('id'),
+                value: element.clone(true)
+            });
+        }
+    }
+
+    /**
+     * Does this undo level already contain this token?
+     * @param {jQuery} element - A token element.
+     */
+    contains(element) {
+        var id = element.attr('id');
+        for (var i = 0; i < this.elements.length; i++) {
+            if (id == this.elements[i].key) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Restore the token objects to their original state.
+     */
+    apply() {
+        for (var i = 0; i < this.elements.length; i++) {
+            $("#" + this.elements[i].key).replaceWith(this.elements[i].value);
+        }
+    }
+};
+
+dragonfly.Undo = class Undo {
+    /**
+     * Create an Undo manager.
+     * @param {int} capacity - Maximum number of undo levels.
+     */
+    constructor(capacity) {
+        this.capacity = capacity;
+        this.items = [];
+    }
+
+    /**
+     * Start a new undo level.
+     */
+    start() {
+        this.items.unshift(new dragonfly.UndoLevel());
+        if (this.items.length > this.capacity) {
+            this.items.length = this.capacity;
+        }
+    }
+
+    /**
+     * Remove the latest undo level and return it.
+     * @return UndoLevel
+     */
+    pop() {
+        return this.items.shift();
+    }
+
+    /**
+     * Add a token object to the current undo level.
+     * @param {jQuery} element - A token element that is about to be changed.
+     */
+    add(element) {
+        this.items[0].add(element);
+    }
+};
+
+/** Class representing a tag type. */
+dragonfly.TagType = class TagType {
+    /**
+     * Create a tag type
+     * @param {string} name - The tag type name
+     */
+    constructor(id, name) {
+        this.id = id;
+        this.name = name;
+        this.class = "df-tag-" + id;
+        this.start = "B-" + name;
+        this.inside = "I-" + name;
+    }
+};
+
+dragonfly.TagTypes = class TagTypes {
+    /**
+     * Create all tag types
+     * @param {array} tagTypes - Array of tag names
+     */
+    constructor(tagTypes) {
+        this.typeMap = {};
+        this.typeList = [];
+        for (var i = 0; i < tagTypes.length; i++) {
+            var index = '' + (i + 1)
+            var object = new dragonfly.TagType(index, tagTypes[i]);
+            this.typeMap[index] = object;
+            this.typeList.push(object);
+        }
+    }
+
+    /**
+     * Is this a tag type?
+     * @param {string} id - Tag type id
+     * @return boolean
+     */
+    isTagType(id) {
+        // test if integer
+        if (id >>> 0 !== parseFloat(id)) {
+            return false;
+        }
+        return Number(id) <= this.typeList.length;
+    }
+
+    /**
+     * Get tag type object
+     * @param {string} id - Tag type id
+     * @return TagType
+     */
+    getTagType(id) {
+        return this.typeMap[id];
+    }
+
+    /**
+     * Get initial tag type object
+     * @return TagType
+     */
+    getStartTagType() {
+        // 1 is the first tag type id
+        return this.getTagType('1');
+    }
+
+    /**
+     * Get tag type object from the full tag string
+     * @param {string} value - Tag string
+     * @return TagType
+     */
+    getTagTypeFromString(value) {
+        if (value == null || value == "O") {
+            return;
+        }
+        var tagType = value;
+        tagType = tagType.slice(2);
+        for (var i = 0; i < this.typeList.length; i++) {
+            if (this.typeList[i].name == tagType) {
+                return this.typeList[i];
+            }
+        }
+    }
+
+    /**
+     * Get a map of tag -> integer id
+     * @return Object
+     */
+    getReversedMap() {
+        var map = {};
+        for (var code in this.typeMap) {
+            map[this.typeMap[code].start] = code;
+            map[this.typeMap[code].inside] = code;
+        }
+        return map;
+    }
+};
+
+dragonfly.MultiTokenTag = class MultiTokenTag {
+    /**
+     * Create a multi-token tag.
+     * @param {TagTypes} tagTypes - TagTypes object with all possible tag types.
+     * @param {TagType} tagType - TagType object that represents the entity type.
+     */
+    constructor(tagTypes, tagType) {
+        this.elements = [];
+        this.tagTypes = tagTypes;
+        this.tagType = tagType;
+    }
+
+    /**
+     * Add an additional token.
+     * @param {jQuery} element - A token element.
+     */
+    update(element) {
+        this.elements.push(element);
+    }
+
+    /**
+     * Get first element
+     * @return {jQuery}
+     */
+    first() {
+        return this.elements[0];
+    }
+
+    /**
+     * Change the entity type.
+     * @param {TagType} tagType - TagType object that represents the entity type.
+     */
+    setTagType(tagType) {
+        this.tagType = tagType;
+    }
+
+    /**
+     * Get the number of tokens in the tag.
+     * @return {int}
+     */
+    size() {
+        return this.elements.length;
+    }
+
 };
 
 /**
