@@ -1320,13 +1320,13 @@ dragonfly.Highlighter = class Highlighter {
         });
 
         $(window).on(dragonfly.Events.SET_SELECT_MODE, function() {
-            self.prevClickMode = this.clickMode;
+            self.prevClickMode = self.clickMode;
             self.clickMode = dragonfly.ClickMode.SELECT;
             self.highlightTypeAndClickMode();
         });
 
         $(window).on(dragonfly.Events.SET_FIND_MODE, function() {
-            self.prevClickMode = this.clickMode;
+            self.prevClickMode = self.clickMode;
             self.clickMode = dragonfly.ClickMode.FINDER;
             self.highlightTypeAndClickMode();
             self.search.show();
