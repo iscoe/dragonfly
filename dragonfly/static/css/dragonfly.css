@@ -409,7 +409,7 @@ table.gsc-search-box {
   background-color: #e7e7e7;
 }
 /***** extras *****/
-#df-tools-modal > .modal-dialog {
+#df-tools-modal > .modal-dialog, #df-settings-modal > .modal-dialog {
     width: 800px;
 }
 #df-recommend-display {

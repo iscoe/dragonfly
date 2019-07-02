@@ -21,8 +21,14 @@
   </div>
 {%- endmacro -%}
 <form id="df-settings-form" class="form-horizontal">
-  <h3>Global Settings</h3>
-  {{ render_settings(gsm) }}
-  <h3>Local Settings</h3>
-  {{ render_settings(lsm) }}
+  <div class="row">
+    <div class="col-md-6">
+      <h3>Global Settings</h3>
+      {{ render_settings(gsm) }}
+    </div>
+    <div class="col-md-6">
+      <h3>Local Settings</h3>
+      {{ render_settings(lsm) }}
+    </div>
+  </div>
 </form>
