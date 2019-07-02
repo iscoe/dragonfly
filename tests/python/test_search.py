@@ -7,14 +7,14 @@ class InvertedIndexTest(unittest.TestCase):
     def test_add(self):
         index = InvertedIndex()
         index.add('doc1', [['hello', 'world'], ['this', 'is', 'a', 'test'], ['goodbye', 'world']], None)
-        self.assertEqual(2, index.index['world']['count'])
+        self.assertEqual(2, index._index.get('world')['count'])
 
     def test_add_with_transliterations(self):
         sentences = [['hello', 'world'], ['this', 'is', 'a', 'test'], ['goodbye', 'world']]
         trans = [['bonjour', 'world'], ['this', 'is', 'a', 'test'], ['goodbye', 'world']]
         index = InvertedIndex()
         index.add('doc1', sentences, trans)
-        self.assertEqual('bonjour', index.index['hello']['refs'][0]['trans'][0])
+        self.assertEqual('bonjour', index._index.get('hello')['refs'][0]['trans'][0])
 
     def test_retrieve(self):
         index = InvertedIndex()

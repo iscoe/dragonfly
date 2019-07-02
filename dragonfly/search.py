@@ -21,8 +21,33 @@ class InvertedIndex:
     """
     MAX_ENTRIES = 25
 
+    class IndexData:
+        # data structure for pickling
+        def __init__(self, max_entries):
+            self.max_entries = max_entries
+            self.num_documents = 0
+            self.index = {}
+
+        def add(self, word, doc, sentence, trans):
+            if word not in self.index:
+                # cannot use defaultdict since lambdas cannot be pickled
+                self.index[word] = {'count': 0, 'refs': []}
+            self.index[word]['count'] += 1
+            if self.index[word]['count'] < self.max_entries:
+                self.index[word]['refs'].append({'doc': doc, 'text': sentence, 'trans': trans})
+
+        def clear(self):
+            self.index.clear()
+
+        def words(self):
+            return self.index.keys()
+
+        def get(self, word):
+            if word in self.index:
+                return self.index[word]
+
     def __init__(self):
-        self.index = {}
+        self._index = self.IndexData(self.MAX_ENTRIES)
 
     def add(self, filename, sentences, transliterations):
         """
@@ -31,47 +56,53 @@ class InvertedIndex:
         :param sentences: list of sentences where each sentence is a list of words
         :param transliterations: same structure as sentences or None/empty list
         """
+        self._index.num_documents += 1
         doc = os.path.basename(filename)
         for i, sentence in enumerate(sentences):
             for word in sentence:
                 word = word.lower()
-                if word not in self.index:
-                    self.index[word] = {'count': 0, 'refs': []}
-                self.index[word]['count'] += 1
-                if self.index[word]['count'] < self.MAX_ENTRIES:
-                    trans = transliterations[i] if transliterations else None
-                    self.index[word]['refs'].append({'doc': doc, 'text': sentence, 'trans': trans})
+                trans = transliterations[i] if transliterations else None
+                self._index.add(word, doc, sentence, trans)
 
     def clear(self):
-        self.index = {}
+        self._index.clear()
 
     def retrieve(self, term, wildcards=False):
         term = term.lower()
         results = {'terms': set(), 'count': 0, 'refs': []}
         if wildcards:
             results = self._retrieve_with_wildcards(term)
-        elif term in self.index:
-            results['terms'].add(term)
-            results['count'] = self.index[term]['count']
-            results['refs'] = self.index[term]['refs']
+        else:
+            entry = self._index.get(term)
+            if entry:
+                results['terms'].add(term)
+                results['count'] = entry['count']
+                results['refs'] = entry['refs']
         return results
 
     def _retrieve_with_wildcards(self, term):
         results = {'terms': set(), 'count': 0, 'refs': []}
-        matches = fnmatch.filter(self.index.keys(), term)
+        matches = fnmatch.filter(self._index.words(), term)
         for match in matches:
+            entry = self._index.get(match)
             results['terms'].add(match)
-            results['count'] += self.index[match]['count']
-            results['refs'].extend(self.index[match]['refs'])
+            results['count'] += entry['count']
+            results['refs'].extend(entry['refs'])
         return results
 
     def save(self, filename):
-        with open(filename, 'wb') as fp:
-            pickle.dump(self.index, fp)
+        try:
+            with open(filename, 'wb') as fp:
+                pickle.dump(self._index, fp)
+        except Exception:
+            logger.exception('Cannot save search index')
 
     def load(self, filename):
-        with open(filename, 'rb') as fp:
-            self.index = pickle.load(fp)
+        try:
+            with open(filename, 'rb') as fp:
+                self._index = pickle.load(fp)
+        except Exception:
+            logger.exception('Cannot load search index')
 
 
 class LocalSearch:
