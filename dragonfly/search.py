@@ -23,6 +23,7 @@ class InvertedIndex:
 
     class IndexData:
         # data structure for pickling
+        # don't need to normalize since each sentence is reference to list
         def __init__(self, max_entries):
             self.max_entries = max_entries
             self.num_documents = 0
