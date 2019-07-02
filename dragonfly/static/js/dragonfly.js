@@ -797,12 +797,9 @@ dragonfly.ContextMenu = class ContextMenu {
      * @return {object}
      */
     _getSource(token) {
-        var result = {text: null, type: null, trans: null};
+        var result = {text: token.get(0).textContent, type: null, trans: null};
         var tag = token.data('tag');
-        if (tag == null || tag == 'O') {
-            result['text'] = token.html();
-        } else {
-            result['text'] = token.html();
+        if (tag != null && tag != 'O') {
             // B-GPE for example
             result['type'] = tag.slice(2);
         }
@@ -967,7 +964,7 @@ dragonfly.Translations = class Translations {
     apply() {
         var self = this;
         $(".df-token").each(function() {
-            var token = $(this).html().toLowerCase();
+            var token = this.textContent.toLowerCase();
             if (self.transMap.has(token)) {
                 if (self.transMap.get(token).type) {
                     var title = self.transMap.get(token).type + ' : ' + self.transMap.get(token).trans;
@@ -996,7 +993,7 @@ dragonfly.Translations = class Translations {
             var title = translation;
         }
         $(".df-token").each(function() {
-            var token = $(this).html().toLowerCase();
+            var token = this.textContent.toLowerCase();
             if (token == source) {
                 $(this).addClass('df-in-dict');
                 $(this).attr('title', title);
@@ -1017,7 +1014,7 @@ dragonfly.Translations = class Translations {
      */
     removeDisplay(source) {
         $(".df-token").each(function() {
-            var token = $(this).html().toLowerCase();
+            var token = this.textContent.toLowerCase();
             if (token == source) {
                 $(this).removeClass('df-in-dict');
                 $(this).removeAttr('title');
@@ -1478,7 +1475,7 @@ dragonfly.Highlighter = class Highlighter {
         } else if (this.clickMode == dragonfly.ClickMode.SELECT) {
             this.select(element);
         } else if (this.clickMode == dragonfly.ClickMode.FINDER) {
-            this.search.searchFiles(element.html(), false);
+            this.search.searchFiles(element.get(0).textContent, false);
         } else {
             // set this so we know whether to prevent user navigating away
             this.anyTaggingPerformed = true;
@@ -1570,11 +1567,11 @@ dragonfly.Highlighter = class Highlighter {
         }
         token.attr('class', classes);
 
-        var tokenText = token.html().toLowerCase();
+        var tokenText = token.get(0).textContent.toLowerCase();
         var count = 0;
         if (cascade) {
             $(".df-token").each(function() {
-                if (tokenText == $(this).html().toLowerCase()) {
+                if (tokenText == this.textContent.toLowerCase()) {
                     if (self.highlightToken($(this), tagType, string, false, true)) {
                         count += 1;
                     }
@@ -1606,10 +1603,10 @@ dragonfly.Highlighter = class Highlighter {
      */
     cascadeMultiTokenTag(tag) {
         var self = this;
-        var firstTokenText = tag.elements[0].html().toLowerCase();
+        var firstTokenText = tag.elements[0].get(0).textContent.toLowerCase();
         var count = 0;
         $(".df-token").each(function() {
-            if (firstTokenText == $(this).html().toLowerCase()) {
+            if (firstTokenText == this.textContent.toLowerCase()) {
                 if (tag.elements[0].attr("id") == $(this).attr("id")) {
                     return;
                 }
@@ -1632,8 +1629,8 @@ dragonfly.Highlighter = class Highlighter {
                         if (tagValue != null && tagValue.indexOf("-") != -1) {
                             return;
                         }
-                        var tokenText = tag.elements[i].html().toLowerCase();
-                        if (tokenText != nextToken.html().toLowerCase()) {
+                        var tokenText = tag.elements[i].get(0).textContent.toLowerCase();
+                        if (tokenText != nextToken.get(0).textContent.toLowerCase()) {
                             return;
                         }
                         newTag.update(nextToken);
@@ -1668,12 +1665,12 @@ dragonfly.Highlighter = class Highlighter {
             this.selectStart = token.parent();
         } else {
             // copy text from the child of each df-section
-            var text = this.selectStart.children().first().html();
+            var text = this.selectStart.children().first().get(0).textContent;
             if (!this.selectStart.is(token.parent())) {
                 this.selectStart.nextUntil(token.parent()).each(function() {
-                    text = text.concat(' ', $(this).children().first().html());
+                    text = text.concat(' ', $(this).children().first().get(0).textContent);
                 });
-                text = text.concat(' ', token.html());
+                text = text.concat(' ', token.get(0).textContent);
             }
             copyToClipboard(text);
             this.selectStart = null;
