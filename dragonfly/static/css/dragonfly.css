@@ -83,6 +83,14 @@ body {
 .df-del, .df-sel, .df-find {
     background-color: rgba(33, 33, 33, 0.5);
 }
+.df-suggest {
+    font-weight: 700;
+    text-shadow: 0 0 3px rgba(0, 150, 0, 0.5);
+}
+.df-suggest-more {
+    font-weight: 800;
+    text-shadow: 0 0 3px rgba(0, 150, 0, 1.0);
+}
 /***** footer *****/
 .df-footer {
     background-color: white;

@@ -64,6 +64,7 @@ class Runner:
         parser.add_argument("--prefix", help="optional URL prefix for web server")
         parser.add_argument("--rtl", action='store_true', help="option to display text RTL")
         parser.add_argument("--debug", action='store_true', help="option to run in debug mode")
+        parser.add_argument("--suggest", help="optional row to turn into suggestions")
         return parser.parse_args()
 
     def _process_args(self, args):
@@ -108,6 +109,7 @@ class Runner:
         app.config['dragonfly.tags'] = args.tags
         # for rtl, manually turn off settings for Auto Scrolling Sentence IDs and probably Display Row Labels
         app.config['dragonfly.rtl'] = args.rtl
+        app.config['dragonfly.suggest'] = args.suggest
 
         # if we're running in a sub-directory
         if args.prefix:

@@ -105,6 +105,10 @@ class Document:
     def attach_markers(self, markers):
         self.markers = markers
 
+    def convert_row_to_suggestions(self, label):
+        for sentence in self.sentences:
+            sentence.convert_row_to_suggestions(label)
+
     def _validate_annotations(self, annotations):
         if len(annotations) != self.num_sentences:
             raise ValueError("Annotations and input file are different lengths")
@@ -167,6 +171,16 @@ class Sentence:
         row.adjudicate = True
         self.rows.insert(Sentence.TOKEN + 1, row)
 
+    def convert_row_to_suggestions(self, label):
+        suggestion_row = None
+        for row in self.rows:
+            if row.label.lower() == label.lower():
+                suggestion_row = row
+                break
+        if suggestion_row:
+            self.rows[Sentence.TOKEN].set_suggestions(suggestion_row.strings)
+            self.rows.remove(suggestion_row)
+
     def __repr__(self):
         return "<Sentence {}: {}>".format(self.index, self.rows)
 
@@ -185,12 +199,19 @@ class SentenceRow:
         self.strings = []
         self.annotations = []
         self.adjudicate = False
+        self.suggestions = []
 
     def append(self, string):
         self.strings.append(string)
 
     def attach(self, annotations):
         self.annotations = annotations
+
+    def set_suggestions(self, values):
+        self.suggestions = [float(x) for x in values]
+
+    def has_suggestions(self):
+        return bool(self.suggestions)
 
     @property
     def length(self):

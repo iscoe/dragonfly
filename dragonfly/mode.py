@@ -26,6 +26,7 @@ class ModeManager:
         lister = app.config.get('dragonfly.input')
         output_path = app.config.get('dragonfly.output')
         rtl = app.config.get('dragonfly.rtl')
+        suggest = app.config.get('dragonfly.suggest')
 
         settings = app.locator.settings
         if settings['Use Recommendation Order']:
@@ -54,6 +55,9 @@ class ModeManager:
 
         marker_manager = SentenceMarkerManager(app.config.get('dragonfly.local_md_dir'))
         document.attach_markers(marker_manager.get(local_filename))
+
+        if suggest:
+            document.convert_row_to_suggestions(suggest)
 
         content = flask.render_template('annotate.html', title=local_filename, document=document,
                                         index=index, next_index=next_index, rtl=rtl, lang=lang,

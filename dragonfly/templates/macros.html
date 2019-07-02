@@ -3,10 +3,13 @@
   {%- for row in sentence.rows -%}
     {% if loop.index == 1 %}{# Tokens #}
       {%- if has_annotations -%}
-    <div class="df-token" id="df-token-{{ sentence.index }}-{{ tok }}"
-         data-tag="{{ row.annotations[tok] }}">{{ row.strings[tok] }}</div>
+        <div class="df-token" id="df-token-{{ sentence.index }}-{{ tok }}" data-tag="{{ row.annotations[tok] }}">{{ row.strings[tok] }}</div>
       {%- else -%}
-    <div class="df-token" id="df-token-{{ sentence.index }}-{{ tok }}">{{ row.strings[tok] }}</div>
+        {%- set extra_class = "" -%}
+        {%- if row.has_suggestions() and row.suggestions[tok] > 0.5 -%}
+          {%- set extra_class = "df-suggest" -%}
+        {%- endif -%}
+        <div class="df-token {{ extra_class }}" id="df-token-{{ sentence.index }}-{{ tok }}">{{ row.strings[tok] }}</div>
       {%- endif -%}
     {%- else -%}{# Non-Tokens #}
       {%- if row.adjudicate -%}
