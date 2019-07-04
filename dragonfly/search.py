@@ -8,9 +8,12 @@ import csv
 import fnmatch
 import glob
 import logging
+import math
 import os
 import pickle
 import requests
+
+from .data import Sentence
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +35,7 @@ class InvertedIndex:
         def add(self, word, doc, sentence, trans):
             if word not in self.index:
                 # cannot use defaultdict since lambdas cannot be pickled
-                self.index[word] = {'count': 0, 'refs': []}
+                self.index[word] = {'count': 0, 'doc_count': 0, 'refs': []}
             self.index[word]['count'] += 1
             if self.index[word]['count'] < self.max_entries:
                 self.index[word]['refs'].append({'doc': doc, 'text': sentence, 'trans': trans})
@@ -50,6 +53,17 @@ class InvertedIndex:
     def __init__(self):
         self._index = self.IndexData(self.MAX_ENTRIES)
 
+    @property
+    def num_documents(self):
+        return self._index.num_documents
+
+    def get_doc_count(self, word):
+        word = word.lower()
+        if word in self._index.index:
+            return self._index.get(word)['doc_count']
+        else:
+            return 0
+
     def add(self, filename, sentences, transliterations):
         """
         Add a document to the index
@@ -58,12 +72,16 @@ class InvertedIndex:
         :param transliterations: same structure as sentences or None/empty list
         """
         self._index.num_documents += 1
+        words = set()
         doc = os.path.basename(filename)
         for i, sentence in enumerate(sentences):
             for word in sentence:
                 word = word.lower()
+                words.add(word)
                 trans = transliterations[i] if transliterations else None
                 self._index.add(word, doc, sentence, trans)
+        for word in words:
+            self._index.index[word]['doc_count'] += 1
 
     def clear(self):
         self._index.clear()
@@ -311,3 +329,32 @@ class DictionarySearch:
             self.english_index.clear()
             self.il_index.clear()
             self.trans_index.clear()
+
+
+class DocumentStats:
+    """
+    Information derived from search index about words in a document
+    """
+    def __init__(self, document, index):
+        self.document = document
+        self.index = index
+        self._calculate_tfidf()
+
+    def get_top_words(self, n=20):
+        return dict(sorted(self.tfidf.items(), key=lambda item: item[1], reverse=True)[:n])
+
+    def get_tfidf(self, word):
+        word = word.lower()
+        if word in self.tfidf:
+            return self.tfidf[word]
+        else:
+            return 0
+
+    def _calculate_tfidf(self):
+        self.word_counts = collections.Counter()
+        for sentence in self.document.sentences:
+            for word in sentence.rows[Sentence.TOKEN].strings:
+                self.word_counts.update({word.lower(): 1})
+        self.tfidf = {}
+        for word in self.word_counts:
+            self.tfidf[word] = self.word_counts[word] * math.log(self.index.num_documents / self.index.get_doc_count(word))

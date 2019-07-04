@@ -743,10 +743,11 @@ dragonfly.ContextMenu = class ContextMenu {
         var self = this;
         event.preventDefault();
 
-        var sourceInfo = this._getSource(token);
-        $("#df-trans-source").html(sourceInfo['text']);
-        $("input[name = 'entity-type']").val(sourceInfo['type']);
-        $("input[name = 'translation']").val(sourceInfo['trans']);
+        var tokenInfo = this._getTokenInfo(token);
+        $("#df-trans-source").html(tokenInfo['text']);
+        $("#df-tfidf").html(tokenInfo['tfidf']);
+        $("input[name = 'entity-type']").val(tokenInfo['type']);
+        $("input[name = 'translation']").val(tokenInfo['trans']);
 
         var position = this._getPosition(event);
         this.modal.css({top: position.top, left: position.left, position:'absolute'});
@@ -796,8 +797,8 @@ dragonfly.ContextMenu = class ContextMenu {
      * @param {jQuery} token - Token element for tag
      * @return {object}
      */
-    _getSource(token) {
-        var result = {text: token.get(0).textContent, type: null, trans: null};
+    _getTokenInfo(token) {
+        var result = {text: token.get(0).textContent, type: null, trans: null, tfidf: token.data('tfidf')};
         var tag = token.data('tag');
         if (tag != null && tag != 'O') {
             // B-GPE for example

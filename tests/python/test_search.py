@@ -1,5 +1,6 @@
 import unittest
-from dragonfly.search import InvertedIndex
+from dragonfly.search import InvertedIndex, DocumentStats
+from dragonfly.data import Document, Sentence, SentenceRow
 
 
 class InvertedIndexTest(unittest.TestCase):
@@ -15,6 +16,15 @@ class InvertedIndexTest(unittest.TestCase):
         index = InvertedIndex()
         index.add('doc1', sentences, trans)
         self.assertEqual('bonjour', index._index.get('hello')['refs'][0]['trans'][0])
+
+    def test_doc_count(self):
+        index = InvertedIndex()
+        index.add('doc1', [['hello', 'world']], [])
+        index.add('doc2', [['hello', 'nurse']], [])
+        index.add('doc3', [['good', 'morning']], [])
+        self.assertEqual(2, index.get_doc_count('hello'))
+        self.assertEqual(1, index.get_doc_count('world'))
+        self.assertEqual(0, index.get_doc_count('france'))
 
     def test_retrieve(self):
         index = InvertedIndex()
@@ -45,3 +55,19 @@ class InvertedIndexTest(unittest.TestCase):
         self.assertEqual(2, results['count'])
         self.assertEqual({'mary', 'maryland'}, results['terms'])
         self.assertEqual({'doc1', 'doc2'}, set([x['doc'] for x in results['refs']]))
+
+
+class DocumentStatsTest(unittest.TestCase):
+    def setUp(self):
+        self.index = InvertedIndex()
+        self.index.add('doc1', [['hello', 'world'], ['this', 'is', 'the', 'end', 'of', 'the', 'world']], None)
+        self.index.add('doc2', [['hello', 'world']], None)
+        self.index.add('doc3', [['good', 'morning']], None)
+        sentences = [Sentence(0), Sentence(1)]
+        sentences[0].rows = [SentenceRow(0, 'TOKEN', ['hello', 'world'])]
+        sentences[1].rows = [SentenceRow(1, 'TOKEN', ['this', 'is', 'the', 'end', 'of', 'the', 'world'])]
+        self.doc1 = Document('doc1', sentences, False)
+
+    def test_tfidf(self):
+        stats = DocumentStats(self.doc1, self.index)
+        self.assertAlmostEqual(0.8109302162, stats.get_tfidf('World'))

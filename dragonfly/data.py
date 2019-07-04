@@ -27,11 +27,19 @@ class FileLister:
     def get_index_from_filename(self, filename):
         if filename in self.filenames:
             return self.filenames.index(filename)
-        # if filenames include path information, exact string won't be in the list so loop over them
-        for index in enumerate(self.filenames):
-            if filename in self.filenames[index[0]]:
-                return index[0]
+        # also check if filename is basename
+        path = self.get_path(filename)
+        if path:
+            return self.filenames.index(path)
         return None
+
+    def get_path(self, filename):
+        """
+        Get the path to a file based on file name
+        """
+        for index, path in enumerate(self.filenames):
+            if filename in self.filenames[index]:
+                return path
 
     def size(self):
         return len(self.filenames)
@@ -193,10 +201,10 @@ class SentenceRow:
         index (int): row index
         label (string): column label
     """
-    def __init__(self, index, label):
+    def __init__(self, index, label, strings=None):
         self.index = index
         self.label = label
-        self.strings = []
+        self.strings = strings if strings else []
         self.annotations = []
         self.adjudicate = False
         self.suggestions = []

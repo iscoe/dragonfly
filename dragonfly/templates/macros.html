@@ -1,15 +1,20 @@
-{%- macro render_token(sentence, tok, max_col_width, has_annotations) -%}
+{%- macro insert_tfidf(doc_stats, token) -%}
+  {%- if doc_stats is not none -%}
+    data-tfidf="{{ '%0.2f' % doc_stats.get_tfidf(token)|float }}"
+  {%- endif -%}
+{%- endmacro -%}
+{%- macro render_token(sentence, tok, max_col_width, has_annotations, doc_stats) -%}
 <div class="df-section df-row">
   {%- for row in sentence.rows -%}
     {% if loop.index == 1 %}{# Tokens #}
       {%- if has_annotations -%}
-        <div class="df-token" id="df-token-{{ sentence.index }}-{{ tok }}" data-tag="{{ row.annotations[tok] }}">{{ row.strings[tok] }}</div>
+        <div class="df-token" id="df-token-{{ sentence.index }}-{{ tok }}" data-tag="{{ row.annotations[tok] }}" {{ insert_tfidf(doc_stats, row.strings[tok]) }}>{{ row.strings[tok] }}</div>
       {%- else -%}
         {%- set extra_class = "" -%}
         {%- if row.has_suggestions() and row.suggestions[tok] > 0.5 -%}
           {%- set extra_class = "df-suggest" -%}
         {%- endif -%}
-        <div class="df-token {{ extra_class }}" id="df-token-{{ sentence.index }}-{{ tok }}">{{ row.strings[tok] }}</div>
+        <div class="df-token {{ extra_class }}" id="df-token-{{ sentence.index }}-{{ tok }}" {{ insert_tfidf(doc_stats, row.strings[tok]) }}>{{ row.strings[tok] }}</div>
       {%- endif -%}
     {%- else -%}{# Non-Tokens #}
       {%- if row.adjudicate -%}

@@ -7,6 +7,7 @@ import os
 import timeit
 from .components import SentenceMarkerManager
 from .data import InputReader, Document, AnnotationLoader, EnglishTranslationLoader
+from .search import DocumentStats
 
 
 class ModeManager:
@@ -59,9 +60,15 @@ class ModeManager:
         if suggest:
             document.convert_row_to_suggestions(suggest)
 
+        if app.locator.local_search.loaded:
+            doc_stats = DocumentStats(document, app.locator.local_search.index)
+        else:
+            doc_stats = None
+
         content = flask.render_template('annotate.html', title=local_filename, document=document,
                                         index=index, next_index=next_index, rtl=rtl, lang=lang,
-                                        view_only=self.view_only, filename=local_filename)
+                                        view_only=self.view_only, filename=local_filename,
+                                        doc_stats=doc_stats)
         total_time = timeit.default_timer() - start_time
         app.logger.info('Serving %s in %1.2fs', filename, total_time)
         return content
