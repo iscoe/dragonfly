@@ -9,8 +9,10 @@ import json
 import random
 import string
 import os
+from .data import Document, InputReader
 from .mode import ModeManager
 from .recommend import RecommendConfig
+from .search import DocumentStats
 from .settings import GlobalSettingsManager, LocalSettingsManager
 
 
@@ -240,3 +242,21 @@ def get_recommendations():
     recommendation = app.locator.recommender.get(rec_name)
     render = flask.get_template_attribute('macros.html', 'render_recommendation')
     return render(recommendation)
+
+
+@app.route('/word_cloud/<doc>')
+def word_cloud(doc):
+    lister = app.config.get('dragonfly.input')
+    filename = lister.get_path(doc)
+    reader = InputReader(filename)
+    document = Document(filename, reader.sentences, reader.terminal_blank_line)
+    index = app.locator.local_search.index
+    doc_stats = DocumentStats(document, index)
+    words = []
+    dict_search = app.locator.dictionary_search
+    for word, tfidf in doc_stats.get_top_words().items():
+        results = dict_search.retrieve(word, 0)
+        if results:
+            word = results[0][1]
+        words.append({'text': word, 'weight': tfidf})
+    return flask.jsonify(words)

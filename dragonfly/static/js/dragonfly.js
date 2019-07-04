@@ -393,6 +393,32 @@ dragonfly.Notepad = class Notepad {
                 this.selectionEnd = offset + 1;
             }
         });
+
+        $("#df-notes-link").one('click', function() {
+            $.getScript('static/js/jqcloud.min.js')
+                .done(function() {
+                    $.ajax({
+                        url: 'word_cloud/' + dragonfly_filename,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            $('#df-cloud').jQCloud(data);
+                        },
+                        error: function(xhr) {
+                            dragonfly.showStatus('danger', 'Error contacting the server');
+                        }
+                    });
+                })
+                .fail(function(jqxhr, settings, exception) {
+                    dragonfly.showStatus('danger', 'Unable to load word cloud');
+            });
+        });
+
+        $("#df-notes-link").on('click', function(event) {
+            event.preventDefault();
+            $("#df-notes").toggle();
+            $("#df-cloud").toggle();
+        });
     }
 };
 

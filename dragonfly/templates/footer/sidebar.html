@@ -1,10 +1,11 @@
 <div class="df-resize-bar-v"></div>
 <div class="df-footer-sidebar-container">
   <div class="df-footer-nav navbar navbar-default">
-      <p class="df-search-label">Notes</p>
+      <p class="df-search-label"><a id="df-notes-link">Notes</a></p>
   </div>
 
   <div class="df-footer-content">
     <textarea id="df-notes" name="df-notes">{{ df_locator.notepad.load(filename) }}</textarea>
+    <div id="df-cloud" class="df-hide"></div>
   </div>
 </div>
