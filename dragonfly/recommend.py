@@ -224,6 +224,7 @@ class TaggedTokenFrequencies:
         if not os.path.exists(self.dir):
             os.mkdir(self.dir)
         self.corpus_filename = self._get_path(self.CORPUS_FILE)
+        self.corpus_data = None
 
     def update(self, annotation):
         filename = annotation['filename']
@@ -249,6 +250,15 @@ class TaggedTokenFrequencies:
         self._save_corpus_data(corpus_data)
         return corpus_data
 
+    def get_percentage(self, word):
+        if self.corpus_data is None:
+            self.corpus_data = self._load_corpus_data()
+        word = word.lower()
+        if word in self.corpus_data.counts and word in self.corpus_data.tagged_counts:
+            return self.corpus_data.tagged_counts[word] / self.corpus_data.counts[word]
+        else:
+            return 0
+
     def _load_corpus_data(self):
         if os.path.exists(self.corpus_filename):
             with open(self.corpus_filename, 'rb') as fp:
@@ -258,7 +268,7 @@ class TaggedTokenFrequencies:
         return data
 
     def _save_corpus_data(self, data):
-        with open(self._get_path(self.corpus_filename), 'wb') as fp:
+        with open(self.corpus_filename, 'wb') as fp:
             pickle.dump(data, fp)
 
     def _update_corpus(self, corpus_data, previous_file_data, new_file_data):

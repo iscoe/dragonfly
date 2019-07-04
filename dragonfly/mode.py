@@ -59,6 +59,11 @@ class ModeManager:
 
         if suggest:
             document.convert_row_to_suggestions(suggest)
+        else:
+            freqs = app.locator.tag_frequencies
+            for sentence in document.sentences:
+                row = sentence.rows[0]
+                row.set_suggestions([freqs.get_percentage(x) for x in row.strings])
 
         if app.locator.local_search.loaded:
             doc_stats = DocumentStats(document, app.locator.local_search.index)

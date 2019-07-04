@@ -52,10 +52,10 @@ def save():
     if not data:
         results = {'success': False, 'message': 'The server did not receive any data.'}
     else:
-        writer = app.locator.output_writer
-        response = json.loads(data)
-        writer.write(response)
-        app.logger.info('Saving annotations for %s', response['filename'])
+        annotations = json.loads(data)
+        app.locator.tag_frequencies.update(annotations)
+        app.locator.output_writer.write(annotations)
+        app.logger.info('Saving annotations for %s', annotations['filename'])
         results = {'success': True, 'message': 'Annotations saved.'}
     return flask.jsonify(results)
 
