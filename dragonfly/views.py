@@ -253,10 +253,14 @@ def word_cloud(doc):
     index = app.locator.local_search.index
     doc_stats = DocumentStats(document, index)
     words = []
+    user_trans = app.locator.translation_manager.get(app.config.get('dragonfly.lang'))
     dict_search = app.locator.dictionary_search
     for word, tfidf in doc_stats.get_top_words().items():
-        results = dict_search.retrieve(word, 0)
-        if results:
-            word = results[0][1]
+        if word.lower() in user_trans:
+            word = user_trans[word.lower()][0]
+        else:
+            results = dict_search.retrieve(word, 0)
+            if results:
+                word = results[0][1]
         words.append({'text': word, 'weight': tfidf})
     return flask.jsonify(words)
