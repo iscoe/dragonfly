@@ -61,8 +61,8 @@ class InvertedIndex:
         word = word.lower()
         if word in self._index.index:
             if 'doc_count' not in self._index.get(word):
-                raise ValueError("Search index needs to be rebuilt. "
-                                 "Delete inverted index in dataset's .dragonfly directory")
+                raise RuntimeError("Search index needs to be rebuilt. "
+                                   "Delete inverted index in dataset's .dragonfly directory")
             return self._index.get(word)['doc_count']
         else:
             return 0

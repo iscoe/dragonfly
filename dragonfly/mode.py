@@ -66,7 +66,10 @@ class ModeManager:
                 row.set_suggestions([freqs.get_percentage(x) for x in row.strings])
 
         if app.locator.local_search.loaded:
-            doc_stats = DocumentStats(document, app.locator.local_search.index)
+            try:
+                doc_stats = DocumentStats(document, app.locator.local_search.index)
+            except RuntimeError as e:
+                return str(e)
         else:
             doc_stats = None
 
