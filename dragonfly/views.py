@@ -258,7 +258,7 @@ def word_cloud(doc):
     for word, tfidf in doc_stats.get_top_words().items():
         if word.lower() in user_trans:
             word = user_trans[word.lower()][0]
-        else:
+        elif dict_search.available:
             results = dict_search.retrieve(word, 0)
             if results:
                 word = results[0][1]
