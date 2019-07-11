@@ -39,7 +39,7 @@ var dragonfly_view_only = {{ view_only|lower }};
         {%- endfor -%}
         </div>
         {%- for tok in range(sentence.length) -%}
-            {{ macros.render_token(sentence, tok, max_col_width, document.has_annotations, doc_stats) }}
+            {{ macros.render_token_column(sentence, tok, max_col_width, document.has_annotations, doc_stats) }}
         {%- endfor -%}
     </div>
 {% endfor %}
