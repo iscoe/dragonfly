@@ -32,13 +32,18 @@ class InvertedIndex:
             self.num_documents = 0
             self.index = {}
 
-        def add(self, word, doc, sentence, trans):
+        def add(self, word, doc, sentence_id, sentence, trans):
             if word not in self.index:
                 # cannot use defaultdict since lambdas cannot be pickled
                 self.index[word] = {'count': 0, 'doc_count': 0, 'refs': []}
             self.index[word]['count'] += 1
             if self.index[word]['count'] < self.max_entries:
-                self.index[word]['refs'].append({'doc': doc, 'text': sentence, 'trans': trans})
+                self.index[word]['refs'].append({
+                    'doc': doc,
+                    'sent_id': sentence_id,
+                    'text': sentence,
+                    'trans': trans,
+                })
 
         def clear(self):
             self.index.clear()
@@ -82,7 +87,7 @@ class InvertedIndex:
                 word = word.lower()
                 words.add(word)
                 trans = transliterations[i] if transliterations else None
-                self._index.add(word, doc, sentence, trans)
+                self._index.add(word, doc, i, sentence, trans)
         for word in words:
             self._index.index[word]['doc_count'] += 1
 

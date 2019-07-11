@@ -2,7 +2,7 @@
 {% for result in results['refs'] %}
   <div class="df-result">
     <div class="df-open">
-      <a class="btn btn-default" title="open in new tab" href="/{{ result['doc'] }}" target="_blank">
+      <a class="btn btn-default" title="open in new tab" href="/{{ result['doc'] }}#{{ result['sent_id'] }}" target="_blank">
         <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>
       </a>
     </div>
