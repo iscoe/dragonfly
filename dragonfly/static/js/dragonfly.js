@@ -303,12 +303,14 @@ dragonfly.Hints = class Hints {
                 var text = $(this).text();
                 var match = text.match(self.hints[i].regex);
                 if (match != null) {
-                    var new_text = '<span class="df-hint" title="' + self.hints[i].comment + '">' + match[0] + '</span>';
+                    var new_text = '<span class="df-hint" data-toggle="tooltip" title="' + self.hints[i].comment + '">' + match[0] + '</span>';
                     $(this).html(text.replace(match[0], new_text));
                     return;
                 }
             }
         });
+
+        $(".df-hint").tooltip({delay: 200, placement: 'auto top'});
     }
 };
 
