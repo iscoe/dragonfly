@@ -30,6 +30,16 @@ body {
     margin-left: 5px;
     margin-right: 5px;
 }
+.df-status {
+    margin-top: 18px;
+    height: 15px;
+    width: 15px;
+    background-color: #bbb;
+    border-radius: 50%;
+}
+.df-status-annotated {
+    background-color: #006400;
+}
 .navbar-header.navbar-labels {
     margin-left: 15px;
 }

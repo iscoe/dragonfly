@@ -1,6 +1,14 @@
 <div class="navbar navbar-default" id="df-nav">
   <div class="container-fluid">
     <div class="navbar-header df-header-metadata">
+      {%- if document.has_annotations -%}
+        {%- set status_tooltip = 'title="annotated"' -%}
+        {%- set status_class = "df-status df-status-annotated" -%}
+      {%- else -%}
+        {%- set status_tooltip = 'title="not annotated"' -%}
+        {%- set status_class = "df-status" -%}
+      {%- endif -%}
+      <span class="navbar-text {{ status_class }}" {{ status_tooltip|safe }}></span>
       <span id="df-filename" class="navbar-text">{{ title }}</span>
     </div>
     <div class="navbar-header navbar-labels">
