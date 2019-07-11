@@ -4,8 +4,13 @@
       <p class="df-search-label"><a id="df-notes-link">Notes</a></p>
   </div>
 
+  {% if df_settings['Document Specific Notes'] %}
+  {% set notes = df_locator.notepad.load(filename) %}
+  {% else %}
+  {% set notes = df_locator.notepad.load('') %}
+  {% endif %}
   <div class="df-footer-content">
-    <textarea id="df-notes" name="df-notes">{{ df_locator.notepad.load(filename) }}</textarea>
+    <textarea id="df-notes" name="df-notes">{{ notes }}</textarea>
     <div id="df-cloud" class="df-hide"></div>
   </div>
 </div>

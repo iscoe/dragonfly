@@ -169,6 +169,10 @@ dragonfly.Settings = class Settings {
         return this.settings['Cascade By Default'];
     }
 
+    areNotesDocumentSpecific() {
+        return this.settings['Document Specific Notes'];
+    }
+
     getFooterHeight() {
         return this.settings['Footer Height'];
     }
@@ -356,16 +360,22 @@ dragonfly.Notepad = class Notepad {
     /**
      * Create the notepad
      * @param {string} filename - The file being annotated
+     * @param {boolean} isDocumentSpecific - Do the notes apply to current document only
      */
-    constructor(filename) {
+    constructor(filename, isDocumentSpecific) {
         var self = this;
         this.filename = filename;
+        this.isDocumentSpecific = isDocumentSpecific;
         this.changed = false;
 
         $(window).on(dragonfly.Events.LEAVE, function() {
             if (self.changed) {
                 var formData = new FormData();
-                formData.append('filename', self.filename);
+                if (self.isDocumentSpecific) {
+                    formData.append('filename', self.filename);
+                } else {
+                    formData.append('filename', '');
+                }
                 formData.append('notes', $('textarea[name="df-notes"]').val());
                 $.ajax({
                     url: 'notes',
@@ -1849,7 +1859,7 @@ $(document).ready(function() {
     dragonfly.hints = new dragonfly.Hints(dragonfly.settings.getHintsRow());
     dragonfly.hints.run();
     dragonfly.markers = new dragonfly.Markers();
-    dragonfly.notepad = new dragonfly.Notepad(dragonfly.filename);
+    dragonfly.notepad = new dragonfly.Notepad(dragonfly.filename, dragonfly.settings.areNotesDocumentSpecific());
 
     $(window).on(dragonfly.Events.NEXT, function() {
         var url = $('#df-next-doc').attr('href');

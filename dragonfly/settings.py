@@ -21,6 +21,7 @@ class SettingsDefaults:
         ('Auto Scrolling Sentence IDs', True),
         ('Cascade By Default', True),
         ('Display Row Labels', True),
+        ('Document Specific Notes', False),
         ('Footer Starts Open', False),
         ('Use Recommendation Order', False),
     ]

@@ -41,6 +41,7 @@ class Notepad:
     Maintain notes related to annotating
     """
     DIR = 'notes'
+    GLOBAL = 'all'
 
     def __init__(self, metadata_dir):
         self.dir = os.path.join(metadata_dir, self.DIR)
@@ -48,11 +49,20 @@ class Notepad:
             os.mkdir(self.dir)
 
     def save(self, filename, notes):
+        """
+        :param filename: filename or empty string for global notes
+        :param notes: notes text
+        """
+        filename = filename if filename else self.GLOBAL
         filename = os.path.join(self.dir, filename)
         with open(filename, 'w', encoding='utf8') as fp:
             fp.write(notes)
 
     def load(self, filename):
+        """
+        :param filename: filename or empty string for global notes
+        """
+        filename = filename if filename else self.GLOBAL
         filename = os.path.join(self.dir, filename)
         if os.path.exists(filename):
             with open(filename, 'r', encoding='utf8') as fp:
