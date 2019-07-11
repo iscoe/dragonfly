@@ -1,13 +1,13 @@
-{%- macro insert_tfidf(doc_stats, token) -%}
+{%- macro insert_idf(doc_stats, token) -%}
   {%- if doc_stats is not none -%}
-    data-tfidf="{{ '%0.2f' % doc_stats.get_tfidf(token)|float }}"
+    data-tfidf="{{ '%0.2f' % doc_stats.get_idf(token)|float }}"
   {%- endif -%}
 {%- endmacro -%}
 
 {%- macro render_token(row, tok_index, sent_index, has_annotations, doc_stats) -%}
-  {%- set tfidf = insert_tfidf(doc_stats, row.strings[tok_index]) -%}
+  {%- set idf = insert_idf(doc_stats, row.strings[tok_index]) -%}
   {%- if has_annotations -%}
-    <div class="df-token" id="df-token-{{ sent_index }}-{{ tok_index }}" data-tag="{{ row.annotations[tok_index] }}" {{ tfidf }}>{{
+    <div class="df-token" id="df-token-{{ sent_index }}-{{ tok_index }}" data-tag="{{ row.annotations[tok_index] }}" {{ idf }}>{{
       row.strings[tok_index]
     }}</div>
   {%- else -%}
@@ -15,7 +15,7 @@
     {%- if row.has_suggestions() and row.suggestions[tok_index] > 0.5 -%}
       {%- set extra_class = "df-suggest" -%}
     {%- endif -%}
-    <div class="df-token {{ extra_class }}" id="df-token-{{ sent_index }}-{{ tok_index }}" {{ tfidf }}>{{
+    <div class="df-token {{ extra_class }}" id="df-token-{{ sent_index }}-{{ tok_index }}" {{ idf }}>{{
       row.strings[tok_index]
     }}</div>
   {%- endif -%}

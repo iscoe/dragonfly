@@ -358,6 +358,9 @@ class DocumentStats:
         else:
             return 0
 
+    def get_idf(self, word):
+        return math.log(self.index.num_documents / self.index.get_doc_count(word))
+
     def _calculate_tfidf(self):
         self.word_counts = collections.Counter()
         for sentence in self.document.sentences:
