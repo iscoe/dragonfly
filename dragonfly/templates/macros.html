@@ -7,17 +7,17 @@
 {%- macro render_token(row, tok_index, sent_index, has_annotations, doc_stats) -%}
   {%- set tfidf = insert_tfidf(doc_stats, row.strings[tok_index]) -%}
   {%- if has_annotations -%}
-    <div class="df-token" id="df-token-{{ sent_index }}-{{ tok_index }}" data-tag="{{ row.annotations[tok_index] }}" {{ tfidf }}>
-      {{ row.strings[tok_index] }}
-    </div>
+    <div class="df-token" id="df-token-{{ sent_index }}-{{ tok_index }}" data-tag="{{ row.annotations[tok_index] }}" {{ tfidf }}>{{
+      row.strings[tok_index]
+    }}</div>
   {%- else -%}
     {%- set extra_class = "" -%}
     {%- if row.has_suggestions() and row.suggestions[tok_index] > 0.5 -%}
       {%- set extra_class = "df-suggest" -%}
     {%- endif -%}
-    <div class="df-token {{ extra_class }}" id="df-token-{{ sent_index }}-{{ tok_index }}" {{ tfidf }}>
-      {{ row.strings[tok_index] }}
-    </div>
+    <div class="df-token {{ extra_class }}" id="df-token-{{ sent_index }}-{{ tok_index }}" {{ tfidf }}>{{
+      row.strings[tok_index]
+    }}</div>
   {%- endif -%}
 {%- endmacro -%}
 
@@ -38,15 +38,15 @@
   {%- else -%}
     {%- set display_text = row.strings[tok] -%}
   {%- endif -%}
-  <div class="{{ extra_class }}" {% if row.strings[tok]|length > max_col_width %} data-toggle="tooltip" title="{{ tooltip_text }}" {% endif %}>
-    {{ display_text }}
-  </div>
+  <div class="{{ extra_class }}" {% if row.strings[tok]|length > max_col_width %} data-toggle="tooltip" title="{{ tooltip_text }}" {% endif %}>{{
+    display_text
+  }}</div>
 {%- endmacro -%}
 
 {%- macro render_token_column(sentence, tok, max_col_width, has_annotations, doc_stats) -%}
 <div class="df-section df-row">
   {%- for row in sentence.rows -%}
-    {% if loop.index == 1 %}
+    {%- if loop.index == 1 -%}
       {{ render_token(row, tok, sentence.index, has_annotations, doc_stats) }}
     {%- else -%}
       {{ render_non_token(row, tok, max_col_width) }}
