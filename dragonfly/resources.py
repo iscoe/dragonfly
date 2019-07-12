@@ -24,12 +24,15 @@ class ResourceLocator:
         self.notepad = Notepad(config.get('dragonfly.local_md_dir'))
         self.output_writer = OutputWriter(config.get('dragonfly.output'))
         self.tag_frequencies = TaggedTokenFrequencies(config.get('dragonfly.local_md_dir'))
-        self.stats = Stats()
         self._dictionary_search = None
         self._local_search = None
         self._recommender = None
         self._translation_manager = None
         self._marker_manager = None
+
+    @property
+    def stats(self):
+        return Stats()
 
     @property
     def settings(self):
