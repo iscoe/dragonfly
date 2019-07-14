@@ -836,7 +836,7 @@ dragonfly.ContextMenu = class ContextMenu {
      * @return {object}
      */
     _getTokenInfo(token) {
-        var result = {text: token.get(0).textContent, type: null, trans: null, tfidf: token.data('tfidf')};
+        var result = {text: token.attr('data-token'), type: null, trans: null, tfidf: token.data('tfidf')};
         var tag = token.data('tag');
         if (tag != null && tag != 'O') {
             // B-GPE for example
@@ -1003,7 +1003,7 @@ dragonfly.Translations = class Translations {
     apply() {
         var self = this;
         $(".df-token").each(function() {
-            var token = this.textContent.toLowerCase();
+            var token = $(this).attr('data-token').toLowerCase();
             if (self.transMap.has(token)) {
                 if (self.transMap.get(token).type) {
                     var title = self.transMap.get(token).type + ' : ' + self.transMap.get(token).trans;
@@ -1032,7 +1032,7 @@ dragonfly.Translations = class Translations {
             var title = translation;
         }
         $(".df-token").each(function() {
-            var token = this.textContent.toLowerCase();
+            var token = $(this).attr('data-token').toLowerCase();
             if (token == source) {
                 $(this).addClass('df-in-dict');
                 $(this).attr('title', title);
@@ -1053,7 +1053,7 @@ dragonfly.Translations = class Translations {
      */
     removeDisplay(source) {
         $(".df-token").each(function() {
-            var token = this.textContent.toLowerCase();
+            var token = $(this).attr('data-token').toLowerCase();
             if (token == source) {
                 $(this).removeClass('df-in-dict');
                 $(this).removeAttr('title');
@@ -1514,7 +1514,7 @@ dragonfly.Highlighter = class Highlighter {
         } else if (this.clickMode == dragonfly.ClickMode.SELECT) {
             this.select(element);
         } else if (this.clickMode == dragonfly.ClickMode.FINDER) {
-            this.search.searchFiles(element.get(0).textContent, false);
+            this.search.searchFiles(element.attr('data-token'), false);
         } else {
             // set this so we know whether to prevent user navigating away
             this.anyTaggingPerformed = true;
@@ -1606,11 +1606,11 @@ dragonfly.Highlighter = class Highlighter {
         }
         token.attr('class', classes);
 
-        var tokenText = token.get(0).textContent.toLowerCase();
+        var tokenText = token.attr('data-token').toLowerCase();
         var count = 0;
         if (cascade) {
             $(".df-token").each(function() {
-                if (tokenText == this.textContent.toLowerCase()) {
+                if (tokenText == $(this).attr('data-token').toLowerCase()) {
                     if (self.highlightToken($(this), tagType, string, false, true)) {
                         count += 1;
                     }
@@ -1642,10 +1642,10 @@ dragonfly.Highlighter = class Highlighter {
      */
     cascadeMultiTokenTag(tag) {
         var self = this;
-        var firstTokenText = tag.elements[0].get(0).textContent.toLowerCase();
+        var firstTokenText = tag.elements[0].attr('data-token').toLowerCase();
         var count = 0;
         $(".df-token").each(function() {
-            if (firstTokenText == this.textContent.toLowerCase()) {
+            if (firstTokenText == $(this).attr('data-token').toLowerCase()) {
                 if (tag.elements[0].attr("id") == $(this).attr("id")) {
                     return;
                 }
@@ -1668,8 +1668,8 @@ dragonfly.Highlighter = class Highlighter {
                         if (tagValue != null && tagValue.indexOf("-") != -1) {
                             return;
                         }
-                        var tokenText = tag.elements[i].get(0).textContent.toLowerCase();
-                        if (tokenText != nextToken.get(0).textContent.toLowerCase()) {
+                        var tokenText = tag.elements[i].attr('data-token').toLowerCase();
+                        if (tokenText != nextToken.attr('data-token').toLowerCase()) {
                             return;
                         }
                         newTag.update(nextToken);
@@ -1704,12 +1704,12 @@ dragonfly.Highlighter = class Highlighter {
             this.selectStart = token.parent();
         } else {
             // copy text from the child of each df-section
-            var text = this.selectStart.children().first().get(0).textContent;
+            var text = this.selectStart.children().first().attr('data-token');
             if (!this.selectStart.is(token.parent())) {
                 this.selectStart.nextUntil(token.parent()).each(function() {
-                    text = text.concat(' ', $(this).children().first().get(0).textContent);
+                    text = text.concat(' ', $(this).children().first().attr('data-token'));
                 });
-                text = text.concat(' ', token.get(0).textContent);
+                text = text.concat(' ', token.attr('data-token'));
             }
             copyToClipboard(text);
             this.selectStart = null;
@@ -1811,7 +1811,7 @@ dragonfly.AnnotationSaver = class AnnotationSaver {
         $(".df-sentence").each(function() {
             $(this).find(".df-token").each(function() {
                 var tagValue = $(this).data('tag');
-                var tokenText = this.textContent;
+                var tokenText = $(this).attr('data-token');
                 if (tagValue != null) {
                     var token = {token: tokenText, tag: tagValue }
                 } else {
