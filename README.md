@@ -62,6 +62,20 @@ If the first column of the first row has a value of 'TOKEN', the first row is tr
 
 The output is a two column tsv file of token and tag.
 
+### Running multiple sites
+The port of the server is selected with the `-p` option:
+
+```bash
+python3 annotate.py --port 8888 [lang] [data_dir]
+```
+
+To run more than one site on the same port, configure a reverse proxy server with
+each Dragonfly instance responding to a different URL prefix:
+
+```bash
+python3 annotate.py --prefix deu [lang] [data_dir]
+```
+
 Annotate
 -------------------
 ### Single token tagging
@@ -69,13 +83,11 @@ Annotate
 2. Click on a token for a B tag.
 3. Continue clicking tokens for that tag type. Select a different letter for a different entity type.
 
-
 ### Cascade
 The cascade will tag all matching tokens in the document unless that token has been previously tagged.
 
 Toggle the cascade through its checkbox in the navigation bar or by pressing 'c'.
 To persist the cascade setting between documents, use the Settings dialog.
-
 
 ### Multi-token tagging
 1. Select tag mode as with single token tagging.
@@ -96,7 +108,6 @@ Clicking the same token twice copies that token.
 * To save the annotations, click the save button.
 * To move to the next document in the directory, click the next button (or previous button for the previous file).
 * To skip to a particular file, type the filename as part of the url: http://localhost:5000/IL5_SN_0001.txt
-
 
 ### Translation Dictionaries
 The annotation tool supports user-maintained translation dictionaries.
@@ -132,11 +143,33 @@ When annotating the file `x.txt`, if there is a file in the same directory with 
 it is loaded and displayed above the token row. The file should be a sentence segmented file with one
 sentence per line that matches the divisions in the CoNLL formatted input file.
 
+### Suggestions
+The tool will suggest words with a light brown background that you have been frequently tagging.
+To customize your suggestions, add an additional column to the input files and tell the tool
+to use a particular column:
+
+```bash
+python3 annotate.py --suggest ENTROPY [lang] [data_dir]
+```
+
 Settings
 ------------
 Settings are persisted between annotation sessions.
 Most take effect immediately upon a change.
 The exception is column width which requires a page reload.
+
+Additional Modes
+-----------------
+The behavior of Dragonfly can be changed by passing mode information.
+To view the progress of an annotator, view the URL they are using with the URL parameter
+`view=true` set. The ability to save is removed and if the site is configured for auto save
+you can reload the page to see their annotations.
+
+Passing the `--rtl` flag on the command line, changes the display to Right To Left.
+
+Setting `--simple` on the command line removes parts of the UI to help prevent distracting new annotators.
+
+Finally, the `--debug` flag is useful during development or working through errors.
 
 Adjudication
 --------------
