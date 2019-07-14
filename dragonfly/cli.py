@@ -63,6 +63,7 @@ class Runner:
         parser.add_argument("-t", "--tags", help="optional list of tags (default is PER,ORG,GPE,LOC)")
         parser.add_argument("--prefix", help="optional URL prefix for web server")
         parser.add_argument("--rtl", action='store_true', help="option to display text RTL")
+        parser.add_argument("--simple", action='store_true', help="optionally simplify UI")
         parser.add_argument("--debug", action='store_true', help="option to run in debug mode")
         parser.add_argument("--suggest", help="optional row to turn into suggestions")
         return parser.parse_args()
@@ -112,6 +113,8 @@ class Runner:
         modes = set()
         if args.rtl:
             modes.add('rtl')
+        if args.simple:
+            modes.add('simple')
         app.config['dragonfly.modes'] = modes
 
         # if we're running in a sub-directory
