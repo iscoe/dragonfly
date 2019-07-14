@@ -34,23 +34,26 @@
     {%- set extra_class = "" -%}
   {%- endif -%}
 
-  {%- if row.strings[tok]|length > max_col_width -%}
-    {%- set display_text = row.strings[tok][:max_col_width] + "…" -%}
-    {%- if row.strings[tok]|length > 400 -%}
-      {%- set tooltip_text = row.strings[tok][:400] -%}
+  {%- set text = row.strings[tok]|replace('__', '\u3000')|replace('--', '\u3000') -%}
+
+  {%- if text|length > max_col_width -%}
+    {%- set display_text = text[:max_col_width] + "…" -%}
+    {%- if text|length > 400 -%}
+      {%- set tooltip_text = text[:400] -%}
     {%- else -%}
-      {%- set tooltip_text = row.strings[tok] -%}
+      {%- set tooltip_text = text -%}
     {%- endif -%}
   {%- else -%}
-    {%- set display_text = row.strings[tok] -%}
+    {%- set display_text = text -%}
   {%- endif -%}
-  <div class="{{ extra_class }}" {% if row.strings[tok]|length > max_col_width %} data-toggle="tooltip" title="{{ tooltip_text }}" {% endif %}>{{
+  <div class="{{ extra_class }}" {% if text|length > max_col_width %} data-toggle="tooltip" title="{{ tooltip_text }}" {% endif %}>{{
     display_text
   }}</div>
 {%- endmacro -%}
 
 {%- macro render_token_column(sentence, tok, max_col_width, has_annotations, doc_stats) -%}
 <div class="df-section df-row">
+  {%- set max_col_width = calc_column_width(sentence.rows, tok, max_col_width) -%}
   {%- for row in sentence.rows -%}
     {%- if loop.index == 1 -%}
       {{ render_token(row, tok, sentence.index, has_annotations, doc_stats) }}

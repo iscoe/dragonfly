@@ -6,6 +6,7 @@ import argparse
 import json
 import logging
 import os
+import re
 from . import app
 from .data import FileLister
 from .resources import ResourceLocator
@@ -146,6 +147,8 @@ class Runner:
         app.locator.local_search.load_index(bg=True, build=True)
 
         app.jinja_env.filters['convert_to_json'] = self._convert_to_json
+        app.jinja_env.filters['regex_replace'] = self.regex_replace
+        app.jinja_env.globals.update(calc_column_width=self.calc_column_width)
 
     @staticmethod
     def _config_debug_logging():
@@ -160,6 +163,16 @@ class Runner:
     @staticmethod
     def _convert_to_json(value):
         return json.dumps(value)
+
+    @staticmethod
+    def regex_replace(s, pattern, repl):
+        return re.sub(pattern, repl, s)
+
+    @staticmethod
+    def calc_column_width(rows, index, max_column_width):
+        token_length = len(rows[0].strings[index])
+        widest_value = max([len(x.strings[index]) for x in rows])
+        return min([int(2 * token_length), max_column_width])
 
     def _run(self, args):
         if self.cmd == self.ANNOTATE:
