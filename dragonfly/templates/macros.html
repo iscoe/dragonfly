@@ -34,7 +34,7 @@
     {%- set extra_class = "" -%}
   {%- endif -%}
 
-  {%- set text = row.strings[tok]|replace('__', '\u3000')|replace('--', '\u3000') -%}
+  {%- set text = row.strings[tok]|replace('__', '\u3000')|replace('--', '\u3000')|preprocess_text -%}
 
   {%- if text|length > max_col_width -%}
     {%- set display_text = text[:max_col_width] + "…" -%}

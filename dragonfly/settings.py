@@ -23,6 +23,7 @@ class SettingsDefaults:
         ('Display Row Labels', True),
         ('Document Specific Notes', False),
         ('Footer Starts Open', False),
+        ('Suppress Dictionary Labels', False),
         ('Use Recommendation Order', False),
     ]
 

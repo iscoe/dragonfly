@@ -146,9 +146,11 @@ class Runner:
         app.locator = ResourceLocator(app.config)
         app.locator.local_search.load_index(bg=True, build=True)
 
+        self.suppress_dict_labels = app.locator.settings['Suppress Dictionary Labels']
+        app.jinja_env.filters['preprocess_text'] = self._preprocess_text
         app.jinja_env.filters['convert_to_json'] = self._convert_to_json
-        app.jinja_env.filters['regex_replace'] = self.regex_replace
-        app.jinja_env.globals.update(calc_column_width=self.calc_column_width)
+        app.jinja_env.filters['regex_replace'] = self._regex_replace
+        app.jinja_env.globals.update(calc_column_width=self._calc_column_width)
 
     @staticmethod
     def _config_debug_logging():
@@ -165,11 +167,16 @@ class Runner:
         return json.dumps(value)
 
     @staticmethod
-    def regex_replace(s, pattern, repl):
+    def _regex_replace(s, pattern, repl):
         return re.sub(pattern, repl, s)
 
+    def _preprocess_text(self, value):
+        if self.suppress_dict_labels:
+            value = re.sub(r'[A-Z]{2}_', '', value)
+        return value
+
     @staticmethod
-    def calc_column_width(rows, index, max_column_width):
+    def _calc_column_width(rows, index, max_column_width):
         token_length = len(rows[0].strings[index])
         widest_value = max([len(x.strings[index]) for x in rows])
         return min([int(2 * token_length), max_column_width])
