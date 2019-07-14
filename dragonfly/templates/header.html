@@ -23,7 +23,7 @@
     <div class="navbar-header navbar-buttons navbar-right">
       <div class="btn-group">
         {% if index > 0 %}
-        <a class="btn btn-default df-navbar-button" id="df-prev-doc" title="Previous" aria-label="Previous" href="{{ url_for('view') }}?index={{ index - 1 }}{% if view_only %}&view=true{% endif %}">
+        <a class="btn btn-default df-navbar-button" id="df-prev-doc" title="Previous" aria-label="Previous" href="{{ url_for('view') }}?index={{ index - 1 }}{% if 'viewer' in modes %}&view=true{% endif %}">
           <span class="glyphicon glyphicon-triangle-left"></span>
         </a>
         {% else %}
@@ -32,7 +32,7 @@
         </span>
         {% endif %}
         {% if next_index %}
-        <a class="btn btn-default df-navbar-button" id="df-next-doc" title="Next" aria-label="Next" href="{{ url_for('view') }}?index={{ next_index }}{% if view_only %}&view=true{% endif %}">
+        <a class="btn btn-default df-navbar-button" id="df-next-doc" title="Next" aria-label="Next" href="{{ url_for('view') }}?index={{ next_index }}{% if 'viewer' in modes %}&view=true{% endif %}">
           <span class="glyphicon glyphicon-triangle-right"></span>
         </a>
         {% else %}
