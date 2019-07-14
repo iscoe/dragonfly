@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{%- import 'macros.html' as macros -%}
 <html>
   <head>
     <title>Dragonfly : {{ title }}</title>
@@ -16,7 +17,7 @@
     {% block head %}{% endblock %}
   </head>
   <body>
-    <div class="df-body">
+    <div class="df-body {{ macros.render_modes(modes) }}">
       {% block header %}{% endblock %}
       {% block main %}{% endblock %}
       {% block footer %}{% endblock %}

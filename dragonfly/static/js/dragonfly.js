@@ -1847,6 +1847,7 @@ dragonfly.AnnotationSaver = class AnnotationSaver {
 $(document).ready(function() {
     dragonfly.lang = $("meta[name=lang]").attr("content");
     dragonfly.filename = dragonfly_filename;
+    var view_only = $(".df-body").hasClass('df-mode-viewer');
     dragonfly.tagTypes = new dragonfly.TagTypes(dragonfly_tags);
     dragonfly.eventDispatcher = new dragonfly.EventDispatcher(dragonfly.tagTypes);
     dragonfly.settings = new dragonfly.Settings(dragonfly_settings);
@@ -1854,7 +1855,7 @@ $(document).ready(function() {
     dragonfly.highlighter = new dragonfly.Highlighter(dragonfly.tagTypes, dragonfly.search);
     dragonfly.highlighter.initializeHighlight();
     dragonfly.annotationSaver = new dragonfly.AnnotationSaver(dragonfly.filename, dragonfly.settings,
-        dragonfly.highlighter, dragonfly_terminal_blank_line, dragonfly_view_only);
+        dragonfly.highlighter, dragonfly_terminal_blank_line, view_only);
     dragonfly.translations = new dragonfly.Translations(dragonfly.lang);
     dragonfly.translations.load();
     dragonfly.contextMenu = new dragonfly.ContextMenu(dragonfly.translations);

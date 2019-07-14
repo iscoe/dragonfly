@@ -8,7 +8,6 @@ var dragonfly_filename = "{{ title }}";
 var dragonfly_settings = {{ df_settings|convert_to_json|safe }};
 var dragonfly_tags = {{ df_tags|convert_to_json|safe }};
 var dragonfly_terminal_blank_line = {{ document.terminal_blank_line|lower }};
-var dragonfly_view_only = {{ view_only|lower }};
 </script>
 {% endblock %}
 
@@ -17,7 +16,7 @@ var dragonfly_view_only = {{ view_only|lower }};
 {% endblock %}
 
 {% block main %}
-<div class="df-main{% if rtl %} df-rtl{% endif %}">
+<div class="df-main">
 {%- set max_col_width = df_settings['Column Width']|int -%}
 {%- for s in range(document.sentences|length) -%}
     {%- set sentence = document.sentences[s] -%}

@@ -36,17 +36,18 @@ def inject_dragonfly_context():
 @app.route('/', defaults={'filename': None})
 @app.route('/<filename>')
 def view(filename):
-    view_only = flask.request.args.get('view', default=False, type=bool)
-    cmd = app.config.get('dragonfly.cmd')
-    if cmd == 'annotate':
+    modes = list(app.config.get('dragonfly.modes'))
+    if flask.request.args.get('view', default=False, type=bool):
+        modes.append('viewer')
+    if app.config.get('dragonfly.cmd') == 'annotate':
         attacher = AnnotateAttacher()
     else:
         attacher = AdjudicateAttacher(app.config.get('dragonfly.annotation_dirs'))
-    dr = DocumentRenderer(attacher, view_only)
+    dr = DocumentRenderer(attacher, modes)
     file_index = flask.request.args.get('index')
     content = dr.render(app, filename, file_index)
     if not content:
-        return flask.render_template('404.html', title="Error"), 404
+        return flask.render_template('404.html', title="Error", modes=[]), 404
     return content
 
 

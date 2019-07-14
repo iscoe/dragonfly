@@ -51,9 +51,9 @@ class AdjudicateAttacher:
 
 
 class DocumentRenderer:
-    def __init__(self, attacher, view_only):
+    def __init__(self, attacher, modes):
         self.attacher = attacher
-        self.view_only = view_only
+        self.modes = modes
 
     def render(self, app, filename, index):
         start_time = timeit.default_timer()
@@ -104,9 +104,8 @@ class DocumentRenderer:
             doc_stats = None
 
         content = flask.render_template('annotate.html', title=local_filename, document=document,
-                                        index=index, next_index=next_index, rtl=rtl, lang=lang,
-                                        view_only=self.view_only, filename=local_filename,
-                                        doc_stats=doc_stats)
+                                        index=index, next_index=next_index, lang=lang, modes=self.modes,
+                                        filename=local_filename, doc_stats=doc_stats)
         total_time = timeit.default_timer() - start_time
         app.logger.info('Serving %s in %1.2fs', filename, total_time)
         return content

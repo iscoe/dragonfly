@@ -107,9 +107,12 @@ class Runner:
         app.config['dragonfly.input'] = FileLister(args.data, args.ext)
         app.config['dragonfly.output'] = args.output
         app.config['dragonfly.tags'] = args.tags
-        # for rtl, manually turn off settings for Auto Scrolling Sentence IDs and probably Display Row Labels
-        app.config['dragonfly.rtl'] = args.rtl
         app.config['dragonfly.suggest'] = args.suggest
+
+        modes = set()
+        if args.rtl:
+            modes.add('rtl')
+        app.config['dragonfly.modes'] = modes
 
         # if we're running in a sub-directory
         if args.prefix:
