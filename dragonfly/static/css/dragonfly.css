@@ -95,11 +95,11 @@ body {
 }
 .df-suggest {
     font-weight: 700;
-    text-shadow: 0 0 3px rgba(0, 150, 0, 0.5);
+    background-color: rgba(150, 75, 0, 0.2);
 }
 .df-suggest-more {
     font-weight: 800;
-    text-shadow: 0 0 3px rgba(0, 150, 0, 1.0);
+    background-color: rgba(150, 75, 0, 0.4);
 }
 /***** footer *****/
 .df-footer {
