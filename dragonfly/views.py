@@ -10,8 +10,8 @@ import random
 import string
 import os
 from .data import Document, InputReader
-from .mode import ModeManager
 from .recommend import RecommendConfig
+from .renderer import AdjudicateAttacher, AnnotateAttacher, DocumentRenderer
 from .search import DocumentStats
 from .settings import GlobalSettingsManager, LocalSettingsManager
 
@@ -37,10 +37,14 @@ def inject_dragonfly_context():
 @app.route('/<filename>')
 def view(filename):
     view_only = flask.request.args.get('view', default=False, type=bool)
-    mode = app.config.get('dragonfly.mode')
-    manager = ModeManager(mode, view_only)
+    cmd = app.config.get('dragonfly.cmd')
+    if cmd == 'annotate':
+        attacher = AnnotateAttacher()
+    else:
+        attacher = AdjudicateAttacher(app.config.get('dragonfly.annotation_dirs'))
+    dr = DocumentRenderer(attacher, view_only)
     file_index = flask.request.args.get('index')
-    content = manager.render(app, filename, file_index)
+    content = dr.render(app, filename, file_index)
     if not content:
         return flask.render_template('404.html', title="Error"), 404
     return content

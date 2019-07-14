@@ -33,17 +33,17 @@ class Runner:
     ADJUDICATE = 1
 
     def __init__(self):
-        self.mode = None
+        self.cmd = None
 
     def annotate(self):
-        self.mode = Runner.ANNOTATE
+        self.cmd = Runner.ANNOTATE
         args = self._parse_args()
         args = self._process_args(args)
         self._prepare_app(args)
         self._run(args)
 
     def adjudicate(self):
-        self.mode = Runner.ADJUDICATE
+        self.cmd = Runner.ADJUDICATE
         args = self._parse_args()
         args = self._process_args(args)
         self._prepare_app(args)
@@ -53,7 +53,7 @@ class Runner:
         parser = argparse.ArgumentParser()
         parser.add_argument("lang", help="language code")
         parser.add_argument("data", help="directory of tsv files to annotate")
-        if self.mode == self.ANNOTATE:
+        if self.cmd == self.ANNOTATE:
             parser.add_argument("-o", "--output", help="optional output directory for annotations (default is data/annotations")
         else:
             parser.add_argument('annotations', nargs='*', help="directories with annotation files")
@@ -78,7 +78,7 @@ class Runner:
         if not os.path.exists(args.output):
             os.makedirs(args.output)
 
-        if self.mode == self.ADJUDICATE:
+        if self.cmd == self.ADJUDICATE:
             self._check_adjudicate_args(args)
 
         if not args.port:
@@ -130,11 +130,11 @@ class Runner:
             os.makedirs(local_md_dir)
         app.config['dragonfly.local_md_dir'] = local_md_dir
 
-        if self.mode == self.ADJUDICATE:
-            app.config['dragonfly.mode'] = 'adjudicate'
+        if self.cmd == self.ADJUDICATE:
+            app.config['dragonfly.cmd'] = 'adjudicate'
             app.config['dragonfly.annotation_dirs'] = args.annotations
         else:
-            app.config['dragonfly.mode'] = 'annotate'
+            app.config['dragonfly.cmd'] = 'annotate'
 
         app.locator = ResourceLocator(app.config)
         app.locator.local_search.load_index(bg=True, build=True)
@@ -156,12 +156,12 @@ class Runner:
         return json.dumps(value)
 
     def _run(self, args):
-        if self.mode == self.ANNOTATE:
+        if self.cmd == self.ANNOTATE:
             print(" * Annotating {}".format(args.data))
-            app.logger.info("Running in annotate mode")
+            app.logger.info("Running annotate command")
         else:
             print(" * Adjudicating {}".format(args.data))
-            app.logger.info("Running in adjudicate mode")
+            app.logger.info("Running adjudicate command")
         app.logger.info('Loading from %s and saving to %s', args.data, args.output)
         if args.debug:
             self._config_debug_logging()
