@@ -86,7 +86,7 @@ def delete_translation():
 
 
 @app.route('/translations/get/<lang>')
-def translations(lang):
+def get_translations(lang):
     trans = app.locator.translation_manager.get(lang)
     return flask.jsonify(trans)
 
