@@ -95,11 +95,16 @@ class TranslationDictManager:
         with open(filename, 'r', encoding='utf8') as fp:
             reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
             for row in reader:
-                if len(row) != 3:
+                if len(row) == 2:
+                    if row[PHRASE] not in trans_dict:
+                        count += 1
+                        trans_dict[row[PHRASE]] = [row[TRANS], '']
+                elif len(row) == 3:
+                    if row[PHRASE] not in trans_dict:
+                        count += 1
+                        trans_dict[row[PHRASE]] = [row[TRANS], row[TYPE]]
+                else:
                     print("Warning: row without 3 columns")
                     continue
-                if row[PHRASE] not in trans_dict:
-                    count += 1
-                    trans_dict[row[PHRASE]] = [row[TRANS], row[TYPE]]
         self.save(lang, trans_dict)
         return count
