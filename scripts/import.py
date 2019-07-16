@@ -19,8 +19,8 @@ import os
 import sys
 
 # don't assume the user has install dragonfly
-sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
-import dragonfly
+sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, 'dragonfly'))
+import translations
 
 MIN_PYTHON = (3, 0)
 if sys.version_info < MIN_PYTHON:
@@ -36,6 +36,6 @@ if not os.path.exists(args.filename):
 
 args.lang = args.lang.lower()
 home_dir = os.path.join(os.path.expanduser("~"), '.dragonfly')
-tdm = dragonfly.translations.TranslationDictManager(home_dir)
+tdm = translations.TranslationDictManager(home_dir)
 num_items = tdm.import_tsv(args.lang, args.filename)
 print("Imported {} items".format(num_items))
