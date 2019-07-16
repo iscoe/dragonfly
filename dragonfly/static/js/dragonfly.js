@@ -1287,7 +1287,7 @@ dragonfly.Highlighter = class Highlighter {
     constructor(tagTypes, search) {
         this.tagTypes = tagTypes;
         this.search = search;
-        this.isCascade = true;
+        this.isCascade = $("#cascade").prop("checked");
         this.clickMode = dragonfly.ClickMode.TAG;
         this.prevClickMode = dragonfly.ClickMode.TAG;
         this.currentTagType = this.tagTypes.getStartTagType();
