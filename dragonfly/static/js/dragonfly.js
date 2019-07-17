@@ -872,6 +872,7 @@ dragonfly.ContextMenu = class ContextMenu {
             type: 'POST',
             data: JSON.stringify(data),
             dataType: 'json',
+            contentType: "application/json; charset=utf-8", // to prevent jsonp for strings with ??
             success: function(response) {
                 if (response.success) {
                     dragonfly.showStatus('success', response.message);
