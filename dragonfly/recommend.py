@@ -255,7 +255,10 @@ class TaggedTokenFrequencies:
             self.corpus_data = self._load_corpus_data()
         word = word.lower()
         if word in self.corpus_data.counts and word in self.corpus_data.tagged_counts:
-            return self.corpus_data.tagged_counts[word] / self.corpus_data.counts[word]
+            try:
+                return self.corpus_data.tagged_counts[word] / self.corpus_data.counts[word]
+            except ZeroDivisionError:
+                return 0
         else:
             return 0
 
