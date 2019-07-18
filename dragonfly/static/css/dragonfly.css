@@ -191,6 +191,9 @@ body {
 .df-searchbox-wikipedia > p {
     margin-top: 14px;
 }
+.df-searchbox-google {
+    padding-top: 14px;
+}
 .df-searchbox-wikipedia form.gsc-search-box, .df-searchbox-wikipedia table.gsc-search-box {
     margin-bottom: 0;
 }

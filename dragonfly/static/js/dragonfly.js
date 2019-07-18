@@ -428,13 +428,23 @@ dragonfly.Notepad = class Notepad {
  * Search mode configuration
  */
 dragonfly.SearchMode = class SearchMode {
-    constructor(name, initializeFunc = null) {
+    constructor(name, initializeFunc = null, resetFunc = null) {
         this.name = name;
         this.initializeFunc = initializeFunc;
         this.initialized = initializeFunc == null;
-        this.button = '#df-search-use-' + name;
-        this.searchBox = '.df-searchbox-' + name;
-        this.results = '.df-results-' + name;
+        this.button = $('#df-search-use-' + name);
+        this.searchBox = $('.df-searchbox-' + name);
+        this.results = $('.df-results-' + name);
+        if (resetFunc) {
+            this.resetFunc = resetFunc;
+        } else {
+            this.resetFunc = this.reset;
+        }
+    }
+
+    reset() {
+        this.searchBox.find('input[type="text"]').val('');
+        this.results.html('');
     }
 };
 
@@ -451,9 +461,14 @@ dragonfly.Search = class Search {
         this.settings = settings;
         this.modes = {
             'local': new dragonfly.SearchMode('local'),
-            'wikipedia': new dragonfly.SearchMode('wikipedia', function() {self.initializeWikipedia();}),
-            'google': new dragonfly.SearchMode('google', function() {self.initializeGoogle();}),
-            'gmaps': new dragonfly.SearchMode('gmaps', function() {self.initializeGMaps();}),
+            'wikipedia': new dragonfly.SearchMode('wikipedia', self.initializeWikipedia, function() {
+                $('#___gcse_1').hide();
+                $('.df-searchbox-wikipedia').find('input[type="text"]').val('');
+            }),
+            'google': new dragonfly.SearchMode('google', self.initializeGoogle, function(){}),
+            'gmaps': new dragonfly.SearchMode('gmaps', function() { self.initializeGMaps(); }, function() {
+                $('.df-searchbox-gmaps').find('input[type="text"]').val('');
+            }),
             'geonames': new dragonfly.SearchMode('geonames'),
             'dict': new dragonfly.SearchMode('dict'),
         };
@@ -532,7 +547,7 @@ dragonfly.Search = class Search {
         });
 
         Object.values(this.modes).forEach(mode => {
-            $(mode.button).on('click', function() {
+            mode.button.on('click', function() {
                 $(this).blur();
                 self.use(mode);
             });
@@ -568,15 +583,16 @@ dragonfly.Search = class Search {
         }
         Object.values(this.modes).forEach(mode => {
             if (selectedMode == mode) {
-                $(mode.searchBox).show().css('display', 'inline-block');
-                $(mode.button).addClass('active');
-                $(mode.results).show();
+                mode.searchBox.show().css('display', 'inline-block');
+                mode.button.addClass('active');
+                mode.resetFunc();
+                mode.results.show();
             } else {
-                $(mode.searchBox).hide();
-                $(mode.button).removeClass('active');
-                $(mode.results).hide();
+                mode.searchBox.hide();
+                mode.button.removeClass('active');
+                mode.results.hide();
             }
-            $(mode.button).on('click', function() {
+            mode.button.on('click', function() {
                 $(this).blur();
             });
         });
@@ -590,10 +606,10 @@ dragonfly.Search = class Search {
     searchFiles(word, manual) {
         var self = this;
         if (!manual) {
-            $('#df-search-local-form').find('input[name="term"]').val(word);
             if (this.currentMode != this.modes.local) {
                 this.use(this.modes.local);
             }
+            $('#df-search-local-form').find('input[name="term"]').val(word);
         }
         $.ajax({
             url: 'search/local',
@@ -657,9 +673,14 @@ dragonfly.Search = class Search {
     initializeWikipedia() {
         var cx = '003899999982319279749:whnyex5nm1c';
         var src = 'https://cse.google.com/cse.js?cx=' + cx;
-        $.getScript(src)
-            .fail(function(jqxhr, settings, exception) {
-                dragonfly.showStatus('danger', 'Unable to contact Google Search');
+        $.getScript(src, function() {
+            window.__gcse.searchCallbacks = {
+                web: {
+                    rendered: function() { $('#___gcse_1').show(); },
+                },
+            };
+        }).fail(function(jqxhr, settings, exception) {
+            dragonfly.showStatus('danger', 'Unable to contact Google Search');
         });
     }
 
