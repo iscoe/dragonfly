@@ -60,7 +60,6 @@ class DocumentRenderer:
         lang = app.config.get('dragonfly.lang')
         lister = app.config.get('dragonfly.input')
         output_path = app.config.get('dragonfly.output')
-        rtl = app.config.get('dragonfly.rtl')
         suggest = app.config.get('dragonfly.suggest')
 
         settings = app.locator.settings

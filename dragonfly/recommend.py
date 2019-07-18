@@ -3,14 +3,12 @@
 # Distributed under the terms of the Apache 2.0 License.
 
 import collections
-import copy
 import csv
 import fnmatch
 import glob
 import logging
 import os
 import pickle
-import random
 
 logger = logging.getLogger(__name__)
 
