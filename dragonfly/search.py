@@ -313,6 +313,7 @@ class DictionarySearch:
         results = []
         for match in matches:
             results.append(match)
+        results.sort()
         return results
 
     def _load(self):
