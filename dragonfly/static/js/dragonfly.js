@@ -457,6 +457,7 @@ dragonfly.Search = class Search {
             'geonames': new dragonfly.SearchMode('geonames'),
             'dict': new dragonfly.SearchMode('dict'),
         };
+        this.currentMode = this.modes.local;
         this._initializeHandlers();
 
         // we load javascript libraries on demand and want to cache them
@@ -559,17 +560,20 @@ dragonfly.Search = class Search {
      * Toggle between search modes
      * @param {Mode} selected_mode - Search mode
      */
-    use(selected_mode) {
-        if (!selected_mode.initialized) {
-            selected_mode.initialized = true;
-            selected_mode.initializeFunc();
+    use(selectedMode) {
+        this.currentMode = selectedMode;
+        if (!selectedMode.initialized) {
+            selectedMode.initialized = true;
+            selectedMode.initializeFunc();
         }
         Object.values(this.modes).forEach(mode => {
-            if (selected_mode == mode) {
+            if (selectedMode == mode) {
                 $(mode.searchBox).show().css('display', 'inline-block');
+                $(mode.button).addClass('active');
                 $(mode.results).show();
             } else {
                 $(mode.searchBox).hide();
+                $(mode.button).removeClass('active');
                 $(mode.results).hide();
             }
             $(mode.button).on('click', function() {
@@ -587,6 +591,9 @@ dragonfly.Search = class Search {
         var self = this;
         if (!manual) {
             $('#df-search-local-form').find('input[name="term"]').val(word);
+            if (this.currentMode != this.modes.local) {
+                this.use(this.modes.local);
+            }
         }
         $.ajax({
             url: 'search/local',
