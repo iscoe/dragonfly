@@ -443,8 +443,20 @@ dragonfly.SearchMode = class SearchMode {
     }
 
     reset() {
-        this.searchBox.find('input[type="text"]').val('');
+        this.getInputBox().val('');
         this.results.html('');
+    }
+
+    getQuery() {
+        return this.getInputBox().val();
+    }
+
+    setQuery(query) {
+        this.getInputBox().val(query);
+    }
+
+    getInputBox() {
+        return this.searchBox.find('input[type="text"]');
     }
 };
 
@@ -461,7 +473,7 @@ dragonfly.Search = class Search {
         this.settings = settings;
         this.modes = {
             'local': new dragonfly.SearchMode('local'),
-            'wikipedia': new dragonfly.SearchMode('wikipedia', self.initializeWikipedia, function() {
+            'wikipedia': new dragonfly.SearchMode('wikipedia', function() { self.initializeWikipedia(); }, function() {
                 $('#___gcse_1').hide();
                 $('.df-searchbox-wikipedia').find('input[type="text"]').val('');
             }),
@@ -473,6 +485,7 @@ dragonfly.Search = class Search {
             'dict': new dragonfly.SearchMode('dict'),
         };
         this.currentMode = this.modes.local;
+        this.currentQuery = null;
         this._initializeHandlers();
 
         // we load javascript libraries on demand and want to cache them
@@ -576,17 +589,27 @@ dragonfly.Search = class Search {
      * @param {Mode} selected_mode - Search mode
      */
     use(selectedMode) {
-        this.currentMode = selectedMode;
         if (!selectedMode.initialized) {
             selectedMode.initialized = true;
             selectedMode.initializeFunc();
         }
         Object.values(this.modes).forEach(mode => {
             if (selectedMode == mode) {
+                mode.resetFunc();
+                if (selectedMode != this.currentMode) {
+                    var query = this.currentMode.getQuery();
+                    if (query) {
+                        this.currentQuery = query;
+                    }
+                    // gmaps and combodict uses autocomplete
+                    if (this.currentQuery && (selectedMode != this.modes.gmaps && selectedMode != this.modes.dict)) {
+                        selectedMode.setQuery(this.currentQuery);
+                    }
+                }
                 mode.searchBox.show().css('display', 'inline-block');
                 mode.button.addClass('active');
-                mode.resetFunc();
                 mode.results.show();
+                mode.getInputBox().focus();
             } else {
                 mode.searchBox.hide();
                 mode.button.removeClass('active');
@@ -596,6 +619,7 @@ dragonfly.Search = class Search {
                 $(this).blur();
             });
         });
+        this.currentMode = selectedMode;
      }
 
     /**
@@ -671,9 +695,21 @@ dragonfly.Search = class Search {
      * Load the custom Google search engine for Wikipedia
      */
     initializeWikipedia() {
+        var self = this;
         var cx = '003899999982319279749:whnyex5nm1c';
         var src = 'https://cse.google.com/cse.js?cx=' + cx;
         $.getScript(src, function() {
+            window.__gcse.initializationCallback = function() {
+                $('input[type="text"].gsc-input').css({
+                    background: "none",
+                    textIndent: "0px"
+                });
+                $('input[type="text"].gsc-input').attr('placeholder', 'Search');
+                if (self.currentQuery) {
+                    self.modes.wikipedia.setQuery(self.currentQuery);
+                }
+                self.modes.wikipedia.getInputBox().focus();
+            };
             window.__gcse.searchCallbacks = {
                 web: {
                     rendered: function() { $('#___gcse_1').show(); },
