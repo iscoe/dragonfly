@@ -63,6 +63,7 @@ class DocumentRenderer:
         suggest = app.config.get('dragonfly.suggest')
 
         settings = app.locator.settings
+        lister.reload()
         if settings['Use Recommendation Order']:
             rec = app.locator.recommender.get_latest(True)
             lister.filenames = [x.path for x in rec.items]

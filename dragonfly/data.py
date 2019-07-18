@@ -13,11 +13,15 @@ class FileLister:
     """
     def __init__(self, path, file_ext):
         self.path = path
-        pattern = '*' + file_ext
-        self.filenames = [x for x in glob.glob(os.path.join(path, pattern)) if os.path.isfile(x)]
+        self.file_ext = file_ext
+        self.reload()
+
+    def reload(self):
+        pattern = '*' + self.file_ext
+        self.filenames = [x for x in glob.glob(os.path.join(self.path, pattern)) if os.path.isfile(x)]
         self.filenames = sorted(self.filenames)
         if self.size() == 0:
-            raise ValueError("No files for directory {} with extension {}".format(path, file_ext))
+            raise ValueError("No files for directory {} with extension {}".format(self.path, self.file_ext))
 
     def get_filename(self, index):
         if index < len(self.filenames):
