@@ -7,10 +7,12 @@ import copy
 import csv
 import fnmatch
 import glob
+import logging
 import os
 import pickle
 import random
 
+logger = logging.getLogger(__name__)
 
 FileStat = collections.namedtuple('FileStat', 'sentences words')
 
@@ -43,14 +45,14 @@ class Recommender:
     """
     Recommendations of what documents to annotate next.
 
-    Two default recommendations are random and natural.
+    Two automatically provided recommendations are default and annotated.
     """
     DIR = 'recommendations'
     FILE_STATS = '.file.stats'
     FILE_LATEST = '.latest'
     LATEST = 'Latest'
-    NATURAL = 'Natural'
-    RANDOM = 'Random'
+    DEFAULT = 'Default'
+    ANNOTATED = 'Annotated'
     NEWS_ID = '_NW_'
 
     def __init__(self, filenames, annotation_dir, metadata_dir):
@@ -72,7 +74,7 @@ class Recommender:
         if name:
             return self.get(name, include_complete)
         else:
-            return self.get(self.NATURAL, include_complete)
+            return self.get(self.DEFAULT, include_complete)
 
     def get(self, name, include_complete=False):
         """
@@ -83,8 +85,8 @@ class Recommender:
         """
         rec = self._load_rec(name)
         if not rec:
-            rec = self._load_rec(self.NATURAL)
-        if not include_complete:
+            rec = self._load_rec(self.DEFAULT)
+        if not include_complete and name != self.ANNOTATED:
             annotated_files = [os.path.basename(x)[:-5] for x in glob.glob(os.path.join(self.annotations_dir, '*.anno'))]
             rec = Recommendation(rec.name, rec.config, [x for x in rec.items if x.doc not in annotated_files])
         self._set_latest(rec.name)
@@ -160,23 +162,30 @@ class Recommender:
                 return fp.read()
 
     def _load_rec_list(self):
-        self._list = [self.NATURAL, self.RANDOM]
+        self._list = [self.DEFAULT, self.ANNOTATED]
         self._list.extend(sorted([os.path.basename(x)[:-4] for x in glob.glob(os.path.join(self.rec_dir, '*.rec'))], key=str.lower))
 
     def _load_rec(self, name):
-        if name == self.NATURAL:
+        if name == self.DEFAULT:
             stats = self._get_file_stats()
             items = [RecommendItem(os.path.basename(file), file, stats[file].sentences, stats[file].words, 0) for file in self.content_files]
             rec = Recommendation(name, RecommendConfig.get_empty(), items)
-        elif name == self.RANDOM:
+        elif name == self.ANNOTATED:
             stats = self._get_file_stats()
-            file_list = copy.copy(self.content_files)
-            random.shuffle(file_list)
-            items = [RecommendItem(os.path.basename(file), file, stats[file].sentences, stats[file].words, 0) for file in file_list]
+            # this assumes the annotations are always a sub-directory which dragonfly currently requires
+            data_dir = os.path.dirname(self.annotations_dir)
+            annotated_files = sorted([os.path.join(data_dir, os.path.basename(x)[:-5])
+                               for x in glob.glob(os.path.join(self.annotations_dir, '*.anno'))])
+            print(annotated_files)
+            items = [RecommendItem(os.path.basename(file), file, stats[file].sentences, stats[file].words, 0) for file in annotated_files]
             rec = Recommendation(name, RecommendConfig.get_empty(), items)
         else:
-            with open(os.path.join(self.rec_dir, name + '.rec'), 'rb') as fp:
-                rec = pickle.load(fp)
+            try:
+                with open(os.path.join(self.rec_dir, name + '.rec'), 'rb') as fp:
+                    rec = pickle.load(fp)
+            except FileNotFoundError:
+                logger.warning('Recommendation %s not found', name)
+                return self._load_rec(self.DEFAULT)
         return rec
 
     @staticmethod
