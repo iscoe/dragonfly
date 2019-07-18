@@ -395,6 +395,14 @@ table.gsc-search-box {
 
 .icon-wikipedia-w:before { content: '\f266'; }
 .icon-google:before { content: '\f1a0'; }
+.icon-s:before {
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 16px;
+    content: 'S';
+    margin-left: 0;
+    margin-right: 0;
+}
 
 /* typeahead */
 .tt-menu {
