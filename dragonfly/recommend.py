@@ -174,7 +174,6 @@ class Recommender:
             data_dir = os.path.dirname(self.annotations_dir)
             annotated_files = sorted([os.path.join(data_dir, os.path.basename(x)[:-5])
                                for x in glob.glob(os.path.join(self.annotations_dir, '*.anno'))])
-            print(annotated_files)
             items = [RecommendItem(os.path.basename(file), file, stats[file].sentences, stats[file].words, 0) for file in annotated_files]
             rec = Recommendation(name, RecommendConfig.get_empty(), items)
         else:

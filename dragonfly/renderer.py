@@ -61,6 +61,7 @@ class DocumentRenderer:
         lister = app.config.get('dragonfly.input')
         output_path = app.config.get('dragonfly.output')
         suggest = app.config.get('dragonfly.suggest')
+        single_file = True if filename else False
 
         settings = app.locator.settings
         lister.reload()
@@ -68,7 +69,11 @@ class DocumentRenderer:
         if filename is None and settings['Use Recommendation Order']:
             rec = app.locator.recommender.get_latest(True)
             lister.filenames = [x.path for x in rec.items]
-        index, next_index = self._get_file_indexes(index, lister, filename)
+        if single_file:
+            # this turns off the prev/next buttons
+            index, next_index = 0, None
+        else:
+            index, next_index = self._get_file_indexes(index, lister, filename)
         if index is None:
             return None
         filename = lister.get_filename(index)
