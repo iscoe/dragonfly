@@ -64,7 +64,8 @@ class DocumentRenderer:
 
         settings = app.locator.settings
         lister.reload()
-        if settings['Use Recommendation Order']:
+        # if clicking next with rec order on, only use those files
+        if filename is None and settings['Use Recommendation Order']:
             rec = app.locator.recommender.get_latest(True)
             lister.filenames = [x.path for x in rec.items]
         index, next_index = self._get_file_indexes(index, lister, filename)
