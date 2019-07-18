@@ -359,7 +359,11 @@ class DocumentStats:
             return 0
 
     def get_idf(self, word):
-        return math.log(self.index.num_documents / self.index.get_doc_count(word))
+        try:
+            return math.log(self.index.num_documents / self.index.get_doc_count(word))
+        except ZeroDivisionError:
+            # this means a document was changed or added so uncounted word
+            return 0
 
     def _calculate_tfidf(self):
         self.word_counts = collections.Counter()
@@ -368,4 +372,8 @@ class DocumentStats:
                 self.word_counts.update({word.lower(): 1})
         self.tfidf = {}
         for word in self.word_counts:
-            self.tfidf[word] = self.word_counts[word] * math.log(self.index.num_documents / self.index.get_doc_count(word))
+            try:
+                self.tfidf[word] = self.word_counts[word] * math.log(self.index.num_documents / self.index.get_doc_count(word))
+            except ZeroDivisionError:
+                # this means a document was changed or added so uncounted word
+                self.tfidf[word] = 0
