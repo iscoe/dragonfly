@@ -11,6 +11,7 @@ import logging
 import math
 import os
 import pickle
+import re
 import requests
 
 from .data import Sentence
@@ -306,6 +307,7 @@ class DictionarySearch:
         if column == self.IL:
             index = self.il_index
         elif column == self.ENG:
+            print('english')
             index = self.english_index
         elif column == self.TRANS:
             index = self.trans_index
@@ -325,7 +327,11 @@ class DictionarySearch:
                     self.trans_available = len(row) == 3
                 self.data.append(row)
                 self.il_index[row[self.IL].lower()].append(self.data[-1])
-                self.english_index[row[self.ENG].lower()].append(self.data[-1])
+                # remove prefix
+                english_words = row[self.ENG].split(' | ')
+                english_words = [re.sub(r'[A-Z]{2}_', '', w) for w in english_words]
+                for w in english_words:
+                    self.english_index[w.lower()].append(self.data[-1])
                 if self.trans_available:
                     self.trans_index[row[self.TRANS].lower()].append(self.data[-1])
 
