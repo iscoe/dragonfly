@@ -10,6 +10,9 @@
     <button type="button" id="df-search-use-wikipedia" class="btn btn-default df-navbar-button" title="Wikipedia" aria-label="Wikipedia">
       <span class="icon-wikipedia-w"></span>
     </button>
+    <button type="button" id="df-search-use-google" class="btn btn-default df-navbar-button" title="Google" aria-label="Google">
+      <span class="icon-google"></span>
+    </button>
     <button type="button" id="df-search-use-gmaps" class="btn btn-default df-navbar-button" title="Google Maps" aria-label="Maps">
       <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
     </button>
@@ -33,6 +36,8 @@
   </div>
 
   <div class="df-searchbox df-searchbox-wikipedia"><p class="df-search-label">Wikipedia</p><gcse:searchbox></gcse:searchbox></div>
+
+  <div class="df-searchbox df-searchbox-google"><p class="df-search-label">Google</p></div>
 
   <div class="df-searchbox df-searchbox-gmaps">
     <p class="df-search-label">Google Maps</p>
@@ -84,6 +89,7 @@
 <div class="df-footer-content">
   <div class="df-results df-results-local"></div>
   <div class="df-results df-results-wikipedia"><gcse:searchresults></gcse:searchresults></div>
+  <div class="df-results df-results-google"></div>
   <div class="df-results df-results-gmaps" id="gmaps"></div>
   <div class="df-results df-results-geonames"></div>
   <div class="df-results df-results-dict"></div>

@@ -452,6 +452,7 @@ dragonfly.Search = class Search {
         this.modes = {
             'local': new dragonfly.SearchMode('local'),
             'wikipedia': new dragonfly.SearchMode('wikipedia', function() {self.initializeWikipedia();}),
+            'google': new dragonfly.SearchMode('google', function() {self.initializeGoogle();}),
             'gmaps': new dragonfly.SearchMode('gmaps', function() {self.initializeGMaps();}),
             'geonames': new dragonfly.SearchMode('geonames'),
             'dict': new dragonfly.SearchMode('dict'),
@@ -653,6 +654,13 @@ dragonfly.Search = class Search {
             .fail(function(jqxhr, settings, exception) {
                 dragonfly.showStatus('danger', 'Unable to contact Google Search');
         });
+    }
+
+    /**
+     * Load the iframe for Google search
+     */
+    initializeGoogle() {
+        $('.df-results-google').html('<iframe width="100%" height="600px" src="https://www.google.com/?igu=1"></iframe>');
     }
 
     /**
