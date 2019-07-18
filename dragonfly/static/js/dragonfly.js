@@ -282,21 +282,23 @@ dragonfly.Hints = class Hints {
         var self = this;
         for (var i = 0; i < this.hints.length; i++) {
             try {
-                this.hints[i].regex = new RegExp(this.hints[i].regex);
+                this.hints[i].regex = new RegExp('(' + this.hints[i].regex + ')');
             } catch (e) {
                 dragonfly.showStatus('danger', 'Invalid hint regex: ' + escapeHtml(this.hints[i].regex));
                 this.hints[i].regex = null;
             }
         }
 
+        var span1 = '<span class="df-hint" data-toggle="tooltip" title="';
+        var span2 = '">$1</span>'
         var selector = ".df-main .df-row > div:nth-child(" + this.row + ")";
         $(selector).each(function() {
             for (var i = 0; i < self.hints.length; i++) {
                 var text = $(this).text();
-                var match = text.match(self.hints[i].regex);
-                if (match != null) {
-                    var new_text = '<span class="df-hint" data-toggle="tooltip" title="' + self.hints[i].comment + '">' + match[0] + '</span>';
-                    $(this).html(text.replace(match[0], new_text));
+                var newText = text.replace(self.hints[i].regex, span1 + self.hints[i].comment + span2);
+                if (text != newText) {
+                    $(this).html(newText);
+                    // only replace the first matching regex
                     return;
                 }
             }

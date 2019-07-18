@@ -8,6 +8,7 @@ The second column is the text that explains the hint. The below example is for A
 ^ba &emsp; prefix that represents a preposition 'in' or 'on'
 </code>
 </p>
+<p class="help-block">Only the first hint that matches per token is applied to prevent unexpected behavior.</p>
 <form id="df-hints-form" action="{{ url_for('hints') }}" method="post">
   <div class="form-group">
     <textarea name="hints" class="form-control" rows="8">{{ df_locator.hints.load_raw() }}</textarea>
