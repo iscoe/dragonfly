@@ -69,14 +69,13 @@ class DocumentRenderer:
         if filename is None and settings['Use Recommendation Order']:
             rec = app.locator.recommender.get_latest(True)
             lister.filenames = [x.path for x in rec.items]
+        index, next_index = self._get_file_indexes(index, lister, filename)
+        filename = lister.get_filename(index)
+        if index is None:
+            return None
         if single_file:
             # this turns off the prev/next buttons
             index, next_index = 0, None
-        else:
-            index, next_index = self._get_file_indexes(index, lister, filename)
-        if index is None:
-            return None
-        filename = lister.get_filename(index)
         # remove any path information
         local_filename = os.path.basename(filename)
 
