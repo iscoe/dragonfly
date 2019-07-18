@@ -21,7 +21,9 @@ class Hints:
             with open(self.filename, 'r', encoding='utf8') as fp:
                 reader = csv.reader(fp, delimiter='\t', quoting=csv.QUOTE_NONE)
                 for row in reader:
-                    hints.append({'regex': row[0], 'comment': row[1]})
+                    # protect against malformed hints by checking format
+                    if len(row) == 2:
+                        hints.append({'regex': row[0], 'comment': row[1]})
         return hints
 
     def load_raw(self):
