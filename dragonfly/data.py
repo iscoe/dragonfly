@@ -20,8 +20,16 @@ class FileLister:
         pattern = '*' + self.file_ext
         self.filenames = [x for x in glob.glob(os.path.join(self.path, pattern)) if os.path.isfile(x)]
         self.filenames = sorted(self.filenames)
+        # filenames gets updated for recommendations so we cache the original list
+        self.original_filenames = self.filenames
         if self.size() == 0:
             raise ValueError("No files for directory {} with extension {}".format(self.path, self.file_ext))
+
+    def in_directory(self, filename):
+        # Is this a filename in the directory?
+        result = filename in self.original_filenames
+        result |= self.get_path(filename) is not None
+        return result
 
     def get_filename(self, index):
         if index < len(self.filenames):

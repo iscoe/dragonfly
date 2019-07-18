@@ -58,10 +58,14 @@ def save():
         results = {'success': False, 'message': 'The server did not receive any data.'}
     else:
         annotations = json.loads(data)
-        app.locator.tag_frequencies.update(annotations)
-        app.locator.output_writer.write(annotations)
-        app.logger.info('Saving annotations for %s', annotations['filename'])
-        results = {'success': True, 'message': 'Annotations saved.'}
+        lister = app.config.get('dragonfly.input')
+        if lister.in_directory(annotations['filename']):
+            app.locator.tag_frequencies.update(annotations)
+            app.locator.output_writer.write(annotations)
+            app.logger.info('Saving annotations for %s', annotations['filename'])
+            results = {'success': True, 'message': 'Annotations saved.'}
+        else:
+            results = {'success': False, 'message': 'Wrong document for this server.'}
     return flask.jsonify(results)
 
 
