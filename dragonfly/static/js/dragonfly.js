@@ -26,7 +26,7 @@ dragonfly.Events = {
     SET_TAG_MODE: 'df:set_tag_mode',
     SET_DELETE_MODE: 'df:set_delete_mode',
     SET_SELECT_MODE: 'df:set_select_mode',
-    SET_FIND_MODE: 'df:set_find_mode',
+    TOGGLE_FIND_MODE: 'df:toggle_find_mode',
     TOGGLE_CASCADE: 'df:toggle_cascade',
     UNDO: 'df:undo',
     SAVE: 'df:save',
@@ -93,7 +93,7 @@ dragonfly.EventDispatcher = class EventDispatcher {
                 $(window).trigger(dragonfly.Events.SET_SELECT_MODE);
                 break;
             case 'f':
-                $(window).trigger(dragonfly.Events.SET_FIND_MODE);
+                $(window).trigger(dragonfly.Events.TOGGLE_FIND_MODE);
                 break;
             case 'u':
                 $(window).trigger(dragonfly.Events.UNDO);
@@ -1359,9 +1359,10 @@ dragonfly.Highlighter = class Highlighter {
      * @param {TagTypes} tagTypes - A representation of the tag types.
      * @param {Search} search - Object that manages search.
      */
-    constructor(tagTypes, search) {
+    constructor(tagTypes, search, settings) {
         this.tagTypes = tagTypes;
         this.search = search;
+        this.settings = settings;
         this.isCascade = $("#cascade").prop("checked");
         this.clickMode = dragonfly.ClickMode.TAG;
         this.prevClickMode = dragonfly.ClickMode.TAG;
@@ -1424,11 +1425,16 @@ dragonfly.Highlighter = class Highlighter {
             self.highlightTypeAndClickMode();
         });
 
-        $(window).on(dragonfly.Events.SET_FIND_MODE, function() {
-            self.prevClickMode = self.clickMode;
-            self.clickMode = dragonfly.ClickMode.FINDER;
+        $(window).on(dragonfly.Events.TOGGLE_FIND_MODE, function() {
+            if (self.clickMode == dragonfly.ClickMode.FINDER && !self.settings.isFooterOpenDefault()) {
+                self.clickMode = self.prevClickMode;
+                self.search.hide();
+            } else {
+                self.prevClickMode = self.clickMode;
+                self.clickMode = dragonfly.ClickMode.FINDER;
+                self.search.show();
+            }
             self.highlightTypeAndClickMode();
-            self.search.show();
         });
 
         $(window).on(dragonfly.Events.SAVE, function() {
@@ -1915,7 +1921,7 @@ $(document).ready(function() {
     dragonfly.eventDispatcher = new dragonfly.EventDispatcher(dragonfly.tagTypes);
     dragonfly.settings = new dragonfly.Settings(dragonfly_settings);
     dragonfly.search = new dragonfly.Search(dragonfly.settings);
-    dragonfly.highlighter = new dragonfly.Highlighter(dragonfly.tagTypes, dragonfly.search);
+    dragonfly.highlighter = new dragonfly.Highlighter(dragonfly.tagTypes, dragonfly.search, dragonfly.settings);
     dragonfly.highlighter.initializeHighlight();
     dragonfly.annotationSaver = new dragonfly.AnnotationSaver(dragonfly.filename, dragonfly.settings,
         dragonfly.highlighter, dragonfly_terminal_blank_line, view_only);
