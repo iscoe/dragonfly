@@ -179,7 +179,7 @@ class Runner:
     def _calc_column_width(rows, index, max_column_width):
         token_length = len(rows[0].strings[index])
         widest_value = max([len(x.strings[index]) for x in rows])
-        return min([int(2 * token_length), max_column_width])
+        return min([int(3 * token_length), max_column_width])
 
     def _run(self, args):
         if self.cmd == self.ANNOTATE:
