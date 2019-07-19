@@ -20,8 +20,8 @@ import os
 import sys
 
 # don't assume the user has install dragonfly
-sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
-import dragonfly
+sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, 'dragonfly'))
+import translations
 
 MIN_PYTHON = (3, 0)
 if sys.version_info < MIN_PYTHON:
@@ -39,9 +39,9 @@ if os.path.exists(output_filename) and not args.force:
     sys.exit("Error: {} already exists. Run with -f to force it to overwrite".format(output_filename))
 
 if args.dictionary:
-    num_items = dragonfly.TranslationDictManager.export_external(args.dictionary, output_filename)
+    num_items = translations.TranslationDictManager.export_external(args.dictionary, output_filename)
 else:
     home_dir = os.path.join(os.path.expanduser("~"), '.dragonfly')
-    tdm = dragonfly.TranslationDictManager(home_dir)
+    tdm = translations.TranslationDictManager(home_dir)
     num_items = tdm.export(args.lang, output_filename)
 print("Exported {} items".format(num_items))
