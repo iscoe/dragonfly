@@ -88,7 +88,7 @@ class TranslationDictManager:
         self.save(lang, trans_dict)
         return count
 
-    def import_tsv(self, lang, filename):
+    def import_tsv(self, lang, filename, force=False):
         PHRASE, TRANS, TYPE = [0, 1, 2]
         trans_dict = self.get(lang)
         count = 0
@@ -99,12 +99,18 @@ class TranslationDictManager:
                     if row[PHRASE] not in trans_dict:
                         count += 1
                         trans_dict[row[PHRASE]] = [row[TRANS], '']
+                    elif force:
+                        count += 1
+                        trans_dict[row[PHRASE]] = [row[TRANS], '']
                 elif len(row) == 3:
                     if row[PHRASE] not in trans_dict:
                         count += 1
                         trans_dict[row[PHRASE]] = [row[TRANS], row[TYPE]]
+                    elif force:
+                        count += 1
+                        trans_dict[row[PHRASE]] = [row[TRANS], row[TYPE]]
                 else:
-                    print("Warning: row without 3 columns")
+                    print("Warning: row without 2 or 3 columns")
                     continue
         self.save(lang, trans_dict)
         return count

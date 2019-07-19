@@ -29,6 +29,7 @@ if sys.version_info < MIN_PYTHON:
 parser = argparse.ArgumentParser()
 parser.add_argument("lang", help="3 letter language code")
 parser.add_argument("filename", help="tsv filename")
+parser.add_argument("-f", "--force", help="force an overwrite of existing entries", action="store_true")
 args = parser.parse_args()
 
 if not os.path.exists(args.filename):
@@ -37,5 +38,5 @@ if not os.path.exists(args.filename):
 args.lang = args.lang.lower()
 home_dir = os.path.join(os.path.expanduser("~"), '.dragonfly')
 tdm = translations.TranslationDictManager(home_dir)
-num_items = tdm.import_tsv(args.lang, args.filename)
+num_items = tdm.import_tsv(args.lang, args.filename, args.force)
 print("Imported {} items".format(num_items))
