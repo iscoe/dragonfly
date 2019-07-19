@@ -373,7 +373,9 @@ class PhrasesSearch:
     def _load(self):
         self.loaded = True
         with open(self.filename, 'r', encoding='utf8') as fp:
-            self.index = json.load(fp)
+            data = json.load(fp)
+            for k, v in data.items():
+                self.index[k] = v
 
     def copy(self, data):
         with open(self.filename, 'w', encoding='utf-8') as fp:

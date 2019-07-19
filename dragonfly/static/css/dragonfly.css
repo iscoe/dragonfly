@@ -227,6 +227,16 @@ table.gsc-search-box {
 .df-results-google > iframe {
     border: 0;
 }
+.df-phrases-list {
+    margin: 10px;
+}
+.df-phrases-list > div {
+    border: 1px solid #e7e7e7;
+}
+
+.df-phrases-list > div > div {
+    padding: 5px;
+}
 .df-results-count {
     color: #777;
     margin-left: 40px;

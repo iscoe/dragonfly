@@ -181,6 +181,8 @@ def import_combodict():
 def search_phrases():
     term = flask.request.form['term']
     results = app.locator.phrases_search.retrieve(term)
+    for result in results:
+        result['il'] = result['il'].replace(term, '<span class="df-result-highlight">' + term + '</span>')
     app.logger.info('Returned %d results from phrases search for %s', len(results), term)
     return flask.render_template('search/phrases.html', results=results)
 
