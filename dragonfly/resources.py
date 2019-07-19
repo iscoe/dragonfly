@@ -6,7 +6,7 @@ import copy
 from .components import Hints, Notepad, SentenceMarkerManager, Stats
 from .data import OutputWriter
 from .recommend import Recommender, TaggedTokenFrequencies
-from .search import DictionarySearch, GeonamesSearch, LocalSearch
+from .search import DictionarySearch, GeonamesSearch, LocalSearch, PhrasesSearch
 from .settings import GlobalSettingsManager, LocalSettingsManager
 from .translations import TranslationDictManager
 
@@ -25,6 +25,7 @@ class ResourceLocator:
         self.output_writer = OutputWriter(config.get('dragonfly.output'))
         self.tag_frequencies = TaggedTokenFrequencies(config.get('dragonfly.local_md_dir'))
         self._dictionary_search = None
+        self._phrases_search = None
         self._local_search = None
         self._recommender = None
         self._translation_manager = None
@@ -53,6 +54,13 @@ class ResourceLocator:
         if self._dictionary_search is None:
             self._dictionary_search = DictionarySearch(self.config.get('dragonfly.local_md_dir'))
         return self._dictionary_search
+
+    @property
+    def phrases_search(self):
+        # cached
+        if self._phrases_search is None:
+            self._phrases_search = PhrasesSearch(self.config.get('dragonfly.local_md_dir'))
+        return self._phrases_search
 
     @property
     def geonames_search(self):

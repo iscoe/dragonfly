@@ -1,0 +1,7 @@
+<div class="df-results-count">Total instances: {{ results|length }}</div>
+{% for result in results %}
+  <div class="df-result">
+    <div>{{ result['il']}}</div>
+    <div>{{ result['en']}}</div>
+  </div>
+{% endfor %}

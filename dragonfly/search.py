@@ -7,6 +7,7 @@ import concurrent.futures
 import csv
 import fnmatch
 import glob
+import json
 import logging
 import math
 import os
@@ -344,6 +345,41 @@ class DictionarySearch:
             self.english_index.clear()
             self.il_index.clear()
             self.trans_index.clear()
+
+
+class PhrasesSearch:
+    """
+    Search over a bilingual phrase table.
+
+    il word -> [{il -> phrase, eng -> phrase}, ...]
+    """
+    FILENAME = 'phrases.json'
+
+    def __init__(self, metadata_dir):
+        self.filename = os.path.join(metadata_dir, self.FILENAME)
+        self.loaded = False
+        self.index = collections.defaultdict(list)
+
+    @property
+    def available(self):
+        return os.path.exists(self.filename)
+
+    def retrieve(self, term):
+        if not self.loaded:
+            self._load()
+        term = term.lower()
+        return self.index[term]
+
+    def _load(self):
+        self.loaded = True
+        with open(self.filename, 'r', encoding='utf8') as fp:
+            self.index = json.load(fp)
+
+    def copy(self, data):
+        with open(self.filename, 'w', encoding='utf-8') as fp:
+            fp.write(data)
+            self.loaded = False
+            self.index.clear()
 
 
 class DocumentStats:

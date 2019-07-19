@@ -24,6 +24,11 @@
       <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
     </button>
     {% endif %}
+    {% if df_phrases_avail %}
+    <button type="button" id="df-search-use-phrases" class="btn btn-default df-navbar-button" title="Phrases" aria-label="Phrases">
+      <span class="glyphicon glyphicon-cloud" aria-hidden="true"></span>
+    </button>
+    {% endif %}
   </div>
 
   <div class="df-searchbox df-searchbox-local">
@@ -84,6 +89,18 @@
     </form>
   </div>
 
+  <div class="df-searchbox df-searchbox-phrases">
+    <p class="df-search-label">Phrases</p>
+    <form id="df-search-phrases-form" class="navbar-form" role="search">
+      <div class="form-group">
+        <input type="text" id="df-search-phrases-term" name="term" class="form-control df-search-control" placeholder="Search" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-default">Search</button>
+      </div>
+    </form>
+  </div>
+
 </div>
 
 <div class="df-footer-content">
@@ -93,4 +110,5 @@
   <div class="df-results df-results-gmaps" id="gmaps"></div>
   <div class="df-results df-results-geonames"></div>
   <div class="df-results df-results-dict"></div>
+  <div class="df-results df-results-phrases"></div>
 </div>

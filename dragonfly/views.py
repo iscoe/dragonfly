@@ -24,12 +24,14 @@ def inject_dragonfly_context():
     tags = app.config.get('dragonfly.tags')
     locator = app.locator
     dict_available = locator.dictionary_search.available
+    phrases_available = locator.phrases_search.available
     return {
         'df_version': version,
         'df_locator': locator,
         'df_settings': locator.settings,
         'df_tags': tags,
         'df_dict_avail': dict_available,
+        'df_phrases_avail': phrases_available,
     }
 
 
@@ -172,6 +174,24 @@ def import_combodict():
     app.locator.dictionary_search.copy(data)
     results = {'success': True, 'message': 'Loaded the bilingual dictionary for search'}
     app.logger.info('Imported combodict %s', file.filename)
+    return flask.jsonify(results)
+
+
+@app.route('/search/phrases', methods=['POST'])
+def search_phrases():
+    term = flask.request.form['term']
+    results = app.locator.phrases_search.retrieve(term)
+    app.logger.info('Returned %d results from phrases search for %s', len(results), term)
+    return flask.render_template('search/phrases.html', results=results)
+
+
+@app.route('/search/phrases/import', methods=['POST'])
+def import_phrases():
+    file = flask.request.files['phrases']
+    data = file.read().decode('utf-8')
+    app.locator.phrases_search.copy(data)
+    results = {'success': True, 'message': 'Loaded the phrases file for search'}
+    app.logger.info('Imported phrases %s', file.filename)
     return flask.jsonify(results)
 
 
