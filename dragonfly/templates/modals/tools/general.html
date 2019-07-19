@@ -93,3 +93,37 @@
     </script>
   </div>
 </div>
+<div class="row">
+  <div class="col-md-6">
+    <form id="df-phrases-import" class="form-inline" action="{{ url_for('import_phrases') }}" method="post" enctype="multipart/form-data">
+      <label class="btn btn-default">
+        Import phrases json<input type="file" id="df-phrases-import-file" name="phrases" class="hidden" accept=".json">
+      </label>
+    </form>
+    <script>
+      $("#df-phrases-import").on('change', function(event) {
+        var form = $("#df-phrases-import");
+        $.ajax({
+          url: form.attr('action'),
+          type: 'POST',
+          data: new FormData(form.get(0)),
+          contentType: false,
+          processData: false,
+          success: function(response) {
+            if (response.success) {
+              dragonfly.showStatus('success', response.message);
+            } else {
+              dragonfly.showStatus('danger', response.message);
+            }
+          },
+          error: function(xhr) {
+            dragonfly.showStatus('danger', 'Error contacting the server');
+          }
+        });
+        event.preventDefault();
+      });
+    </script>
+  </div>
+  <div class="col-md-6">
+  </div>
+</div>

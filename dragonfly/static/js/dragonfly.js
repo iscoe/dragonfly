@@ -483,6 +483,7 @@ dragonfly.Search = class Search {
             }),
             'geonames': new dragonfly.SearchMode('geonames'),
             'dict': new dragonfly.SearchMode('dict'),
+            'phrases': new dragonfly.SearchMode('phrases'),
         };
         this.currentMode = this.modes.local;
         this.currentQuery = null;
@@ -557,6 +558,13 @@ dragonfly.Search = class Search {
         $('#df-search-dict-term').on('typeahead:selected', function(event, term) {
             var column = parseInt($('input[name="dict-column"]:checked').val());
             self.searchDictionary(term, column);
+        });
+
+        $('#df-search-phrases-form').on('submit', function(event) {
+            event.preventDefault();
+            $(this).find('button').blur();
+            var term = $(this).find('input[name="term"]').val();
+            self.searchPhrases(term);
         });
 
         Object.values(this.modes).forEach(mode => {
@@ -684,6 +692,26 @@ dragonfly.Search = class Search {
             dataType: 'html',
             success: function(html) {
                 $('.df-results-dict').html(html);
+            },
+            error: function(xhr) {
+                dragonfly.showStatus('danger', 'Error contacting the server');
+            }
+        });
+    }
+
+    /**
+     * Search parallel phrases concordance
+     * @param {string} word - Search term
+     */
+    searchPhrases(word) {
+        var self = this;
+        $.ajax({
+            url: '/search/phrases',
+            type: 'POST',
+            data: {'term': word},
+            dataType: 'html',
+            success: function(html) {
+                $('.df-results-phrases').html(html);
             },
             error: function(xhr) {
                 dragonfly.showStatus('danger', 'Error contacting the server');
