@@ -548,7 +548,7 @@ dragonfly.Search = class Search {
             limit: 10,
             source: function(query, syncResults, asyncResults) {
                 var column = parseInt($('input[name="dict-column"]:checked').val());
-                $.get('/search/dict/autocomplete', {term: query, column: column}, function(data) {
+                $.get('search/dict/autocomplete', {term: query, column: column}, function(data) {
                     return asyncResults(data);
                 });
             }
@@ -686,7 +686,7 @@ dragonfly.Search = class Search {
     searchDictionary(word, column) {
         var self = this;
         $.ajax({
-            url: '/search/dict',
+            url: 'search/dict',
             type: 'POST',
             data: {'term': word, 'column': column},
             dataType: 'html',
@@ -706,7 +706,7 @@ dragonfly.Search = class Search {
     searchPhrases(word) {
         var self = this;
         $.ajax({
-            url: '/search/phrases',
+            url: 'search/phrases',
             type: 'POST',
             data: {'term': word},
             dataType: 'html',
