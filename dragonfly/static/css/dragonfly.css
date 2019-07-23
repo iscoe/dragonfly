@@ -482,6 +482,22 @@ table.gsc-search-box {
     border-right: 5px solid #333;
     border-left: none;
 }
+
+.df-mode-simple .df-sentence {
+    white-space: normal;
+    border-top: 2px solid #e7e7e7;
+}
+.df-mode-simple .df-sentence-id {
+    border-top: none;
+}
+.df-mode-simple .df-section {
+    border-top: none;
+    border-bottom: none;
+}
+.df-mode-simple .df-section:last-of-type {
+    border-right: none;
+}
+
 .df-mode-simple .df-find, .df-mode-simple #df-tools-button, .df-mode-simple #df-settings-button,
 .df-mode-simple #df-stats-button, .df-mode-simple .df-footer {
     display: none;
