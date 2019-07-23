@@ -172,7 +172,9 @@ class Runner:
 
     def _preprocess_text(self, value):
         if self.suppress_dict_labels:
+            value = re.sub(r'BEN_[^|]*', '', value)
             value = re.sub(r'[A-Z]{2,3}_', '', value)
+            value = value.replace(' | |', '')
         return value
 
     @staticmethod
