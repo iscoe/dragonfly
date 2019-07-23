@@ -172,7 +172,7 @@ class Runner:
 
     def _preprocess_text(self, value):
         if self.suppress_dict_labels:
-            value = re.sub(r'[A-Z]{2}_', '', value)
+            value = re.sub(r'[A-Z]{2,3}_', '', value)
         return value
 
     @staticmethod
