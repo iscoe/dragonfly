@@ -46,7 +46,7 @@ class AdjudicateAttacher:
             loader = AnnotationLoader(annotations_dir)
             annotations_filename = loader.get(filename)
             if annotations_filename:
-                name = os.path.basename(annotations_dir)
+                name = os.path.basename(os.path.dirname(annotations_dir))
                 document.attach_adj_annotations(name, InputReader(annotations_filename).sentences)
 
 
